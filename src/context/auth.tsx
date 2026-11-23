@@ -1,24 +1,19 @@
-/**
- * Who is signed in. The server is the authority on permissions; the UI only hides what a person
- * can't use, so screens stay uncluttered. Every action is checked again on the server.
- */
 import { createContext, useContext, useState, type ReactNode } from 'react'
-import { useQuery, useQueryClient } from '@tanstack/react-query'
-import { api, ROLES, type Me, type Role } from '@/lib/api'
+import { useQueryClient } from '@tanstack/react-query'
+import { logout, ROLES, type Me, type Role } from '@/lib/api'
 import { readDemoEmail, writeDemoEmail } from '@/lib/demo-session'
+import { useGetMe } from '@/pages/auth/queries'
 
 interface AuthCtx {
   me: Me | undefined
   isLoading: boolean
   error: Error | null
   user: NonNullable<Me['user']> | null
-  /** Sign-in is configured (false = local dev mode, everyone acts as admin) */
   enabled: boolean
   signedIn: boolean
   can: (role: Role) => boolean
   canSwitch: boolean
   signOut: () => Promise<void>
-  /** Local mode only: the email typed on the demo sign-in screen (null = not signed in to the demo) */
   demoEmail: string | null
   demoSignIn: (email: string) => void
 }
@@ -27,7 +22,7 @@ const Ctx = createContext<AuthCtx | null>(null)
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const qc = useQueryClient()
-  const { data: me, isLoading, error } = useQuery({ queryKey: ['auth', 'me'], queryFn: api.me, staleTime: 5 * 60_000, retry: 0 })
+  const { data: me, isLoading, error } = useGetMe()
   const user = me?.user ?? null
   const [demoEmail, setDemoEmail] = useState<string | null>(readDemoEmail)
   const enabled = !!me?.enabled
@@ -42,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     can: (role) => !!user && ROLES.indexOf(user.role) >= ROLES.indexOf(role),
     canSwitch: !!user?.can_switch_accounts,
     signOut: async () => {
-      if (enabled) await api.logout()
+      if (enabled) await logout()
       writeDemoEmail(null)
       setDemoEmail(null)
       qc.clear()

@@ -3,22 +3,27 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-// https://vite.dev/config/
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: { '@': path.resolve(import.meta.dirname, './src') },
-  },
-  server: {
-    // TUNNEL_HOSTS (e.g. ".trycloudflare.com") lets a shared demo copy be opened through a tunnel link
-    allowedHosts: process.env.TUNNEL_HOSTS ? process.env.TUNNEL_HOSTS.split(',') : undefined,
-    // Forward API calls to the FastAPI backend during development
-    // API_TARGET lets a second dev copy point at another backend (e.g. a test database)
-    proxy: {
-      '/api': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
-      // Django admin panel and its static files
-      '/admin': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
-      '/static': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
+const src = path.resolve(import.meta.dirname, './src')
+
+export default defineConfig(({ mode }) => {
+  const sampleData = ['development', 'sample', 'mock'].includes(mode)
+  return {
+    plugins: [react(), tailwindcss()],
+    define: { __SAMPLE_DATA__: JSON.stringify(sampleData) },
+    resolve: {
+      alias: [
+        // npm run dev / build:sample: the same api functions, answered from sample data in the browser
+        ...(sampleData ? [{ find: /^@\/lib\/api$/, replacement: path.join(src, 'sample-data/api.ts') }] : []),
+        { find: '@', replacement: src },
+      ],
     },
-  },
+    server: {
+      allowedHosts: process.env.TUNNEL_HOSTS ? process.env.TUNNEL_HOSTS.split(',') : undefined,
+      proxy: {
+        '/api': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
+        '/admin': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
+        '/static': process.env.API_TARGET ?? 'http://127.0.0.1:8000',
+      },
+    },
+  }
 })

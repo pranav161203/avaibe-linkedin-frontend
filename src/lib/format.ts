@@ -43,7 +43,6 @@ export const DIMENSION_LABELS: Record<string, string> = {
   company: 'Company',
 }
 
-/** Metrics that need audience data on the post */
 export const AUDIENCE_METRICS = new Set([
   'uae_impressions',
   'education_impressions',
@@ -67,7 +66,6 @@ export function fmtPct(v: number | null | undefined): string {
 
 export function fmtMetric(metric: string, v: number | null | undefined): string {
   if (RATE_METRICS.has(metric)) return fmtPct(v)
-  // Estimates are approximate: whole numbers only
   return fmtNumber(v, metric.endsWith('_impressions') ? 0 : 1)
 }
 

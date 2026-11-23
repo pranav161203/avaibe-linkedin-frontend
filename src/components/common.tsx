@@ -7,7 +7,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import type { Classification, Shares, Trend } from '@/lib/api'
 import { cn } from '@/lib/utils'
 
-/** Back to the page the person came from; if they opened this page directly (no earlier page in the app), go to `fallback` */
 export function BackButton({ fallback }: { fallback: string }) {
   const navigate = useNavigate()
   const location = useLocation()
@@ -22,14 +21,11 @@ export function BackButton({ fallback }: { fallback: string }) {
   )
 }
 
-/** Page title, as on Create post: a breadcrumb (section › page), a large bold title and one line of description */
 export function PageHeader({ title, description, actions, eyebrow, back }: {
   title: string
   description?: ReactNode
   actions?: ReactNode
-  /** The sidebar section this page sits in; shown as a breadcrumb */
   eyebrow?: string
-  /** Pages reached from another page (not the sidebar) get a Back button; this is where it goes if there's no page to go back to */
   back?: string
 }) {
   return (
@@ -55,7 +51,6 @@ export function PageHeader({ title, description, actions, eyebrow, back }: {
   )
 }
 
-/** A card's heading in the Create post style: icon tile, title, optional subtitle and something on the right */
 export function CardHeading({ icon, title, sub, action }: { icon: LucideIcon; title: ReactNode; sub?: ReactNode; action?: ReactNode }) {
   return (
     <div className="flex items-start gap-3">
@@ -69,7 +64,6 @@ export function CardHeading({ icon, title, sub, action }: { icon: LucideIcon; ti
   )
 }
 
-/** The small rounded icon tile used in card headings */
 export function IconTile({ icon: Icon, className }: { icon: LucideIcon; className?: string }) {
   return (
     <span className={cn('flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary', className)}>
@@ -78,7 +72,6 @@ export function IconTile({ icon: Icon, className }: { icon: LucideIcon; classNam
   )
 }
 
-/** Kept for compatibility with older callers; tiles are monochrome now, so tone has no effect. */
 export type Tone = 'violet' | 'magenta' | 'green' | 'orange'
 
 export function StatTile({ label, value, hint, icon: Icon }: {
@@ -108,7 +101,6 @@ export function Section({ title, description, actions, children, className, icon
   actions?: ReactNode
   children: ReactNode
   className?: string
-  /** Shown as a small icon tile before the title, as on Create post */
   icon?: LucideIcon
 }) {
   return (
@@ -137,7 +129,6 @@ export function EmptyState({ children, icon: Icon = Sparkles }: { children: Reac
   )
 }
 
-// Status-style badges: label text always shown, so meaning never relies on color alone.
 const CLASS_STYLES: Record<string, string> = {
   'High performer': 'bg-good/15 text-good-fg border-good/30',
   'Above average': 'bg-info/10 text-info-fg border-info/30',
@@ -160,7 +151,6 @@ export function ClassificationBadge({ c, wrap = false }: { c: Classification | n
   )
 }
 
-/** UAE / education / decision-maker shares as compact labelled figures. */
 export function ShareSummary({ shares, impressions }: { shares: Shares; impressions?: number | null }) {
   const items = [
     { label: 'UAE', share: shares.uae_share },
@@ -200,16 +190,12 @@ export function TrendBadge({ trend }: { trend: Trend }) {
 export function SimpleSelect({ value, onChange, options, label, className }: {
   value: string
   onChange: (v: string) => void
-  /** dot: a small red dot after the label, e.g. "something here needs action" (dotLabel is read out to screen readers) */
-  /** count: a quiet number after the label, e.g. how many posts "All" covers */
-  /** countInList: false shows the count only on the closed box, once that option is chosen */
   options: { value: string; label: string; dot?: boolean; dotLabel?: string; count?: number; countInList?: boolean }[]
   label?: string
   className?: string
 }) {
   const dot = (o: { dot?: boolean; dotLabel?: string }) =>
     o.dot ? <span aria-label={o.dotLabel ?? 'Needs action'} title={o.dotLabel} className="size-2 shrink-0 self-center rounded-full bg-bad" /> : null
-  // A quiet number at the right edge: next to the arrow on the closed box, before the tick in the open list
   const count = (o: { count?: number }, inList = false) =>
     o.count != null ? <span className={cn('self-center text-xs text-muted-foreground tabular-nums', inList && 'ml-auto')}>{o.count}</span> : null
   const selected = options.find((o) => o.value === value)
@@ -220,10 +206,8 @@ export function SimpleSelect({ value, onChange, options, label, className }: {
         <SelectTrigger size="sm" className={cn('min-w-28 text-foreground', className)}>
           <span className="flex flex-1 items-center gap-1.5">
             <SelectValue className="flex-none" />
-            {/* The dot only flags options inside the open list; the closed box shows the count instead (when there is one) */}
             {selected && selected.count == null && dot(selected)}
           </span>
-          {/* The count sits by the arrow */}
           {selected && count(selected)}
         </SelectTrigger>
         <SelectContent>
@@ -240,7 +224,6 @@ export function SimpleSelect({ value, onChange, options, label, className }: {
   )
 }
 
-/** A post's readable ID (P-0042), the same on Publishing, Calendar, Data and the post page */
 export function PostRef({ id, className }: { id: string | null | undefined; className?: string }) {
   if (!id) return null
   return (

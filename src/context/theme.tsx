@@ -1,11 +1,8 @@
-/** Appearance: light (default), dark, or system (follows the computer's setting). */
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 
 export type Theme = 'light' | 'dark' | 'system'
-// New key: everyone starts on Light, whatever was picked while trying earlier designs
 const KEY = 'app.look'
 
-/** Accent colour (palettes live in index.css under :root[data-accent=…]) */
 export const ACCENTS = [
   { value: 'indigo', label: 'Indigo', swatch: '#4f46e5' },
   { value: 'blue', label: 'Blue', swatch: '#2563eb' },
@@ -26,7 +23,6 @@ function readAccent(): Accent {
 }
 const media = () => window.matchMedia('(prefers-color-scheme: dark)')
 
-// Light by default. The app's own choice always wins over browser / Windows dark settings (see index.css).
 function readTheme(): Theme {
   try {
     const v = localStorage.getItem(KEY)
@@ -49,7 +45,6 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const [systemDark, setSystemDark] = useState(() => media().matches)
   const resolved: 'light' | 'dark' = theme === 'system' ? (systemDark ? 'dark' : 'light') : theme
 
-  // Follow the computer's setting live (only matters while "system" is chosen)
   useEffect(() => {
     const m = media()
     const onChange = () => setSystemDark(m.matches)
@@ -65,9 +60,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setThemeState(t)
     try {
       localStorage.setItem(KEY, t)
-    } catch {
-      /* not persisted */
-    }
+    } catch {}
   }
 
   const [accent, setAccentState] = useState<Accent>(readAccent)
@@ -78,9 +71,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     setAccentState(a)
     try {
       localStorage.setItem(ACCENT_KEY, a)
-    } catch {
-      /* not persisted */
-    }
+    } catch {}
   }
 
   return <Ctx.Provider value={{ theme, resolved, setTheme, accent, setAccent }}>{children}</Ctx.Provider>

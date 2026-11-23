@@ -1,7 +1,5 @@
 import type { Suggestion } from '@/lib/api'
 
-/** LinkedIn company-page setup items. They appear as Brand suggestions only while they're not done
- * (ticks saved before the Page checklist page was removed still count as done). */
 export const PAGE_CHECKLIST: { id: string; label: string; why: string; priority: Suggestion['priority'] }[] = [
   { id: 'tagline', label: 'Make the tagline say what you do, for whom and where', why: 'e.g. “Custom software, ERP and school systems for UAE businesses”. Visitors decide in seconds.', priority: 'high' },
   { id: 'button', label: 'Set the page’s custom button (Visit website or Contact us)', why: 'Turns a page visit into a website visit or an enquiry.', priority: 'high' },
@@ -37,7 +35,6 @@ export function checklistSuggestion(item: (typeof PAGE_CHECKLIST)[number]): Sugg
   }
 }
 
-/** Worked out from the posts, not ticked: no post in the last 7 days */
 export function inactiveSuggestion(lastPost: string | undefined): Suggestion {
   return {
     id: 'page:active',

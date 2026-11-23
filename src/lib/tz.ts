@@ -1,8 +1,3 @@
-/**
- * Pure time-zone conversion helpers (no React), using IANA zone rules via Intl,
- * so daylight-saving changes (e.g. London) are handled correctly.
- */
-
 export type Parts = { year: number; month: number; day: number; hour: number; minute: number; weekday: string }
 
 export function partsIn(ts: number, zone: string): Parts {
@@ -28,7 +23,6 @@ export function partsIn(ts: number, zone: string): Parts {
   }
 }
 
-/** Offset of `zone` from UTC at instant `ts`, in milliseconds. */
 export function offsetMs(ts: number, zone: string): number {
   const p = partsIn(ts, zone)
   return Date.UTC(p.year, p.month - 1, p.day, p.hour, p.minute) - Math.floor(ts / 60000) * 60000
@@ -36,24 +30,20 @@ export function offsetMs(ts: number, zone: string): number {
 
 export const pad = (n: number) => String(n).padStart(2, '0')
 
-/** "YYYY-MM-DDTHH:MM" wall-clock time in `zone` → ISO UTC string for the API. */
 export function zonedInputToIso(local: string, zone: string): string {
   const m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(local)
   if (!m) throw new Error(`Invalid date/time: ${local}`)
   const guess = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5])
-  // Two passes handle daylight-saving boundaries
   let ts = guess - offsetMs(guess, zone)
   ts = guess - offsetMs(ts, zone)
   return new Date(ts).toISOString()
 }
 
-/** ISO UTC → "YYYY-MM-DDTHH:MM" wall-clock time in `zone` (for datetime-local inputs). */
 export function isoToZonedInput(iso: string, zone: string): string {
   const p = partsIn(new Date(iso).getTime(), zone)
   return `${p.year}-${pad(p.month)}-${pad(p.day)}T${pad(p.hour)}:${pad(p.minute)}`
 }
 
-/** Current time in `zone` as "YYYY-MM-DDTHH:MM". */
 export function nowZonedInput(zone: string): string {
   return isoToZonedInput(new Date().toISOString(), zone)
 }
@@ -65,7 +55,6 @@ export function fmt12(hour: number, minute: number): string {
 
 const SLOT_RE = /^(\d{1,2})(?: (AM|PM))?-(\d{1,2}) (AM|PM)$/
 
-/** A UAE slot label like "10 AM-12 PM" re-expressed in `zone` at instant `at` (default now), e.g. "11:30 AM–1:30 PM". */
 export function shiftSlot(uaeSlot: string, zone: string, at: number = Date.now()): string | null {
   const m = SLOT_RE.exec(uaeSlot)
   if (!m) return null

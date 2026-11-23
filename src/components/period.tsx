@@ -5,10 +5,10 @@ import { ArrowDownRight, ArrowRight, ArrowUpRight } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Skeleton } from '@/components/ui/skeleton'
 import type { TimeRange } from '@/components/time-range'
-import { usePageDaily } from '@/hooks/queries'
 import type { PageDay } from '@/lib/api'
 import { fmtNumber, fmtPct } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { useGetPageDaily } from '@/pages/data/queries'
 
 export const ymd = (d: Date) => format(d, 'yyyy-MM-dd')
 export const todayUae = () => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai' }).format(new Date())
@@ -110,7 +110,7 @@ export function comparisonLabel(stats: PeriodStats | null, cmp: Comparison): str
 
 /** The account's daily page data, sorted by date */
 export function useSortedDaily(accountId: number | undefined) {
-  const q = usePageDaily(accountId)
+  const q = useGetPageDaily(accountId)
   const daily = useMemo(() => [...(q.data ?? [])].sort((a, b) => a.date.localeCompare(b.date)), [q.data])
   return { daily, isLoading: q.isLoading }
 }

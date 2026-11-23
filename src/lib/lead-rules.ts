@@ -1,10 +1,7 @@
 import type { Lead, Post, Suggestion } from '@/lib/api'
 
-/** Lead suggestions worked out from the Leads log (and posts, for the topic pattern).
- * Keys include the leads involved, so a new case shows again even after an earlier one was marked done. */
-
 const REPLY_TARGET_HOURS = 24
-const MIN_FOR_PATTERN = 5 // qualified leads linked to a post before a topic pattern is suggested
+const MIN_FOR_PATTERN = 5
 
 const hoursWaiting = (l: Lead, now: number) => (now - new Date(`${l.received_on}T00:00:00+04:00`).getTime()) / 3_600_000
 const open = (l: Lead) => l.stage !== 'won' && l.stage !== 'lost'
@@ -95,7 +92,6 @@ export function leadSuggestions(leads: Lead[], posts: Post[], isCompany: boolean
     })
   }
 
-  // Topic pattern: which post topics bring qualified leads vs how often you post on them
   const linked = leads.filter((l) => l.is_qualified && l.post_topic)
   if (linked.length >= MIN_FOR_PATTERN) {
     const byTopic = new Map<string, number>()

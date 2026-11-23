@@ -1,8 +1,3 @@
-/**
- * Getting the post's visual ready for the AI to look at.
- * Images are shrunk in the browser first (the AI gains nothing from more than ~1,500 px, and smaller files cost less);
- * PDFs are sent as they are, up to 20 MB. Videos can't be read by the AI.
- */
 const MAX_SIDE = 1568
 const MAX_PDF = 20 * 1024 * 1024
 
@@ -25,7 +20,7 @@ export async function prepareForAI(file: File): Promise<File> {
     canvas.width = Math.round(img.naturalWidth * scale)
     canvas.height = Math.round(img.naturalHeight * scale)
     const ctx = canvas.getContext('2d')!
-    ctx.fillStyle = '#ffffff' // transparent areas become white rather than black in a JPEG
+    ctx.fillStyle = '#ffffff'
     ctx.fillRect(0, 0, canvas.width, canvas.height)
     ctx.drawImage(img, 0, 0, canvas.width, canvas.height)
     const blob = await new Promise<Blob>((resolve, reject) => canvas.toBlob((b) => (b ? resolve(b) : reject(new Error('Couldn’t prepare the image'))), 'image/jpeg', 0.85))
@@ -35,7 +30,6 @@ export async function prepareForAI(file: File): Promise<File> {
   }
 }
 
-/** A file saved with the post earlier (fetched back from the app) */
 export async function fetchAsFile(url: string, name: string): Promise<File> {
   const res = await fetch(url, { credentials: 'same-origin' })
   if (!res.ok) throw new Error('Couldn’t load the saved file for the AI')

@@ -1,7 +1,7 @@
 import { createContext, useContext, useEffect, useState, type ReactNode } from 'react'
 import { useAuth } from '@/context/auth'
-import { useAccounts } from '@/hooks/queries'
 import type { Account } from '@/lib/api'
+import { useGetAccounts } from '@/pages/settings/queries'
 
 interface AccountCtx {
   accounts: Account[]
@@ -12,11 +12,9 @@ interface AccountCtx {
 }
 
 const Ctx = createContext<AccountCtx | null>(null)
-// v2: earlier builds remembered the test page; start everyone on the real account once
 const STORAGE_KEY = 'avaibe.accountId.v2'
 
 function readStored(): number | null {
-  // A shared link can open a specific account: ?account=4
   const fromLink = new URLSearchParams(window.location.search).get('account')
   if (fromLink && /^\d+$/.test(fromLink)) return Number(fromLink)
   try {
@@ -29,11 +27,9 @@ function readStored(): number | null {
 
 export function AccountProvider({ children }: { children: ReactNode }) {
   const { signedIn, me } = useAuth()
-  // Only the accounts this person may see come back from the server
-  const { data: accounts = [], isLoading, error } = useAccounts(signedIn)
+  const { data: accounts = [], isLoading, error } = useGetAccounts(signedIn)
   const [accountId, setId] = useState<number | null>(readStored)
 
-  // Nothing valid stored: open the default account (the real company page), then the first real account
   useEffect(() => {
     if (!accounts.length || accounts.some((a) => a.id === accountId)) return
     const fallback =
@@ -45,9 +41,7 @@ export function AccountProvider({ children }: { children: ReactNode }) {
     setId(id)
     try {
       localStorage.setItem(STORAGE_KEY, String(id))
-    } catch {
-      /* storage unavailable: selection just won't persist */
-    }
+    } catch {}
   }
 
   const account = accounts.find((a) => a.id === accountId)

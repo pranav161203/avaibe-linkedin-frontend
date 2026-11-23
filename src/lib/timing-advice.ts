@@ -1,12 +1,7 @@
-/**
- * Posting-time advice for one date: holidays, Ramadan, weekends, and what this account's own past posts say.
- * Shared by the Calendar's day panel and the new/edit post dialog in Publishing.
- */
 import { parseISO } from 'date-fns'
 import type { CalendarData, CalendarItem, DateAdvice } from '@/lib/api'
 
-export const UAE_WEEKEND = new Set([6, 0]) // Saturday, Sunday (since 2022)
-// Start time (UAE) of each 2-hour slot, used to pre-fill a draft from the calendar
+export const UAE_WEEKEND = new Set([6, 0])
 export const SLOT_START: Record<string, string> = {
   '8-10 AM': '08:00',
   '10 AM-12 PM': '10:00',
@@ -16,8 +11,6 @@ export const SLOT_START: Record<string, string> = {
   '6-8 PM': '18:00',
 }
 
-
-/** What kind of day this is for posting, most important first */
 export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData, isPast: boolean) {
   const d = parseISO(day)
   const uae = items.find((i) => i.kind === 'uae_holiday')
@@ -54,7 +47,6 @@ export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData
   if (summer && !uae) {
     lines.push({ tone: 'note', text: 'UAE summer: many residents travel, so activity is usually lower. Judge results against other summer posts.' })
   }
-  // What this account's own past posts say about this kind of day
   if (t.ready && adv) {
     for (const key of adv.labels) {
       const e = t.special[key]
@@ -70,7 +62,6 @@ export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData
     }
   }
   if (isPast) return lines.filter((l) => l.tone !== 'good')
-  // When to post
   if (!t.ready) {
     lines.push({ tone: 'note', text: `${t.reason} Posts imported from a LinkedIn export only have a date.` })
   } else if (adv && !uae && !UAE_WEEKEND.has(d.getDay())) {
@@ -89,6 +80,5 @@ export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData
   return lines
 }
 
-/** A time is only presented as "best" when the model is clear about it AND passed its test on newer posts */
 export const proven = (data: CalendarData, adv: DateAdvice) => data.timing.ready && data.timing.backtest.verdict === 'helps' && adv.clear
 export const pct = (lift: number) => `${lift >= 1 ? '+' : '−'}${Math.round(Math.abs(lift - 1) * 100)}%`
