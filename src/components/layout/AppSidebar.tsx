@@ -94,7 +94,7 @@ export function AppSidebar() {
   const fromCalendar = new URLSearchParams(search).get('from') === 'calendar'
   const isActive = (to: string) => {
     if (to === '/') return pathname === '/'
-    if (to === '/data') return pathname.startsWith('/data') || pathname.startsWith('/import') || pathname.startsWith('/posts')
+    if (to === '/data') return pathname.startsWith('/data') || pathname.startsWith('/import') || pathname.startsWith('/posts') || pathname.startsWith('/compare')
     if (to === '/suggestions/content') return pathname.startsWith('/suggestions')
     if (to === '/publishing') return pathname.startsWith('/publishing') || (pathname.startsWith('/create') && !fromCalendar)
     if (to === '/calendar') return pathname.startsWith('/calendar') || (pathname.startsWith('/create') && fromCalendar)

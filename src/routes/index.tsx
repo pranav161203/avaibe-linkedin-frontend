@@ -15,6 +15,8 @@ export function AppRoutes() {
             <Route path="data" element={<P.DataPage />} />
             <Route path="posts/new" element={<P.NewPostPage />} />
             <Route path="posts/:id" element={<P.PostDetailPage />} />
+            <Route path="compare" element={<P.ComparePostsPage />} />
+            <Route path="compare/periods" element={<P.ComparePeriodsPage />} />
             <Route path="import" element={<P.ImportPage />} />
 
             <Route path="suggestions/:area" element={<P.SuggestionsPage />} />

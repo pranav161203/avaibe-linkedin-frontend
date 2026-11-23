@@ -5,6 +5,8 @@ export const DataPage = lazy(() => import('@/pages/data/DataPage').then((m) => (
 export const ImportPage = lazy(() => import('@/pages/data/ImportPage').then((m) => ({ default: m.ImportPage })))
 export const NewPostPage = lazy(() => import('@/pages/data/NewPostPage').then((m) => ({ default: m.NewPostPage })))
 export const PostDetailPage = lazy(() => import('@/pages/data/PostDetailPage').then((m) => ({ default: m.PostDetailPage })))
+export const ComparePostsPage = lazy(() => import('@/pages/compare/ComparePostsPage').then((m) => ({ default: m.ComparePostsPage })))
+export const ComparePeriodsPage = lazy(() => import('@/pages/compare/ComparePeriodsPage').then((m) => ({ default: m.ComparePeriodsPage })))
 
 export const SuggestionsPage = lazy(() => import('@/pages/suggestions/SuggestionsPage').then((m) => ({ default: m.SuggestionsPage })))
 export const CalendarPage = lazy(() => import('@/pages/calendar/CalendarPage').then((m) => ({ default: m.CalendarPage })))

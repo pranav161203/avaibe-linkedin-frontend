@@ -1,6 +1,8 @@
 
 export const PAGE_SIZES = ['10', '25', '50']
 
+export const MAX_COMPARE = 4
+
 export const MIN_FOR_TYPICAL = 5 // posts needed at the same age before "vs typical" is shown
 
 /** Default order: latest post first */

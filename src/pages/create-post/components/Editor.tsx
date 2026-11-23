@@ -41,7 +41,7 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
   const [visibility, setVisibility] = useState<'PUBLIC' | 'CONNECTIONS'>(initial?.visibility ?? 'PUBLIC')
   const [goal, setGoal] = useState<PostGoal | null>(initial?.goal ?? null)
   const [goalMissing, setGoalMissing] = useState(false)
-  const [topic, setTopic] = useState(initial?.topic ?? '')
+  const [topic, setTopic] = useState(initial?.topic ?? params.get('topic')?.slice(0, 200) ?? '')
   const [industry, setIndustry] = useState(initial?.industry ?? '')
   const [cta, setCta] = useState(initial?.cta ?? '')
   const [imageAlt, setImageAlt] = useState(initial?.image_alt ?? '')

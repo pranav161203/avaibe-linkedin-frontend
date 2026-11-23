@@ -81,8 +81,8 @@ export function PlannedCard({
 
   return (
     <div className="rounded-[1.8rem] bg-card p-5">
-      <div className="flex flex-wrap items-start justify-between gap-3">
-        <div className="flex flex-wrap items-center gap-2 text-sm">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="flex min-w-0 flex-1 flex-wrap items-center gap-2 text-sm">
           <PostRef id={p.ref} />
           {showFormat && <Badge variant="outline">{PLANNED_FORMAT_LABELS[p.format]}</Badge>}
           <Badge variant="outline" className={badge.cls}>
@@ -102,7 +102,7 @@ export function PlannedCard({
           {p.goal && <Badge variant="secondary">{POST_GOALS.find((g) => g.value === p.goal)?.label}</Badge>}
           {p.topic && <Badge variant="secondary">{p.topic}</Badge>}
         </div>
-        <div className="flex flex-wrap gap-1.5">
+        <div className="flex shrink-0 flex-wrap gap-1.5 sm:max-w-[55%] sm:justify-end">
           {editable && auth.can('editor') && (
             <Button size="sm" variant="outline" onClick={onEdit}>
               <Pencil /> Edit

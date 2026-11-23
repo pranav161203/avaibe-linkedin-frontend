@@ -1,28 +1,27 @@
 import { Link } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
-import { CircleAlert, Clock, Pencil, Plus, X } from 'lucide-react'
+import { Pencil, Plus, X } from 'lucide-react'
 import { PostRef } from '@/components/common'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { useAuth } from '@/context/auth'
 import type { CalendarData } from '@/lib/api'
 import { fmtNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
-import { dayAdvice, SLOT_START } from '@/lib/timing-advice'
+import { SLOT_START } from '@/lib/timing-advice'
 import { KIND_META } from '../constants'
+import { DayIdeas } from './DayIdeas'
 import { covers, postFormat, plannedFormat, plannedStatus } from '../utils'
 
 export function DayPanel({
   day,
   data,
   accountId,
-  isPast,
   canPlan,
   onClose,
 }: {
   day: string
   data: CalendarData
   accountId: number
-  isPast: boolean
   canPlan: boolean
   onClose: () => void
 }) {
@@ -30,12 +29,12 @@ export function DayPanel({
   const items = data.items.filter((i) => covers(i, day))
   const posts = data.posts.filter((p) => p.date === day)
   const planned = data.planned.filter((p) => p.date === day)
-  const advice = dayAdvice(day, items, data, isPast)
   const adv = data.timing.ready ? data.timing.days[day] : undefined
   const start = (adv && SLOT_START[adv.best_slot]) || '10:00'
   const newAt = new Date(`${day}T${start}:00+04:00`).toISOString()
 
   return (
+    <>
     <div className="rounded-2xl border bg-card p-5 text-sm shadow-sm">
       <div className="flex items-start justify-between gap-2">
         <div>
@@ -68,22 +67,6 @@ export function DayPanel({
             </li>
           ))}
         </ul>
-      )}
-
-      {advice.length > 0 && (
-        <div className="mt-3 space-y-2 border-t pt-3">
-          <div className="text-xs font-medium text-muted-foreground">{isPast ? 'About this day' : 'If you post this day'}</div>
-          {advice.map((a, n) => (
-            <p key={n} className="flex gap-2 text-[13px] leading-snug">
-              {a.tone === 'good' ? (
-                <Clock className="mt-0.5 size-3.5 shrink-0 text-primary" />
-              ) : (
-                <CircleAlert className={cn('mt-0.5 size-3.5 shrink-0', a.tone === 'quiet' ? 'text-warn-fg' : 'text-muted-foreground')} />
-              )}
-              <span>{a.text}</span>
-            </p>
-          ))}
-        </div>
       )}
 
       <div className="mt-3 space-y-2 border-t pt-3">
@@ -133,5 +116,7 @@ export function DayPanel({
         </Link>
       )}
     </div>
+    {canPlan && <DayIdeas day={day} items={data.items} posts={data.posts} accountId={accountId} newAt={newAt} />}
+    </>
   )
 }

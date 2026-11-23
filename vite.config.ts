@@ -16,6 +16,7 @@ export default defineConfig(({ mode }) => {
         ...(sampleData ? [{ find: /^@\/lib\/api$/, replacement: path.join(src, 'sample-data/api.ts') }] : []),
         { find: '@', replacement: src },
       ],
+      dedupe: ['react', 'react-dom'],
     },
     server: {
       allowedHosts: process.env.TUNNEL_HOSTS ? process.env.TUNNEL_HOSTS.split(',') : undefined,

@@ -33,4 +33,3 @@ export const VISITOR_METRICS: ChartMetric[] = [
 
 export const FOLLOWER_METRICS: ChartMetric[] = [{ value: 'new_followers', label: 'New followers', get: (d) => d.new_followers }]
 
-export const IMPORT_LABEL = { content: 'content', visitors: 'visitors', followers: 'followers' } as const

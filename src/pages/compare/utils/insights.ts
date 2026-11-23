@@ -1,11 +1,3 @@
-/**
- * "What made the difference" for Compare posts and Compare periods.
- *
- * For every factor that differs (time slot, weekday, format, topic, hook, length, hashtags, call to action,
- * holidays and events), the account's own history says whether that factor usually goes with better or worse
- * results: posts with each value are measured against the account's typical post at the same age (median),
- * so different formats and dates are compared fairly. Small samples are labelled, never treated as proof.
- */
 import { format, parseISO } from 'date-fns'
 import type { CalendarItem, Checkpoint, PlannedFormat, Post } from '@/lib/api'
 import { FORMAT_LABELS, fmtNumber } from '@/lib/format'
@@ -24,7 +16,6 @@ export interface NextStep {
   topic?: string
 }
 
-/** For periods the question is "what caused the change", up or down */
 export const CAUSE_LABEL: Record<Evidence, string> = {
   likely: 'Likely a cause',
   possible: 'Possibly a cause',
@@ -39,7 +30,7 @@ export const EVIDENCE_LABEL: Record<Evidence, string> = {
   unknown: 'Not enough history',
 }
 
-const median = (v: number[]) => {
+export const median = (v: number[]) => {
   if (!v.length) return null
   const s = [...v].sort((a, b) => a - b)
   const m = Math.floor(s.length / 2)
@@ -49,10 +40,10 @@ const median = (v: number[]) => {
 export const uaeDay = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai' }).format(new Date(iso))
 export const firstLine = (p: Post) => (p.caption ?? '').split('\n').find((l) => l.trim())?.trim() ?? ''
 export const impAt = (p: Post, cp: Checkpoint) => p.snapshots.find((s) => s.checkpoint === cp)?.impressions ?? null
+export const periodLabel = (from: string, to: string) => `${format(parseISO(from), 'd MMM')} – ${format(parseISO(to), 'd MMM yyyy')}`
 
 const CTA_WORDS = /\b(comment|dm|message us|book|visit|link in|sign up|register|download|reach out|contact|follow us|learn more|demo)\b/i
 
-/** The factors compared, each turning a post into a readable value (null = unknown) */
 export const FACTORS: { key: string; label: string; get: (p: Post, items: Map<string, CalendarItem[]>) => string | null }[] = [
   { key: 'slot', label: 'Time slot', get: (p) => (p.time_known ? p.slot_uae : null) },
   { key: 'weekday', label: 'Day of the week', get: (p) => (p.day_uae ? (['Saturday', 'Sunday'].includes(p.day_uae) ? `${p.day_uae} (UAE weekend)` : p.day_uae) : null) },
@@ -93,7 +84,6 @@ export const FACTORS: { key: string; label: string; get: (p: Post, items: Map<st
   },
 ]
 
-/** Items by UAE date, for quick look-up */
 export function itemsByDate(items: CalendarItem[], from: string, to: string): Map<string, CalendarItem[]> {
   const m = new Map<string, CalendarItem[]>()
   for (const it of items) {
@@ -109,7 +99,6 @@ export function itemsByDate(items: CalendarItem[], from: string, to: string): Ma
   return m
 }
 
-/** How posts with each value of a factor usually do: median of (impressions ÷ the account's typical post), at one age */
 export function factorHistory(history: Post[], cp: Checkpoint, factorKey: string, items: Map<string, CalendarItem[]>) {
   const f = FACTORS.find((x) => x.key === factorKey)!
   const all = history.map((p) => ({ p, v: impAt(p, cp) })).filter((x): x is { p: Post; v: number } => x.v != null)
@@ -126,18 +115,14 @@ export function factorHistory(history: Post[], cp: Checkpoint, factorKey: string
   }
 }
 
-function judge(win: { n: number; lift: number | null }, lose: { n: number; lift: number | null }): { evidence: Evidence; ratio: number | null } {
-  if (win.n < 3 || lose.n < 3 || win.lift == null || lose.lift == null || lose.lift === 0) return { evidence: 'unknown', ratio: null }
-  const ratio = win.lift / lose.lift
-  if (ratio >= 1.25) return { evidence: win.n >= 8 && lose.n >= 8 ? 'likely' : 'possible', ratio }
-  if (ratio > 0.8) return { evidence: 'unlikely', ratio }
-  return { evidence: 'unlikely', ratio }
+function judge(win: { n: number; lift: number | null }, lose: { n: number; lift: number | null }): Evidence {
+  if (win.n < 3 || lose.n < 3 || win.lift == null || lose.lift == null || lose.lift === 0) return 'unknown'
+  if (win.lift / lose.lift >= 1.25) return win.n >= 8 && lose.n >= 8 ? 'likely' : 'possible'
+  return 'unlikely'
 }
 
 const ORDER: Evidence[] = ['likely', 'possible', 'unknown', 'unlikely']
 const lift = (x: number | null) => (x == null ? '—' : `${x.toFixed(1)}×`)
-
-// ---------------------------------------------------------------- posts
 
 export interface PostInsights {
   headline: string
@@ -162,7 +147,6 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
       ? `${ref(win.p)} got ${ratio ? `${ratio.toFixed(1)}×` : 'more than'} the impressions of ${ref(rest[0].p)} at ${ageLabel} (${fmtNumber(win.imp)} vs ${fmtNumber(rest[0].imp)}).`
       : `${ref(win.p)} led with ${fmtNumber(win.imp)} impressions at ${ageLabel}, ${ratio ? `${ratio.toFixed(1)}×` : 'above'} the middle of the others.`
 
-  // A different post may have won on engagement: worth saying, since reach and response aren't the same thing
   const er = (p: Post) => p.snapshots.find((s) => s.checkpoint === cp)?.engagement_rate ?? null
   const byEr = posts.filter((p) => er(p) != null).sort((a, b) => er(b)! - er(a)!)
   const subline =
@@ -180,7 +164,6 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
       same.push(f.label)
       continue
     }
-    // Compare with the others' most common value
     const counts = new Map<string, number>()
     for (const v of others) if (v && v !== wv) counts.set(v, (counts.get(v) ?? 0) + 1)
     const ov = [...counts.entries()].sort((a, b) => b[1] - a[1])[0]?.[0]
@@ -188,7 +171,7 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
     const h = factorHistory(history, cp, f.key, items)
     const hw = h(wv)
     const ho = h(ov)
-    const { evidence } = judge(hw, ho)
+    const evidence = judge(hw, ho)
     const detail =
       evidence === 'unknown'
         ? `Too few of your posts to tell (${hw.n} with “${wv}”, ${ho.n} with “${ov}”).`
@@ -197,7 +180,6 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
   }
   findings.sort((a, b) => ORDER.indexOf(a.evidence) - ORDER.indexOf(b.evidence))
 
-  // What to try next: from what's likely or possibly behind the win
   const next: NextStep[] = []
   const good = findings.filter((f) => f.evidence === 'likely' || f.evidence === 'possible')
   const slot = good.find((f) => f.key === 'slot')
@@ -223,14 +205,11 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
   return { headline, subline, findings, same, next: next.slice(0, 3), caution }
 }
 
-// ---------------------------------------------------------------- periods
-
 export interface PeriodSide {
   from: string
   to: string
   days: number
   posts: Post[]
-  /** Median impressions per post at the shared age */
   perPost: number | null
   formats: Map<string, number>
   topics: Map<string, number>
@@ -270,7 +249,6 @@ export interface PeriodInsights {
   next: NextStep[]
 }
 
-/** Period A (the one being looked at) against period B */
 export function analysePeriods(
   a: PeriodSide,
   b: PeriodSide,
@@ -282,7 +260,6 @@ export function analysePeriods(
 ): PeriodInsights {
   const pct = (x: number | null, y: number | null) => (x != null && y ? ((x - y) / y) * 100 : null)
   const sign = (v: number) => `${v >= 0 ? '+' : ''}${Math.round(v)}%`
-  // Per day, so periods of different lengths compare fairly
   const perDay = (v: number | null, days: number) => (v == null ? null : v / days)
   const impChange = pct(perDay(totalsA.impressions, a.days), perDay(totalsB.impressions, b.days))
   const headline =
@@ -300,7 +277,6 @@ export function analysePeriods(
         }`
 
   const findings: Finding[] = []
-  // 1. How much was posted vs how well each post did: the two halves of reach
   const perWeekA = (a.posts.length / a.days) * 7
   const perWeekB = (b.posts.length / b.days) * 7
   const volChange = pct(perWeekA, perWeekB)
@@ -319,7 +295,6 @@ export function analysePeriods(
       evidence: Math.abs(volChange) < 10 ? 'unlikely' : Math.abs(volChange) >= 20 && impChange != null && Math.sign(volChange) === Math.sign(impChange) ? 'likely' : 'possible',
     })
 
-  // 2. Format and topic mix: what was posted more, and how that usually does
   const shift = (key: 'format' | 'topic', ma: Map<string, number>, mb: Map<string, number>, label: string) => {
     const names = new Set([...ma.keys(), ...mb.keys()])
     let best: { name: string; d: number } | null = null
@@ -344,7 +319,6 @@ export function analysePeriods(
   shift('format', a.formats, b.formats, 'Format mix')
   shift('topic', a.topics, b.topics, 'Topic mix')
 
-  // 3. Holidays, events and periods that only one side had
   const titles = (s: PeriodSide) => new Set(s.events.filter((e) => e.kind !== 'business').map((e) => e.title))
   const onlyA = [...titles(a)].filter((t) => !titles(b).has(t))
   const onlyB = [...titles(b)].filter((t) => !titles(a).has(t))
@@ -366,12 +340,10 @@ export function analysePeriods(
   const fmtFinding = findings.find((f) => f.key === 'format' && f.evidence === 'possible')
   if (fmtFinding) {
     const name = fmtFinding.text.replace(/^(More|Fewer) /, '').replace(/ posts.*$/, '')
-    const fmt = (Object.entries(FORMAT_LABELS).find(([, l]) => l.toLowerCase() === name.toLowerCase())?.[0] ?? undefined) as string | undefined
+    const fmt = Object.entries(FORMAT_LABELS).find(([, l]) => l.toLowerCase() === name.toLowerCase())?.[0]
     const planned = fmt === 'newsletter' ? 'article' : fmt && fmt !== 'untagged' ? (fmt as PlannedFormat) : undefined
     next.push({ text: `Watch the format mix: ${fmtFinding.text.toLowerCase()} lines up with the change.`, format: planned })
   }
   if (!next.length) next.push({ text: 'No single difference stands out. Keep the posting rhythm steady and change one thing at a time.' })
   return { headline, subline, findings, next: next.slice(0, 3) }
 }
-
-export const periodLabel = (from: string, to: string) => `${format(parseISO(from), 'd MMM')} – ${format(parseISO(to), 'd MMM yyyy')}`

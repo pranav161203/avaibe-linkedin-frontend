@@ -1,6 +1,6 @@
 import { useMemo, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ChevronLeft, ChevronRight, ExternalLink, Plus, Search } from 'lucide-react'
+import { ChevronLeft, ChevronRight, ExternalLink, GitCompareArrows, Plus, Search } from 'lucide-react'
 import { Button, buttonVariants } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState, PageHeader, PostRef, SimpleSelect } from '@/components/common'
@@ -12,8 +12,9 @@ import { useTz } from '@/context/timezone'
 import { FORMATS } from '@/lib/api'
 import { FORMAT_LABELS, fmtNumber, fmtPct } from '@/lib/format'
 import { cn } from '@/lib/utils'
+import { CompareBar } from './components/CompareBar'
 import { SortButton, NumTh, Dash, Num, VsTypical } from './components/PostsTableParts'
-import { PAGE_SIZES, DEFAULT_SORT } from './constants/posts'
+import { PAGE_SIZES, DEFAULT_SORT, MAX_COMPARE } from './constants/posts'
 import { postTitle, buildRows, viewsBlankReason, type SortKey, type Row } from './utils/posts'
 import { useGetDueSnapshots, useGetOverview, useGetPosts } from '@/pages/data/queries'
 
@@ -33,6 +34,8 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
   const range = outerRange ?? ownRange
   const [sort, setSort] = useState<{ key: SortKey; desc: boolean }>(DEFAULT_SORT)
   const [pageSize, setPageSize] = useState('10')
+  const [picked, setPicked] = useState<number[]>([])
+  const togglePick = (id: number) => setPicked((cur) => (cur.includes(id) ? cur.filter((x) => x !== id) : cur.length < MAX_COMPARE ? [...cur, id] : cur))
   const [page, setPage] = useState(0)
 
   // One account at a time (switch accounts at the top left)
@@ -78,10 +81,10 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
   }
 
   return (
-    <div className={embedded ? '' : 'mx-auto max-w-7xl'}>
+    <div className={embedded ? '' : 'mx-auto max-w-page'}>
       {!embedded && <PageHeader
         title="Posts"
-        description="Every post with its numbers so far. “vs typical” compares each post with this account’s usual post at the same age."
+        description="Every post with its numbers so far. â€œvs typicalâ€ compares each post with this accountâ€™s usual post at the same age."
         actions={
           auth.can('editor') && (
             <Link to="/posts/new" className={buttonVariants({ size: 'sm' })}>
@@ -134,7 +137,7 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
         <Skeleton className="h-96 rounded-xl" />
       ) : !shown.length ? (
         <EmptyState>
-          {rows.length ? (q.trim() ? `No post matches “${q.trim()}”.` : 'No posts match these filters.') : <>No posts yet. <Link to="/posts/new" className="underline">Log one</Link> or <Link to="/import" className="underline">import LinkedIn’s export</Link>.</>}
+          {rows.length ? (q.trim() ? `No post matches â€œ${q.trim()}â€.` : 'No posts match these filters.') : <>No posts yet. <Link to="/posts/new" className="underline">Log one</Link> or <Link to="/import" className="underline">import LinkedInâ€™s export</Link>.</>}
         </EmptyState>
       ) : (
         <div className="overflow-hidden rounded-[1.8rem] bg-card">
@@ -146,7 +149,12 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
                     className="sticky left-0 z-10 w-[340px] min-w-[300px] bg-card px-4 py-3 font-medium shadow-[1px_0_0_var(--border)]"
                     aria-sort={sort.key === 'date' ? (sort.desc ? 'descending' : 'ascending') : 'none'}
                   >
-                    <SortButton label="Post" k="date" sort={sort} onSort={toggleSort} />
+                    <div className="flex items-center gap-3">
+                      <span className="flex w-4 shrink-0 justify-center text-muted-foreground" title="Tick posts to compare them">
+                        <GitCompareArrows className="size-3.5" />
+                      </span>
+                      <SortButton label="Post" k="date" sort={sort} onSort={toggleSort} />
+                    </div>
                   </th>
                   <th className="px-3 py-3 font-medium">Type</th>
                   <th className="px-3 py-3 font-medium">Audience</th>
@@ -156,14 +164,14 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
                     k="views"
                     sort={sort}
                     onSort={toggleSort}
-                    hint="Video plays and article opens. LinkedIn doesn’t count views for image, text or poll posts."
+                    hint="Video plays and article opens. LinkedIn doesnâ€™t count views for image, text or poll posts."
                   />
                   <NumTh label="Clicks" k="clicks" sort={sort} onSort={toggleSort} />
-                  <NumTh label="CTR" k="ctr" sort={sort} onSort={toggleSort} hint="Clicks ÷ impressions" />
+                  <NumTh label="CTR" k="ctr" sort={sort} onSort={toggleSort} hint="Clicks Ã· impressions" />
                   <NumTh label="Reactions" k="reactions" sort={sort} onSort={toggleSort} />
                   <NumTh label="Comments" k="comments" sort={sort} onSort={toggleSort} />
                   <NumTh label="Reposts" k="reposts" sort={sort} onSort={toggleSort} />
-                  <NumTh label="vs typical" k="vs" sort={sort} onSort={toggleSort} hint="Impressions compared with this account’s usual post at the same age" />
+                  <NumTh label="vs typical" k="vs" sort={sort} onSort={toggleSort} hint="Impressions compared with this accountâ€™s usual post at the same age" />
                 </tr>
               </thead>
               <tbody>
@@ -172,25 +180,38 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
                   return (
                     <tr key={p.id} className="group border-b last:border-0 hover:bg-muted/40">
                       <td className="sticky left-0 z-10 w-[340px] max-w-[340px] min-w-[300px] bg-card px-4 py-3 align-top shadow-[1px_0_0_var(--border)] group-hover:bg-muted">
-                        <Link to={`/posts/${p.id}`} className="line-clamp-2 font-medium text-foreground transition-colors hover:text-primary">
-                          {postTitle(p)}
-                        </Link>
-                        <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
-                          <PostRef id={p.ref} />
-                          <span title={p.time_known ? undefined : 'LinkedIn’s export gives the date only'}>
-                            {p.time_known ? tz.dateTime(p.published_at) : `${p.published_at_uae.slice(0, 10)} (time unknown)`}
-                          </span>
-                          {p.post_url && (
-                            <a href={p.post_url} target="_blank" rel="noreferrer" className="hover:text-foreground" aria-label="Open on LinkedIn" title="Open on LinkedIn">
-                              <ExternalLink className="size-3" />
-                            </a>
-                          )}
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="checkbox"
+                            aria-label={`Compare ${postTitle(p)}`}
+                            title={picked.includes(p.id) ? 'Remove from comparison' : picked.length >= MAX_COMPARE ? `Up to ${MAX_COMPARE} posts can be compared` : 'Add to comparison'}
+                            checked={picked.includes(p.id)}
+                            disabled={!picked.includes(p.id) && picked.length >= MAX_COMPARE}
+                            onChange={() => togglePick(p.id)}
+                            className="mt-1 size-4 shrink-0 cursor-pointer rounded accent-primary disabled:cursor-not-allowed disabled:opacity-40"
+                          />
+                          <div className="min-w-0">
+                            <Link to={`/posts/${p.id}`} className="line-clamp-2 font-medium text-foreground transition-colors hover:text-primary">
+                              {postTitle(p)}
+                            </Link>
+                            <div className="mt-1 flex flex-wrap items-center gap-x-1.5 gap-y-1 text-xs text-muted-foreground">
+                              <PostRef id={p.ref} />
+                              <span title={p.time_known ? undefined : 'LinkedInâ€™s export gives the date only'}>
+                                {p.time_known ? tz.dateTime(p.published_at) : `${p.published_at_uae.slice(0, 10)} (time unknown)`}
+                              </span>
+                              {p.post_url && (
+                                <a href={p.post_url} target="_blank" rel="noreferrer" className="hover:text-foreground" aria-label="Open on LinkedIn" title="Open on LinkedIn">
+                                  <ExternalLink className="size-3" />
+                                </a>
+                              )}
+                            </div>
+                          </div>
                         </div>
                       </td>
                       <td className={cn('px-3 py-3 align-top text-xs', p.format === 'untagged' && 'text-warn-fg')}>{FORMAT_LABELS[p.format]}</td>
                       <td className="px-3 py-3 align-top text-xs">{p.targeted == null ? (
-                          <span className="text-muted-foreground" title="Not known: LinkedIn’s export and hand-logged posts don’t say whether a post was targeted">
-                            —
+                          <span className="text-muted-foreground" title="Not known: LinkedInâ€™s export and hand-logged posts donâ€™t say whether a post was targeted">
+                            â€”
                           </span>
                         ) : p.targeted ? (
                           'Targeted'
@@ -203,7 +224,7 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
                           fmtNumber(r.views)
                         ) : (
                           <span className="text-muted-foreground" title={viewsBlankReason(p.format)}>
-                            —
+                            â€”
                           </span>
                         )}
                       </td>
@@ -222,10 +243,12 @@ export function PostsPage({ embedded = false, range: outerRange }: { embedded?: 
             </table>
           </div>
 
+          <CompareBar picked={picked} onClear={() => setPicked([])} />
+
           {/* Pagination, like LinkedIn's "Show 10" */}
           <div className="flex flex-wrap items-center justify-between gap-3 border-t px-4 py-2.5 text-xs text-muted-foreground">
             <span className="tabular-nums">
-              {current * size + 1}–{Math.min(shown.length, current * size + size)} of {shown.length} posts
+              {current * size + 1}â€“{Math.min(shown.length, current * size + size)} of {shown.length} posts
             </span>
             <div className="flex items-center gap-3">
               <SimpleSelect label="Show" value={pageSize} onChange={resetPage(setPageSize)} options={PAGE_SIZES.map((s) => ({ value: s, label: s }))} />

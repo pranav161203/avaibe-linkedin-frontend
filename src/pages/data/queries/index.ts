@@ -5,7 +5,6 @@ import {
   deletePost,
   deleteSnapshot,
   getDueSnapshots,
-  getLastImports,
   getOverview,
   getPageAudience,
   getPageDaily,
@@ -86,13 +85,6 @@ export const useGetPageDaily = (accountId: number | undefined) => {
   })
 }
 
-export const useGetLastImports = (accountId: number) => {
-  return useQuery({
-    queryKey: ['last-imports', accountId],
-    queryFn: () => getLastImports(accountId),
-    staleTime: 60_000,
-  })
-}
 
 export const useSavePost = (postId?: number) => {
   return useMutation({

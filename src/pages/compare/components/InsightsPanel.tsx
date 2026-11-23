@@ -1,10 +1,9 @@
-/** The top of a comparison: the headline, "What made the difference" (ranked findings) and "What to try next". */
 import type { ReactNode } from 'react'
 import { Link } from 'react-router-dom'
 import { ArrowRight, Lightbulb, Sparkles, TriangleAlert } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
-import { CAUSE_LABEL, EVIDENCE_LABEL, type Evidence, type Finding, type NextStep } from '@/lib/compare-insights'
 import { cn } from '@/lib/utils'
+import { CAUSE_LABEL, EVIDENCE_LABEL, type Evidence, type Finding, type NextStep } from '../utils/insights'
 
 const PILL: Record<Evidence, string> = {
   likely: 'bg-primary/12 text-primary ring-primary/30',
@@ -29,9 +28,7 @@ export function InsightsPanel({
   same?: string[]
   next: NextStep[]
   caution?: string | null
-  /** The "Ask AI why" area, when offered */
   ai?: ReactNode
-  /** Posts: "helped"; periods: "a cause" (results may have gone down) */
   wording?: 'helped' | 'cause'
 }) {
   const LABEL = wording === 'cause' ? CAUSE_LABEL : EVIDENCE_LABEL

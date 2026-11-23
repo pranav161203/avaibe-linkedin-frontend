@@ -55,7 +55,7 @@ export function DashboardPage() {
   const dataLink = (tab: string, extra?: string) => `/data?tab=${tab}&${rangeQs}${extra ? `&${extra}` : ''}`
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-page">
       <PageHeader eyebrow="Overview" title="Dashboard" description={account ? `${account.name}${founders.length ? ` and its ${founders.length} founder profile${founders.length === 1 ? '' : 's'}` : ''}` : undefined} actions={<TimeRangePicker value={range} onChange={setRange} />} />
 
       {isLoading ? (

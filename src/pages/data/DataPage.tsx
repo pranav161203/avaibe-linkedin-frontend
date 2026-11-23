@@ -1,14 +1,14 @@
 import { useMemo } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
 import { format, parseISO } from 'date-fns'
-import { FileUp } from 'lucide-react'
+import { FileUp, GitCompareArrows } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { useAuth } from '@/context/auth'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState, PageHeader } from '@/components/common'
 import { Highlights } from '@/pages/data/components/Highlights'
 import { MetricsChart } from '@/pages/data/components/MetricsChart'
-import { engagementOf, useSortedDaily, usePeriod } from '@/components/period'
+import { comparisonLabel, engagementOf, useSortedDaily, usePeriod, type Comparison } from '@/components/period'
 import { useAccount } from '@/context/account'
 import { PostsPage } from '@/pages/data/PostsPage'
 import { TimeRangePicker, type TimeRange } from '@/components/time-range'
@@ -16,7 +16,6 @@ import { cn } from '@/lib/utils'
 import type { CheckpointQ } from '@/lib/api'
 import { ContentSummary } from './components/ContentSummary'
 import { FollowersTab } from './components/FollowersTab'
-import { LastUpdated } from './components/LastUpdated'
 import { VisitorsTab } from './components/VisitorsTab'
 import { TABS, LEGACY, CONTENT_METRICS } from './constants'
 import { postDate } from './utils'
@@ -37,7 +36,12 @@ export function DataPage() {
   const raw = params.get('tab') ?? 'analytics'
   const tabRaw = LEGACY[raw] ?? raw
   const tab = tabs.some((t) => t.value === tabRaw) ? tabRaw : 'analytics'
-  const setTab = (v: string) => setParams((p) => { p.set('tab', v); p.delete('view'); return p }, { replace: true })
+  const setTab = (v: string) =>
+    setParams((p) => {
+      p.set('tab', v)
+      for (const k of ['view', 'range', 'from', 'to']) p.delete(k)
+      return p
+    }, { replace: true })
 
   // Time range: like LinkedIn's own analytics, kept in the address so it can be shared
   const range: TimeRange = { preset: params.get('range') ?? '30', from: params.get('from') ?? undefined, to: params.get('to') ?? undefined }
@@ -52,7 +56,8 @@ export function DataPage() {
     }, { replace: true })
 
   const { daily, isLoading } = useSortedDaily(id)
-  const { win, stats } = usePeriod(daily, range)
+  const cmp: Comparison = { mode: 'prev' }
+  const { win, stats } = usePeriod(daily, range, cmp)
   const { data: posts = [] } = useGetPosts(id, { checkpoint })
   const periodPosts = useMemo(() => (win ? posts.filter((p) => postDate(p) >= win.from && postDate(p) <= win.to) : []), [posts, win?.from, win?.to]) // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -60,21 +65,25 @@ export function DataPage() {
     <>
       Data for {format(parseISO(win.from), 'd MMM yyyy')} – {format(parseISO(win.to), 'd MMM yyyy')}
       {stats?.partial && <> · LinkedIn data so far runs to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
+      {stats?.prevScaled && <> · the comparison period has a different number of days, so its totals are scaled to match</>}
     </>
   )
-  const compareLabel = stats ? `vs previous ${stats.len} days` : ''
+  const compareLabel = comparisonLabel(stats, cmp)
 
   return (
-    <div className="mx-auto max-w-6xl">
+    <div className="mx-auto max-w-page">
       <PageHeader
         eyebrow="Overview"
         title="Data"
         description="How your posts, page visitors and followers are doing."
         actions={
           <div className="flex items-center gap-2">
-            <TimeRangePicker value={range} onChange={setRange} />
-            {/* Import brings in posts, so it sits with the Posts tab only */}
-            {tab === 'posts' && auth.can('editor') && (
+            {tab === 'analytics' && (
+              <Link to={`/compare/periods?a_from=${win?.from ?? ''}&a_to=${win?.to ?? ''}`} className={buttonVariants({ variant: 'outline', size: 'sm' })}>
+                <GitCompareArrows /> Compare periods
+              </Link>
+            )}
+            {auth.can('editor') && (
               <Link to="/import" className={buttonVariants({ variant: 'outline', size: 'sm' })}>
                 <FileUp /> Import
               </Link>
@@ -100,7 +109,9 @@ export function DataPage() {
             {t.label}
           </button>
         ))}
-        {id && <LastUpdated accountId={id} kind={tab === 'visitors' ? 'visitors' : tab === 'followers' ? 'followers' : 'content'} />}
+        <div className="ml-auto flex flex-wrap items-center justify-end gap-2 self-center pb-2">
+          <TimeRangePicker bare value={range} onChange={setRange} />
+        </div>
       </nav>
 
       {tab === 'posts' ? (

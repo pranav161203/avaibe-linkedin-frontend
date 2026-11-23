@@ -183,7 +183,6 @@ export function CalendarPage() {
               day={selected}
               data={data}
               accountId={account.id}
-              isPast={selected < today}
               canPlan={auth.can('editor') && selected >= today}
               onClose={() => setSelected(null)}
             />

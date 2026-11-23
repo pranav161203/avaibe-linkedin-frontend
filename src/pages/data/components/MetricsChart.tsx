@@ -5,7 +5,7 @@
  */
 import { useMemo, useState } from 'react'
 import { Link, useSearchParams } from 'react-router-dom'
-import { Area, CartesianGrid, ComposedChart, ReferenceArea, XAxis, YAxis } from 'recharts'
+import { Area, CartesianGrid, ComposedChart, Line, ReferenceArea, XAxis, YAxis } from 'recharts'
 import { addDays, differenceInCalendarDays, format, parseISO } from 'date-fns'
 import { CalendarDays, LineChart } from 'lucide-react'
 import { Card, CardContent, CardHeader } from '@/components/ui/card'
@@ -43,7 +43,11 @@ interface Point {
   covered: number
   days: number
   posts: Post[]
+  cmp: number | null
+  cmpKey: string | null
 }
+
+export type CompareLine = { from: string; to: string; label: string } | null
 
 export function MetricsChart({
   daily,
@@ -53,6 +57,7 @@ export function MetricsChart({
   posts = [],
   param = 'metric',
   title = 'Metrics',
+  compare = null,
 }: {
   daily: PageDay[]
   from: string
@@ -62,6 +67,7 @@ export function MetricsChart({
   /** Address parameter holding the chosen metric, so each tab remembers its own */
   param?: string
   title?: string
+  compare?: CompareLine
 }) {
   const [params, setParams] = useSearchParams()
   const metric = metrics.find((m) => m.value === params.get(param)) ?? metrics[0]
@@ -79,7 +85,8 @@ export function MetricsChart({
       const day = addDays(parseISO(from), i)
       if (unit === 'day' || i % 7 === 0) {
         const end = unit === 'day' ? day : addDays(day, Math.min(6, span - 1 - i))
-        points.push({ key: ymd(day), end: ymd(end), label: format(day, 'd MMM'), value: null, covered: 0, days: 0, posts: [] })
+        const cday = compare ? ymd(addDays(parseISO(compare.from), i)) : null
+        points.push({ key: ymd(day), end: ymd(end), label: format(day, 'd MMM'), value: null, covered: 0, days: 0, posts: [], cmp: null, cmpKey: cday && compare && cday <= compare.to ? cday : null })
       }
       const pt = points[points.length - 1]
       pt.days += 1
@@ -88,6 +95,12 @@ export function MetricsChart({
       if (v != null) {
         pt.value = (pt.value ?? 0) + v
         pt.covered += 1
+      }
+      if (compare) {
+        const cd = ymd(addDays(parseISO(compare.from), i))
+        const crow = cd <= compare.to ? byDate.get(cd) : undefined
+        const cv = crow ? metric.get(crow) : null
+        if (cv != null) pt.cmp = (pt.cmp ?? 0) + cv
       }
     }
     for (const p of posts) {
@@ -100,7 +113,7 @@ export function MetricsChart({
     const typical = complete.length ? complete[Math.floor((complete.length - 1) / 2)] : null
     const peak = points.reduce<Point | null>((m, p) => (p.value != null && (!m || p.value > (m.value ?? 0)) ? p : m), null)
     return { points, typical, peak }
-  }, [daily, from, span, unit, metric, posts])
+  }, [daily, from, span, unit, metric, posts, compare?.from, compare?.to]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const markers = (cal?.items ?? []).filter((it) => MARKER_KINDS.has(it.kind))
   const bucketOf = (iso: string) => view.points.find((p) => iso >= p.key && iso <= p.end)?.key
@@ -157,6 +170,11 @@ export function MetricsChart({
               <span className="size-2 rounded-full border-2 border-[var(--chart-current)] bg-card" aria-hidden /> a post went out
             </span>
           )}
+          {compare && (
+            <span className="inline-flex items-center gap-1.5">
+              <span className="w-4 border-t-2 border-dashed border-muted-foreground" aria-hidden /> {compare.label}
+            </span>
+          )}
           {markers.length > 0 && (
             <span className="inline-flex items-center gap-1.5">
               <span className="h-3 w-3 rounded-sm bg-[var(--cal-period)] opacity-40" aria-hidden /> holidays, Ramadan, events
@@ -211,6 +229,9 @@ export function MetricsChart({
                 <XAxis dataKey="key" tickLine={false} axisLine={false} tickMargin={10} fontSize={11} minTickGap={24} tickFormatter={(k: string) => format(parseISO(k), 'd MMM')} />
                 <YAxis tickLine={false} axisLine={false} width={44} fontSize={11} allowDecimals={false} tickFormatter={(v: number) => (v >= 10_000 ? `${Math.round(v / 1000)}K` : fmtNumber(v))} />
                 <ChartTooltip cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1, strokeOpacity: 0.35 }} content={<PointTooltip unit={unit} metric={metric.label} />} />
+                {compare && (
+                  <Line dataKey="cmp" type="monotone" stroke="var(--muted-foreground)" strokeWidth={1.5} strokeDasharray="5 4" dot={false} activeDot={false} connectNulls isAnimationActive={false} />
+                )}
                 <Area
                   dataKey="value"
                   type="monotone"
@@ -261,6 +282,12 @@ function PointTooltip({ active, payload, unit, metric }: { active?: boolean; pay
         <span className="text-muted-foreground">{metric}</span>
         <span className="font-semibold tabular-nums">{p.value == null ? 'No data yet' : fmtNumber(p.value)}</span>
       </div>
+      {p.cmpKey && (
+        <div className="flex justify-between gap-4">
+          <span className="text-muted-foreground">{unit === 'week' ? `Week from ${format(parseISO(p.cmpKey), 'd MMM')}` : format(parseISO(p.cmpKey), 'EEE d MMM yyyy')}</span>
+          <span className="tabular-nums">{p.cmp == null ? 'No data' : fmtNumber(p.cmp)}</span>
+        </div>
+      )}
       {p.posts.length > 0 && (
         <div className="mt-1 text-muted-foreground">
           {p.posts.length} post{p.posts.length === 1 ? '' : 's'} went out

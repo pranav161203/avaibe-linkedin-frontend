@@ -1,8 +1,3 @@
-/**
- * A post's page → "Compare with…": pick the other post in one click.
- * Suggestions are worked out for you (same topic, newest first; same format; the post just before this one),
- * with a search across all of the account's posts for anything else.
- */
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { GitCompareArrows, Search } from 'lucide-react'
@@ -11,9 +6,9 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Input } from '@/components/ui/input'
 import { PostRef } from '@/components/common'
 import { useTz } from '@/context/timezone'
-import { usePosts } from '@/hooks/queries'
 import type { Post } from '@/lib/api'
 import { FORMAT_LABELS, fmtNumber } from '@/lib/format'
+import { useGetPosts } from '@/pages/data/queries'
 
 const firstLine = (p: Post) => (p.caption ?? '').split('\n').find((l) => l.trim())?.trim() || p.topic || p.ref || `Post ${p.id}`
 const newestFirst = (a: Post, b: Post) => b.published_at.localeCompare(a.published_at)
@@ -33,7 +28,7 @@ export function CompareWithPost({ post }: { post: Post }) {
 function Picker({ post, onClose }: { post: Post; onClose: () => void }) {
   const navigate = useNavigate()
   const [q, setQ] = useState('')
-  const { data: all = [], isLoading } = usePosts(post.account_id)
+  const { data: all = [], isLoading } = useGetPosts(post.account_id)
   const others = all.filter((p) => p.id !== post.id)
 
   const groups: { title: string; posts: Post[] }[] = []
@@ -45,10 +40,8 @@ function Picker({ post, onClose }: { post: Post; onClose: () => void }) {
   }
   const needle = q.trim().toLowerCase()
   if (needle) {
-    const hits = others
-      .filter((p) => [p.ref, p.caption, p.topic].some((v) => (v ?? '').toLowerCase().includes(needle)))
-      .sort(newestFirst)
-    groups.push({ title: hits.length ? `Matching “${q.trim()}”` : '', posts: hits.slice(0, 10) })
+    const hits = others.filter((p) => [p.ref, p.caption, p.topic].some((v) => (v ?? '').toLowerCase().includes(needle))).sort(newestFirst)
+    groups.push({ title: `Matching “${q.trim()}”`, posts: hits.slice(0, 10) })
   } else {
     if (post.topic) {
       const sameTopic = take(others.filter((p) => (p.topic ?? '').toLowerCase() === post.topic!.toLowerCase()).sort(newestFirst), 5)
