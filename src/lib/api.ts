@@ -18,6 +18,7 @@ import type {
   IdeasRun,
   IdeasState,
   ImportResult,
+  PlanImportResult,
   LastImports,
   Lead,
   LeadInput,
@@ -184,6 +185,13 @@ export async function deleteSnapshot({ postId, checkpoint }: { postId: number; c
 
 export async function savePostAudience({ postId, rows }: { postId: number; rows: AudienceRow[] }): Promise<Post> {
   const res = await axiosAuth.put(API_ENDPOINTS.POSTS.PUT_AUDIENCE(postId), { rows })
+  return res.data
+}
+
+export const PLAN_TEMPLATE_URL = `${BASE_URL}${API_ENDPOINTS.PLANNER.IMPORT_TEMPLATE}`
+
+export async function importPlan({ accountId, file, confirm }: { accountId: number; file: File; confirm: boolean }): Promise<PlanImportResult> {
+  const res = await axiosAuth.post(API_ENDPOINTS.PLANNER.POST_IMPORT, fileForm(file), { params: { account_id: accountId, confirm: confirm ? 1 : 0 } })
   return res.data
 }
 

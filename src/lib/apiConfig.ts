@@ -71,6 +71,8 @@ const API_ENDPOINTS = {
     IMAGE: (id: number) => `/planner/${id}/image`,
     MEDIA: (id: number) => `/planner/${id}/media`,
     POST_MARK_POSTED: (id: number) => `/planner/${id}/mark-posted`,
+    POST_IMPORT: '/planner/import',
+    IMPORT_TEMPLATE: '/planner/import/template',
   },
   IMPORT: {
     POST_CSV: '/import/csv',

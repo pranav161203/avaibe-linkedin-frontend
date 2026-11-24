@@ -14,6 +14,7 @@ import type {
   Idea,
   IdeasRun,
   ImportResult,
+  PlanImportResult,
   LastImports,
   Lead,
   LeadInput,
@@ -636,6 +637,13 @@ export async function savePostAudience({ postId, rows }: { postId: number; rows:
   p.audience = rows
   p.audience_captured_at = rows.length ? iso() : null
   return saved(A.toPost(db(), p))
+}
+
+// The template still downloads from the backend; reading the file needs it too
+export const PLAN_TEMPLATE_URL = '/api/planner/import/template'
+
+export async function importPlan({ file }: { accountId: number; file: File; confirm: boolean }): Promise<PlanImportResult> {
+  return fail(400, `Sample data: "${file.name}" was not read. Importing posts needs the backend.`)
 }
 
 export async function importCsv({ file }: { accountId: number; file: File }): Promise<ImportResult> {

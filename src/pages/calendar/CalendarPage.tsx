@@ -1,10 +1,11 @@
 import { useMemo, useState } from 'react'
-import { Link, useSearchParams } from 'react-router-dom'
+import { useNavigate, useSearchParams } from 'react-router-dom'
 import { addMonths, eachDayOfInterval, endOfMonth, endOfWeek, format, isSameMonth, parseISO, startOfMonth, startOfWeek } from 'date-fns'
-import { CalendarClock, ChevronLeft, ChevronRight, Plus } from 'lucide-react'
+import { CalendarClock, ChevronDown, ChevronLeft, ChevronRight, FileSpreadsheet, PenLine, Plus } from 'lucide-react'
 import { PageHeader } from '@/components/common'
 import { todayUae, ymd } from '@/components/period'
-import { Button, buttonVariants } from '@/components/ui/button'
+import { Button } from '@/components/ui/button'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu'
 import { Skeleton } from '@/components/ui/skeleton'
 import { useAccount } from '@/context/account'
 import { useAuth } from '@/context/auth'
@@ -12,6 +13,7 @@ import { cn } from '@/lib/utils'
 import { proven, UAE_WEEKEND } from '@/lib/timing-advice'
 import { DayCell } from './components/DayCell'
 import { DayPanel } from './components/DayPanel'
+import { ImportPlanDialog } from './components/ImportPlanDialog'
 import { Legend } from './components/Legend'
 import { TimingNote } from './components/TimingNote'
 import { WEEKDAYS, type Layer } from './constants'
@@ -21,6 +23,8 @@ import { useGetCalendar } from '@/pages/calendar/queries'
 export function CalendarPage() {
   const { account } = useAccount()
   const auth = useAuth()
+  const navigate = useNavigate()
+  const [importing, setImporting] = useState(false)
   const [params, setParams] = useSearchParams()
   const today = todayUae()
   const monthParam = params.get('month')
@@ -83,9 +87,27 @@ export function CalendarPage() {
         description="Your posts, planned posts, holidays and events in one view. Click a day to see what to keep in mind and to plan a post for it."
         actions={
           auth.can('editor') ? (
-            <Link to="/create?from=calendar" className={buttonVariants({ size: 'sm' })}>
-              <Plus /> New post
-            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger render={<Button size="sm" />}>
+                <Plus /> New post <ChevronDown className="opacity-70" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-64">
+                <DropdownMenuItem onClick={() => navigate('/create?from=calendar')}>
+                  <PenLine />
+                  <span>
+                    <span className="block">Write a post</span>
+                    <span className="block text-xs text-muted-foreground">One post in the editor</span>
+                  </span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setImporting(true)}>
+                  <FileSpreadsheet />
+                  <span>
+                    <span className="block">Import from Excel</span>
+                    <span className="block text-xs text-muted-foreground">Plan many posts from a spreadsheet</span>
+                  </span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : undefined
         }
       />
@@ -194,6 +216,7 @@ export function CalendarPage() {
           )}
         </aside>
       </div>
+      {importing && account && <ImportPlanDialog accountId={account.id} accountName={account.name} onClose={() => setImporting(false)} />}
     </div>
   )
 }

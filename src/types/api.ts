@@ -634,6 +634,26 @@ export interface SuggestionsResult {
   suggestions: Suggestion[]
 }
 
+/** Planning posts from the Excel template: every row checked, ready rows saved as Unpublished on confirm */
+export interface PlanImportRow {
+  row: number
+  status: 'ready' | 'error' | 'duplicate'
+  problems: string[]
+  format: string | null
+  goal: PostGoal | null
+  scheduled_at: string | null
+  caption: string
+}
+
+export interface PlanImportResult {
+  rows: PlanImportRow[]
+  ready: number
+  errors: number
+  duplicates: number
+  created: number
+  refs: string[]
+}
+
 export interface ImportResult {
   posts_created: number
   posts_updated: number
