@@ -21,7 +21,6 @@ export const IDEA_TYPE: Record<Idea['type'], string> = {
 }
 
 export const STATUS_LABEL: Record<DecisionStatus, string> = {
-  doing: 'In progress',
   later: 'Later',
   dismissed: 'Dismissed',
   done: 'Done',

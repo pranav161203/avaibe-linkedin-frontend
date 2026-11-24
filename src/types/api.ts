@@ -224,13 +224,43 @@ export interface AccountDoc<K extends keyof AccountDocs> {
   updated_at: string | null
 }
 
-export type DecisionStatus = 'doing' | 'later' | 'dismissed' | 'done'
+export type DecisionStatus = 'later' | 'dismissed' | 'done'
 export interface Decision {
   key: string
   status: DecisionStatus
   until: string | null
   decided_by: string | null
   updated_at: string
+}
+
+/** Brand trends from the web (Claude + web search), one run = a few ideas with their sources */
+export type TrendType = 'industry' | 'policy' | 'news' | 'linkedin' | 'culture' | 'design' | 'format' | 'calendar' | 'voice'
+export interface TrendIdea {
+  title: string
+  trend_type: TrendType
+  trend: string
+  angle: string
+  service: string
+  audiences: ('schools' | 'smes' | 'tech' | 'partners')[]
+  avoid_for: string | null
+  format: string
+  look: string
+  image_prompt: string
+  voice: 'company page' | 'founder'
+  use_by: string
+  risks: string[]
+  confidence: 'high' | 'medium' | 'low'
+  sources: { title: string; url: string; date: string | null }[]
+}
+export interface TrendsRun extends Omit<IdeasRun, 'result'> {
+  result: { ideas: TrendIdea[]; skipped: string[]; searches: number } | null
+}
+export interface TrendsState {
+  configured: boolean
+  latest: TrendsRun | null
+  runs_today: number
+  daily_limit: number
+  running: boolean
 }
 
 export interface IdeasState {

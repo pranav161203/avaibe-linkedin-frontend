@@ -55,16 +55,14 @@ const OVERVIEW: NavItem[] = [
   { to: '/data', label: 'Data', icon: Database, role: 'viewer' },
 ]
 const CONTENT: NavItem[] = [
-  { to: '/suggestions/content', label: 'Suggestions', icon: Lightbulb, role: 'viewer' },
+  { to: '/suggestions', label: 'Suggestions', icon: Lightbulb, role: 'viewer' },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays, role: 'viewer' },
   { to: '/publishing', label: 'Publishing', icon: Send, role: 'viewer' },
 ]
 const BRAND: NavItem[] = [
-  { to: '/brand/suggestions', label: 'Suggestions', icon: Lightbulb, role: 'viewer' },
   { to: '/brand/competitors', label: 'Competitors', icon: Swords, role: 'viewer' },
 ]
 const LEADS: NavItem[] = [
-  { to: '/leads/suggestions', label: 'Suggestions', icon: Lightbulb, role: 'viewer' },
   { to: '/leads/log', label: 'Leads log', icon: Inbox, role: 'viewer' },
   { to: '/leads/pipeline', label: 'Pipeline', icon: Kanban, role: 'viewer' },
   { to: '/leads/results', label: 'Results', icon: TrendingUp, role: 'viewer' },
@@ -86,7 +84,7 @@ export function AppSidebar() {
   const { counts } = useSuggestionItems(account?.id)
   const { data: planned = [] } = useGetPlannedPosts(account?.id)
   const publishingWaiting = planned.filter(needsAction).length
-  const suggestionCount = counts.content
+  const suggestionCount = counts.content + counts.brand + counts.leads + counts.sales
   const auth = useAuth()
   const [help, setHelp] = useState(false)
   const brand = useFoldingSection('/brand')
@@ -95,7 +93,7 @@ export function AppSidebar() {
   const isActive = (to: string) => {
     if (to === '/') return pathname === '/'
     if (to === '/data') return pathname.startsWith('/data') || pathname.startsWith('/import') || pathname.startsWith('/posts') || pathname.startsWith('/compare')
-    if (to === '/suggestions/content') return pathname.startsWith('/suggestions')
+    if (to === '/suggestions') return pathname.startsWith('/suggestions')
     if (to === '/publishing') return pathname.startsWith('/publishing') || (pathname.startsWith('/create') && !fromCalendar)
     if (to === '/calendar') return pathname.startsWith('/calendar') || (pathname.startsWith('/create') && fromCalendar)
     return pathname.startsWith(to)
@@ -114,7 +112,7 @@ export function AppSidebar() {
             <item.icon />
             <span>{item.label}</span>
           </SidebarMenuButton>
-          {item.to === '/suggestions/content' && suggestionCount > 0 && (
+          {item.to === '/suggestions' && suggestionCount > 0 && (
             <SidebarMenuBadge title="Suggestions needing attention">{suggestionCount}</SidebarMenuBadge>
           )}
           {item.to === '/publishing' && publishingWaiting > 0 && (
@@ -152,8 +150,8 @@ export function AppSidebar() {
 
         {(
           [
-            ['Brand', brand, BRAND, counts.brand],
-            ['Leads & sales', leads, LEADS, counts.leads + counts.sales],
+            ['Brand', brand, BRAND, 0],
+            ['Leads & sales', leads, LEADS, 0],
           ] as const
         ).map(([label, sec, items, count]) => (
           <SidebarGroup key={label}>

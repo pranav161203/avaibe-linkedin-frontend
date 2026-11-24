@@ -63,13 +63,15 @@ export const AREAS: { id: AreaId; label: string; icon: LucideIcon; intro: string
   },
 ]
 
-export const OWN_SECTION: Partial<Record<AreaId, string>> = { brand: '/brand', leads: '/leads', sales: '/leads' }
+/** Shown together on the one Suggestions page (a chip each; leads and sales share one) */
+export const COMBINED: AreaId[] = ['content', 'brand', 'leads', 'sales']
+const CHIP: Partial<Record<AreaId, string>> = { content: 'content', brand: 'brand', leads: 'leads', sales: 'leads' }
 
 export function areaPath(area: AreaId): string {
-  return OWN_SECTION[area] ? `${OWN_SECTION[area]}/suggestions` : `/suggestions/${area}`
+  return CHIP[area] ? `/suggestions?area=${CHIP[area]}` : `/suggestions/${area}`
 }
 
-export const SUGGESTION_AREAS = AREAS.filter((a) => !OWN_SECTION[a.id])
+export const SUGGESTION_AREAS = AREAS.filter((a) => !CHIP[a.id])
 
 const IDEA_AREA: Record<IdeaType, AreaId> = {
   post: 'content',
@@ -94,11 +96,10 @@ export interface Item {
   decision?: Decision
 }
 
-export type ItemState = 'open' | 'doing' | 'later' | 'closed'
+export type ItemState = 'open' | 'later' | 'closed'
 
 export function itemState(status: DecisionStatus | undefined): ItemState {
   if (!status) return 'open'
-  if (status === 'doing') return 'doing'
   if (status === 'later') return 'later'
   return 'closed'
 }
@@ -178,7 +179,7 @@ export function useSuggestionItems(accountId: number | undefined) {
     const c = Object.fromEntries(AREAS.map((a) => [a.id, 0])) as Record<AreaId, number>
     for (const it of items) {
       const st = itemState(it.decision?.status)
-      if (st === 'open' || st === 'doing') c[it.area] += 1
+      if (st === 'open') c[it.area] += 1
     }
     return c
   }, [items])

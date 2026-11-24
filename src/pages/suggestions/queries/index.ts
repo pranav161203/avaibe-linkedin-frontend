@@ -1,5 +1,5 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
-import { createDraftFromIdea, generateIdeas, getDecisions, getIdeas, getSimilarPosts, getSuggestions, saveDecision, type DecisionStatus } from '@/lib/api'
+import { createDraftFromIdea, generateIdeas, getDecisions, findTrends, getIdeas, getTrends, getSimilarPosts, getSuggestions, saveDecision, type DecisionStatus } from '@/lib/api'
 import { queryClient } from '@/providers'
 
 export const useGetSuggestions = (accountId: number | undefined) => {
@@ -15,6 +15,25 @@ export const useGetDecisions = (accountId: number | undefined) => {
     queryKey: ['decisions', accountId],
     queryFn: () => getDecisions(accountId!),
     enabled: !!accountId,
+  })
+}
+
+export const useGetTrends = (accountId: number | undefined) => {
+  return useQuery({
+    queryKey: ['trends', accountId],
+    queryFn: () => getTrends(accountId!),
+    enabled: !!accountId,
+    refetchInterval: (q) => (q.state.data?.running ? 10_000 : false),
+  })
+}
+
+export const useFindTrends = (accountId: number) => {
+  return useMutation({
+    mutationFn: () => findTrends(accountId),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ['trends', accountId] })
+      queryClient.invalidateQueries({ queryKey: ['settings', 'claude'] })
+    },
   })
 }
 

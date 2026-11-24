@@ -15,6 +15,8 @@ import type {
   IdeasRun,
   ImportResult,
   PlanImportResult,
+  TrendsRun,
+  TrendsState,
   LastImports,
   Lead,
   LeadInput,
@@ -772,6 +774,15 @@ export async function saveDecision({ account_id, key, status }: { account_id: nu
   if (status) list.push({ key, status, until: status === 'later' ? iso(Date.now() + 14 * DAY) : null, decided_by: ME_EMAIL, updated_at: iso() })
   d.decisions[account_id] = list
   return saved({ key, status })
+}
+
+// Sample data never invents news or trends: the web part shows as not connected
+export async function getTrends(_accountId: number): Promise<TrendsState> {
+  return ok({ configured: false, latest: null, runs_today: 0, daily_limit: 4, running: false })
+}
+
+export async function findTrends(_accountId: number): Promise<TrendsRun> {
+  return fail(400, 'Sample data: finding trends needs the backend and the Claude key.')
 }
 
 export async function getIdeas(accountId: number) {

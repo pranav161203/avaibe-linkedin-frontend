@@ -52,6 +52,7 @@ const API_ENDPOINTS = {
   },
   AI: {
     IDEAS: '/ai/ideas',
+    TRENDS: '/ai/trends',
     POST_IDEA_TO_DRAFT: (runId: number, index: number) => `/ai/ideas/${runId}/${index}/draft`,
     POST_ASSIST: '/ai/post-assist',
     POST_CHAT: '/ai/post-chat',

@@ -8,7 +8,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { Card } from '@/components/ui/card'
 import { useAuth } from '@/context/auth'
 import { useTz } from '@/context/timezone'
-import type { Item } from '@/hooks/suggestion-items'
+import { AREAS, type Item } from '@/hooks/suggestion-items'
 import type { DecisionStatus } from '@/lib/api'
 import { fmtNumber } from '@/lib/format'
 import { cn } from '@/lib/utils'
@@ -18,7 +18,9 @@ import { PRIORITY, IDEA_TYPE, STATUS_LABEL } from '../constants'
 import { SimilarCtx } from '../context/similar'
 import { useSaveDecision } from '@/pages/suggestions/queries'
 
-export function ItemCard({ item, accountId, highlight, muted }: { item: Item; accountId: number; highlight?: boolean; muted?: boolean }) {
+const AREA_TAG: Partial<Record<Item['area'], string>> = { content: 'Content', brand: 'Brand', leads: 'Leads & sales', sales: 'Leads & sales' }
+
+export function ItemCard({ item, accountId, highlight, muted, showArea }: { item: Item; accountId: number; highlight?: boolean; muted?: boolean; showArea?: boolean }) {
   const [open, setOpen] = useState(false)
   const auth = useAuth()
   const tz = useTz()
@@ -48,6 +50,15 @@ export function ItemCard({ item, accountId, highlight, muted }: { item: Item; ac
             <span className={cn('mt-0.5 block text-sm text-muted-foreground', !open && 'line-clamp-1')}>{item.summary}</span>
             {similar && <SimilarLine s={similar} baseline={similarAll?.baseline ?? null} />}
             <span className="mt-1.5 flex flex-wrap items-center gap-1.5">
+              {showArea && AREA_TAG[item.area] && (
+                <span className="mr-1 inline-flex items-center gap-1 text-xs font-semibold text-foreground">
+                  {(() => {
+                    const Icon = AREAS.find((x) => x.id === (item.area === 'sales' ? 'leads' : item.area))!.icon
+                    return <Icon className="size-3.5 text-muted-foreground" />
+                  })()}
+                  {AREA_TAG[item.area]}
+                </span>
+              )}
               {item.rule ? (
                 <>
                   <Badge variant="outline" className={PRIORITY[item.rule.priority].cls}>
@@ -67,7 +78,7 @@ export function ItemCard({ item, accountId, highlight, muted }: { item: Item; ac
               <Badge variant="outline" className="cursor-help tabular-nums" title={CONFIDENCE_SCALE_TIP}>
                 Confidence {confidenceScore(conf)}
               </Badge>
-              {status && status !== 'doing' && (
+              {status && (
                 <Badge variant="secondary">
                   {STATUS_LABEL[status]}
                   {status === 'later' && item.decision?.until && <> · back {tz.dateTime(item.decision.until).split(',')[0]}</>}
@@ -86,23 +97,15 @@ export function ItemCard({ item, accountId, highlight, muted }: { item: Item; ac
           {auth.can('editor') &&
             (!status ? (
               <>
-                <Button size="sm" variant="outline" disabled={decide.isPending} onClick={() => set('doing', 'Moved to In progress')}>
-                  Do it
+                {/* Only records the team's decision; nothing is changed on LinkedIn or in the app */}
+                <Button size="sm" variant="outline" title="You've done this yourself: hide it as completed" disabled={decide.isPending} onClick={() => set('done', 'Marked done')}>
+                  <CheckCircle2 /> Done
                 </Button>
-                <Button size="sm" variant="ghost" disabled={decide.isPending} onClick={() => set('later', 'Hidden for a week')}>
+                <Button size="sm" variant="ghost" title="Hide it for a week" disabled={decide.isPending} onClick={() => set('later', 'Hidden for a week')}>
                   Later
                 </Button>
-                <Button size="sm" variant="ghost" disabled={decide.isPending} onClick={() => set('dismissed', 'Dismissed')}>
+                <Button size="sm" variant="ghost" title="Not relevant: hide it" disabled={decide.isPending} onClick={() => set('dismissed', 'Dismissed')}>
                   Dismiss
-                </Button>
-              </>
-            ) : status === 'doing' ? (
-              <>
-                <Button size="sm" disabled={decide.isPending} onClick={() => set('done', 'Marked done')}>
-                  <CheckCircle2 /> Mark done
-                </Button>
-                <Button size="icon-sm" variant="ghost" aria-label="Undo" title="Undo" disabled={decide.isPending} onClick={() => set(null, 'Moved back')}>
-                  <Undo2 />
                 </Button>
               </>
             ) : (

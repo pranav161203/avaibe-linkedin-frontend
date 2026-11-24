@@ -19,6 +19,8 @@ import type {
   IdeasState,
   ImportResult,
   PlanImportResult,
+  TrendsRun,
+  TrendsState,
   LastImports,
   Lead,
   LeadInput,
@@ -308,6 +310,16 @@ export async function getDecisions(accountId: number): Promise<Decision[]> {
 
 export async function saveDecision(body: { account_id: number; key: string; status: DecisionStatus | null }): Promise<{ key: string; status: DecisionStatus | null }> {
   const res = await axiosAuth.put(API_ENDPOINTS.SUGGESTIONS.DECISIONS, body)
+  return res.data
+}
+
+export async function getTrends(accountId: number): Promise<TrendsState> {
+  const res = await axiosAuth.get(API_ENDPOINTS.AI.TRENDS, { params: { account_id: accountId } })
+  return res.data
+}
+
+export async function findTrends(accountId: number): Promise<TrendsRun> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AI.TRENDS, { account_id: accountId })
   return res.data
 }
 
