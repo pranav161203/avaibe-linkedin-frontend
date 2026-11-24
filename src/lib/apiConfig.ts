@@ -64,6 +64,11 @@ const API_ENDPOINTS = {
     DELETE_CONNECTION: (accountId: number) => `/linkedin/connections/${accountId}`,
     GET_AUTH_URL: '/linkedin/auth-url',
   },
+  KNOWLEDGE: {
+    LIST: '/knowledge',
+    ONE: (id: number) => `/knowledge/${id}`,
+    SEARCH: '/knowledge/search',
+  },
   PLANNER: {
     GET_PLANNED: '/planner',
     POST_PLANNED: '/planner',

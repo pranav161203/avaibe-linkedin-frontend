@@ -664,6 +664,36 @@ export interface SuggestionsResult {
   suggestions: Suggestion[]
 }
 
+/** Company knowledge base (shared by the workspace): sources split into searchable chunks */
+export interface KnowledgeSource {
+  id: number
+  title: string
+  kind: 'text' | 'file'
+  file_name: string | null
+  chars: number
+  chunks: number
+  /** Empty = applies to every account */
+  account_ids: number[]
+  created_by: string | null
+  updated_by: string | null
+  created_at: string
+  updated_at: string
+  content?: string
+  sections?: number
+}
+export interface KnowledgeList {
+  sources: KnowledgeSource[]
+  total_chunks: number
+  max_chars: number
+}
+export interface KnowledgeHit {
+  source_id: number
+  source_title: string
+  heading: string
+  text: string
+  score: number
+}
+
 /** Planning posts from the Excel template: every row checked, ready rows saved as Unpublished on confirm */
 export interface PlanImportRow {
   row: number

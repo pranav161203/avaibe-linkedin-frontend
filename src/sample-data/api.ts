@@ -15,6 +15,9 @@ import type {
   IdeasRun,
   ImportResult,
   PlanImportResult,
+  KnowledgeHit,
+  KnowledgeList,
+  KnowledgeSource,
   TrendsRun,
   TrendsState,
   LastImports,
@@ -42,6 +45,7 @@ import type {
 } from '@/types/api'
 import { ApiError } from '@/lib/api-error'
 import * as A from './analytics'
+import { chunkText, cleanText, scoreChunk, sectionCount } from './knowledge'
 import { buildSnapshot, computeShares, createSeed, DB_VERSION, DEFAULT_BRAND, DEFAULT_PERFORMANCE, DEFAULT_SEGMENTS, type MockDb, type StoredPost } from './seed'
 import { DAY, istIso, slotOf, uaeHour, uaeIso, uaeWeekday } from './util'
 
@@ -639,6 +643,74 @@ export async function savePostAudience({ postId, rows }: { postId: number; rows:
   p.audience = rows
   p.audience_captured_at = rows.length ? iso() : null
   return saved(A.toPost(db(), p))
+}
+
+// ---- Knowledge base (kept in this browser)
+const kb = () => (db().knowledge ??= [])
+const appliesTo = (s: { account_ids?: number[] }, accountId: number) => !s.account_ids?.length || s.account_ids.includes(accountId)
+const withCounts = (s: KnowledgeSource & { content: string }, full = false): KnowledgeSource => {
+  const { content, ...rest } = s
+  return { ...rest, account_ids: rest.account_ids ?? [], chunks: chunkText(content).length, ...(full ? { content, sections: sectionCount(content) } : {}) }
+}
+const KB_MAX = 200_000
+function kbCheck(title: string, content: string) {
+  const c = cleanText(content)
+  if (!title.trim()) return 'Give the source a title.'
+  if (!c) return 'There’s no text to add.'
+  if (c.length > KB_MAX) return `That’s ${c.length.toLocaleString()} characters; the limit is ${KB_MAX.toLocaleString()} per source.`
+  return null
+}
+
+export async function getKnowledge(accountId: number): Promise<KnowledgeList> {
+  const sources = kb()
+    .filter((s) => appliesTo(s, accountId))
+    .sort((a, b) => b.updated_at.localeCompare(a.updated_at)).map((s) => withCounts(s))
+  return ok({ sources, total_chunks: sources.reduce((n, s) => n + s.chunks, 0), max_chars: KB_MAX })
+}
+
+export async function getKnowledgeSource(id: number): Promise<KnowledgeSource> {
+  const s = kb().find((x) => x.id === id)
+  return s ? ok(withCounts(s, true)) : fail(404, 'Source not found')
+}
+
+export async function addKnowledge({ title, content, file, accountIds }: { title: string; content?: string; file?: File; accountIds: number[] }): Promise<KnowledgeSource> {
+  let text = content ?? ''
+  let name = title
+  if (file) {
+    if (!/\.(txt|md)$/i.test(file.name)) return fail(400, 'Sample data: only .txt and .md files can be read in the browser. PDF and Word need the backend.')
+    text = await file.text()
+    name = title || file.name.replace(/\.[^.]+$/, '')
+  }
+  const err = kbCheck(name, text)
+  if (err) return fail(400, err)
+  const now = iso()
+  const s = { id: nid(), title: name.trim().slice(0, 200), kind: (file ? 'file' : 'text') as 'file' | 'text', file_name: file?.name ?? null, chars: cleanText(text).length, chunks: 0, account_ids: [...accountIds], created_by: ME_EMAIL, updated_by: ME_EMAIL, created_at: now, updated_at: now, content: cleanText(text) }
+  kb().push(s)
+  return saved(withCounts(s, true))
+}
+
+export async function updateKnowledge({ id, title, content, accountIds }: { id: number; title: string; content: string; accountIds: number[] }): Promise<KnowledgeSource> {
+  const s = kb().find((x) => x.id === id)
+  if (!s) return fail(404, 'Source not found')
+  const err = kbCheck(title, content)
+  if (err) return fail(400, err)
+  Object.assign(s, { title: title.trim().slice(0, 200), content: cleanText(content), chars: cleanText(content).length, account_ids: [...accountIds], updated_by: ME_EMAIL, updated_at: iso() })
+  return saved(withCounts(s, true))
+}
+
+export async function deleteKnowledge(id: number): Promise<void> {
+  db().knowledge = kb().filter((x) => x.id !== id)
+  return saved(undefined)
+}
+
+export async function searchKnowledge(q: string, accountId: number): Promise<{ query: string; results: KnowledgeHit[] }> {
+  const results = kb()
+    .filter((s) => appliesTo(s, accountId))
+    .flatMap((s) => chunkText(s.content).map((c) => ({ source_id: s.id, source_title: s.title, heading: c.heading, text: c.text, score: scoreChunk(q, c.heading, c.text) })))
+    .filter((h) => h.score > 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 5)
+  return ok({ query: q, results })
 }
 
 // The template still downloads from the backend; reading the file needs it too

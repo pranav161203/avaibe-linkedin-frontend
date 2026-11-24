@@ -13,6 +13,7 @@ export const CalendarPage = lazy(() => import('@/pages/calendar/CalendarPage').t
 export const PublishingPage = lazy(() => import('@/pages/publishing/PublishingPage').then((m) => ({ default: m.PublishingPage })))
 export const CreatePostPage = lazy(() => import('@/pages/create-post/CreatePostPage').then((m) => ({ default: m.CreatePostPage })))
 
+export const KnowledgePage = lazy(() => import('@/pages/brand/KnowledgePage').then((m) => ({ default: m.KnowledgePage })))
 export const CompetitorsPage = lazy(() => import('@/pages/brand/CompetitorsPage').then((m) => ({ default: m.CompetitorsPage })))
 
 export const LeadsLogPage = lazy(() => import('@/pages/leads/LeadsLogPage').then((m) => ({ default: m.LeadsLogPage })))

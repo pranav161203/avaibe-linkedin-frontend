@@ -14,6 +14,7 @@ import {
   Send,
   Settings,
   Swords,
+  BookOpen,
   TrendingUp,
 } from 'lucide-react'
 import { useAuth } from '@/context/auth'
@@ -60,6 +61,7 @@ const CONTENT: NavItem[] = [
   { to: '/publishing', label: 'Publishing', icon: Send, role: 'viewer' },
 ]
 const BRAND: NavItem[] = [
+  { to: '/brand/knowledge', label: 'Knowledge base', icon: BookOpen, role: 'viewer' },
   { to: '/brand/competitors', label: 'Competitors', icon: Swords, role: 'viewer' },
 ]
 const LEADS: NavItem[] = [

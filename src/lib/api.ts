@@ -19,6 +19,9 @@ import type {
   IdeasState,
   ImportResult,
   PlanImportResult,
+  KnowledgeHit,
+  KnowledgeList,
+  KnowledgeSource,
   TrendsRun,
   TrendsState,
   LastImports,
@@ -187,6 +190,42 @@ export async function deleteSnapshot({ postId, checkpoint }: { postId: number; c
 
 export async function savePostAudience({ postId, rows }: { postId: number; rows: AudienceRow[] }): Promise<Post> {
   const res = await axiosAuth.put(API_ENDPOINTS.POSTS.PUT_AUDIENCE(postId), { rows })
+  return res.data
+}
+
+export async function getKnowledge(accountId: number): Promise<KnowledgeList> {
+  const res = await axiosAuth.get(API_ENDPOINTS.KNOWLEDGE.LIST, { params: { account_id: accountId } })
+  return res.data
+}
+
+export async function getKnowledgeSource(id: number): Promise<KnowledgeSource> {
+  const res = await axiosAuth.get(API_ENDPOINTS.KNOWLEDGE.ONE(id))
+  return res.data
+}
+
+export async function addKnowledge({ title, content, file, accountIds }: { title: string; content?: string; file?: File; accountIds: number[] }): Promise<KnowledgeSource> {
+  if (file) {
+    const form = fileForm(file)
+    if (title) form.append('title', title)
+    form.append('account_ids', accountIds.join(','))
+    const res = await axiosAuth.post(API_ENDPOINTS.KNOWLEDGE.LIST, form)
+    return res.data
+  }
+  const res = await axiosAuth.post(API_ENDPOINTS.KNOWLEDGE.LIST, { title, content, account_ids: accountIds })
+  return res.data
+}
+
+export async function updateKnowledge({ id, title, content, accountIds }: { id: number; title: string; content: string; accountIds: number[] }): Promise<KnowledgeSource> {
+  const res = await axiosAuth.put(API_ENDPOINTS.KNOWLEDGE.ONE(id), { title, content, account_ids: accountIds })
+  return res.data
+}
+
+export async function deleteKnowledge(id: number): Promise<void> {
+  await axiosAuth.delete(API_ENDPOINTS.KNOWLEDGE.ONE(id))
+}
+
+export async function searchKnowledge(q: string, accountId: number): Promise<{ query: string; results: KnowledgeHit[] }> {
+  const res = await axiosAuth.get(API_ENDPOINTS.KNOWLEDGE.SEARCH, { params: { q, account_id: accountId } })
   return res.data
 }
 

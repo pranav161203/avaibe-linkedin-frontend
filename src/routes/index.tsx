@@ -28,6 +28,7 @@ export function AppRoutes() {
 
             <Route path="brand/suggestions" element={<Navigate to="/suggestions?area=brand" replace />} />
             <Route path="brand/competitors" element={<P.CompetitorsPage />} />
+            <Route path="brand/knowledge" element={<P.KnowledgePage />} />
 
             <Route path="leads/suggestions" element={<Navigate to="/suggestions?area=leads" replace />} />
             <Route path="leads/log" element={<P.LeadsLogPage />} />

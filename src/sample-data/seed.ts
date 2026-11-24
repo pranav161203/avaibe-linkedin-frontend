@@ -8,6 +8,7 @@ import type {
   Checkpoint,
   Decision,
   IdeasRun,
+  KnowledgeSource,
   LastImports,
   Lead,
   LinkedInConnection,
@@ -50,6 +51,8 @@ export interface MockDb {
   connections: LinkedInConnection[]
   lastImports: Record<number, LastImports>
   aiRunsToday: number
+  /** Company knowledge base (added later: older saved sample data may not have it) */
+  knowledge?: (KnowledgeSource & { content: string })[]
 }
 
 export const DB_VERSION = 1
