@@ -9,25 +9,14 @@ export interface Finding {
   text: string
   detail: string
   evidence: Evidence
+  /** 0-100, measured from the account's own past posts; null when it can't be measured */
+  score?: number | null
+  scoreTip?: string
 }
 export interface NextStep {
   text: string
   format?: PlannedFormat
   topic?: string
-}
-
-export const CAUSE_LABEL: Record<Evidence, string> = {
-  likely: 'Likely a cause',
-  possible: 'Possibly a cause',
-  unlikely: 'Probably not the cause',
-  unknown: 'Not enough history',
-}
-
-export const EVIDENCE_LABEL: Record<Evidence, string> = {
-  likely: 'Likely helped',
-  possible: 'Possibly helped',
-  unlikely: 'Probably not the reason',
-  unknown: 'Not enough history',
 }
 
 export const median = (v: number[]) => {
@@ -40,7 +29,8 @@ export const median = (v: number[]) => {
 export const uaeDay = (iso: string) => new Intl.DateTimeFormat('en-CA', { timeZone: 'Asia/Dubai' }).format(new Date(iso))
 export const firstLine = (p: Post) => (p.caption ?? '').split('\n').find((l) => l.trim())?.trim() ?? ''
 export const impAt = (p: Post, cp: Checkpoint) => p.snapshots.find((s) => s.checkpoint === cp)?.impressions ?? null
-export const periodLabel = (from: string, to: string) => `${format(parseISO(from), 'd MMM')} – ${format(parseISO(to), 'd MMM yyyy')}`
+export const periodLabel = (from: string, to: string) =>
+  from === to ? format(parseISO(from), 'EEE d MMM yyyy') : `${format(parseISO(from), 'd MMM')} – ${format(parseISO(to), 'd MMM yyyy')}`
 
 const CTA_WORDS = /\b(comment|dm|message us|book|visit|link in|sign up|register|download|reach out|contact|follow us|learn more|demo)\b/i
 
@@ -111,13 +101,22 @@ export function factorHistory(history: Post[], cp: Checkpoint, factorKey: string
     }
   return (value: string) => {
     const xs = by.get(value) ?? []
-    return { n: xs.length, lift: median(xs) }
+    return { n: xs.length, lift: median(xs), xs }
   }
 }
 
-function judge(win: { n: number; lift: number | null }, lose: { n: number; lift: number | null }): Evidence {
-  if (win.n < 3 || lose.n < 3 || win.lift == null || lose.lift == null || lose.lift === 0) return 'unknown'
-  if (win.lift / lose.lift >= 1.25) return win.n >= 8 && lose.n >= 8 ? 'likely' : 'possible'
+/** How often a post from `a` beat a post from `b`, over every pair (ties count half). 50% = no difference. */
+export function beatRate(a: number[], b: number[]) {
+  if (!a.length || !b.length) return null
+  let wins = 0
+  for (const x of a) for (const y of b) wins += x > y ? 1 : x === y ? 0.5 : 0
+  return Math.round((wins / (a.length * b.length)) * 100)
+}
+
+function judge(score: number | null, nWin: number, nLose: number): Evidence {
+  if (score == null || nWin < 3 || nLose < 3) return 'unknown'
+  if (score >= 70) return nWin >= 8 && nLose >= 8 ? 'likely' : 'possible'
+  if (score >= 60) return 'possible'
   return 'unlikely'
 }
 
@@ -171,14 +170,24 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
     const h = factorHistory(history, cp, f.key, items)
     const hw = h(wv)
     const ho = h(ov)
-    const evidence = judge(hw, ho)
-    const detail =
-      evidence === 'unknown'
-        ? `Too few of your posts to tell (${hw.n} with “${wv}”, ${ho.n} with “${ov}”).`
-        : `In your history, “${wv}” posts get ${lift(hw.lift)} your typical post (${hw.n} posts) and “${ov}” get ${lift(ho.lift)} (${ho.n} posts).`
-    findings.push({ key: f.key, label: f.label, text: `${wv} vs ${ov}`, detail, evidence })
+    const enough = hw.n >= 3 && ho.n >= 3
+    const score = enough ? beatRate(hw.xs, ho.xs) : null
+    const evidence = judge(score, hw.n, ho.n)
+    const detail = !enough
+      ? `Too few of your posts to tell (${hw.n} with “${wv}”, ${ho.n} with “${ov}”).`
+      : `In your history, “${wv}” posts beat “${ov}” posts ${score}% of the time (${hw.n} vs ${ho.n} posts; ${lift(hw.lift)} vs ${lift(ho.lift)} your typical post).`
+    findings.push({
+      key: f.key,
+      label: f.label,
+      text: `${wv} vs ${ov}`,
+      detail,
+      evidence,
+      score,
+      scoreTip: score == null ? undefined : `Out of every pairing of a “${wv}” post with a “${ov}” post in your history, the “${wv}” one got more impressions ${score}% of the time. 50% means no difference.`,
+    })
   }
-  findings.sort((a, b) => ORDER.indexOf(a.evidence) - ORDER.indexOf(b.evidence))
+  // Highest number first; unmeasured ones sit in the middle
+  findings.sort((a, b) => (b.score ?? 50) - (a.score ?? 50))
 
   const next: NextStep[] = []
   const good = findings.filter((f) => f.evidence === 'likely' || f.evidence === 'possible')
@@ -285,7 +294,8 @@ export function analysePeriods(
     findings.push({
       key: 'volume',
       label: 'How often you posted',
-      text: `${perWeekA.toFixed(1)} vs ${perWeekB.toFixed(1)} posts a week (${sign(volChange)})`,
+      // Under a week, plain counts read better than a weekly rate
+      text: a.days < 7 || b.days < 7 ? `${a.posts.length} vs ${b.posts.length} posts` : `${perWeekA.toFixed(1)} vs ${perWeekB.toFixed(1)} posts a week (${sign(volChange)})`,
       detail:
         perPostChange == null
           ? 'Per-post reach couldn’t be compared (too few posts with figures at the same age).'
@@ -307,11 +317,18 @@ export function analysePeriods(
     const h = factorHistory(history, cp, key, itemMap)(best.name)
     const usuallyGood = h.lift != null && h.n >= 3 ? h.lift >= 1.15 : null
     const more = best.d > 0
+    const beat = h.n >= 3 ? Math.round((h.xs.filter((x) => x > 1).length / h.n) * 100) : null
+    const name = best.name.toLowerCase()
     findings.push({
       key,
       label,
-      text: `${more ? 'More' : 'Fewer'} ${best.name.toLowerCase()} posts (${ma.get(best.name) ?? 0} vs ${mb.get(best.name) ?? 0})`,
-      detail: h.n >= 3 ? `In your history, ${best.name.toLowerCase()} posts get ${lift(h.lift)} your typical post (${h.n} posts).` : `Too few ${best.name.toLowerCase()} posts in your history to say how they usually do.`,
+      text: `${more ? 'More' : 'Fewer'} ${name} posts (${ma.get(best.name) ?? 0} vs ${mb.get(best.name) ?? 0})`,
+      detail:
+        beat != null
+          ? `In your history, ${beat}% of ${name} posts beat your typical post (${h.n} posts; ${lift(h.lift)} your typical post).`
+          : `Too few ${name} posts in your history to say how they usually do.`,
+      score: beat,
+      scoreTip: beat == null ? undefined : `${beat}% of your ${name} posts got more impressions than your typical post. 50% means they're ordinary.`,
       evidence:
         usuallyGood == null ? 'unknown' : (more && usuallyGood) || (!more && !usuallyGood) ? (impChange != null && impChange > 0 ? 'possible' : 'unlikely') : impChange != null && impChange < 0 ? 'possible' : 'unlikely',
     })
@@ -334,7 +351,7 @@ export function analysePeriods(
   findings.sort((x, y) => ORDER.indexOf(x.evidence) - ORDER.indexOf(y.evidence))
 
   const next: NextStep[] = []
-  if (volChange != null && volChange < -20) next.push({ text: `Get back to about ${Math.round(perWeekB)} posts a week: posting less is the clearest difference.` })
+  if (volChange != null && volChange < -20 && a.days >= 7 && b.days >= 7) next.push({ text: `Get back to about ${Math.round(perWeekB)} posts a week: posting less is the clearest difference.` })
   if (volChange != null && volChange > 20 && perPostChange != null && perPostChange < -15)
     next.push({ text: 'You posted more but each post reached fewer people: favour fewer, stronger posts over volume.' })
   const fmtFinding = findings.find((f) => f.key === 'format' && f.evidence === 'possible')

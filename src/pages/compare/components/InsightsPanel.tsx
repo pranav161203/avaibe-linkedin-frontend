@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom'
 import { ArrowRight, Lightbulb, Sparkles, TriangleAlert } from 'lucide-react'
 import { buttonVariants } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
-import { CAUSE_LABEL, EVIDENCE_LABEL, type Evidence, type Finding, type NextStep } from '../utils/insights'
+import type { Evidence, Finding, NextStep } from '../utils/insights'
 
 const PILL: Record<Evidence, string> = {
   likely: 'bg-primary/12 text-primary ring-primary/30',
@@ -20,7 +20,6 @@ export function InsightsPanel({
   next,
   caution,
   ai,
-  wording = 'helped',
 }: {
   headline: string
   subline?: string | null
@@ -29,9 +28,7 @@ export function InsightsPanel({
   next: NextStep[]
   caution?: string | null
   ai?: ReactNode
-  wording?: 'helped' | 'cause'
 }) {
-  const LABEL = wording === 'cause' ? CAUSE_LABEL : EVIDENCE_LABEL
   return (
     <div className="grid items-start gap-4 lg:grid-cols-[minmax(0,1fr)_340px]">
       <section className="rounded-[1.8rem] bg-card p-6">
@@ -54,7 +51,13 @@ export function InsightsPanel({
                   <div className="text-sm">
                     <span className="font-semibold">{f.label}:</span> {f.text}
                   </div>
-                  <span className={cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1', PILL[f.evidence])}>{LABEL[f.evidence]}</span>
+                  {f.score != null ? (
+                    <span title={f.scoreTip} className={cn('cursor-help rounded-full px-2.5 py-0.5 text-[11px] font-semibold tabular-nums ring-1', PILL[f.evidence])}>
+                      {f.score}%
+                    </span>
+                  ) : (
+                    f.evidence === 'unknown' && <span className={cn('rounded-full px-2.5 py-0.5 text-[11px] font-medium ring-1', PILL.unknown)}>Too few posts</span>
+                  )}
                 </div>
                 <p className="mt-1.5 text-xs text-muted-foreground">{f.detail}</p>
               </li>
@@ -70,7 +73,7 @@ export function InsightsPanel({
           </p>
         )}
         <p className="mt-4 text-[11px] text-muted-foreground">
-          “Likely” means your own past posts back it up; it shows a pattern, not proof. Labels compare each choice with your typical post at the same age.
+          The % is measured from your own past posts at the same age: how often posts with that choice got more impressions than the alternative (or than your typical post). 50% means no difference; the higher, the stronger the pattern. Hover a number for details. It shows a pattern, not proof.
         </p>
       </section>
 

@@ -201,7 +201,7 @@ function ProfileButton() {
           <DropdownMenuItem onClick={() => navigate('/profile')}>
             <UserRound /> Profile
           </DropdownMenuItem>
-          {auth.can('approver') && (
+          {auth.can('editor') && (
             <DropdownMenuItem onClick={() => navigate('/linkedin')}>
               <Link2 /> LinkedIn connections
             </DropdownMenuItem>

@@ -1,7 +1,7 @@
 import { Bot, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import type { CompareExplanation } from '@/lib/api'
-import { CONFIDENCE } from '../constants'
+import { CONFIDENCE_SCALE_TIP, confidenceScore } from '@/lib/format'
 
 export function AiWhy({ result, busy, configured, canRun, onRun }: { result?: CompareExplanation; busy: boolean; configured: boolean; canRun: boolean; onRun: () => void }) {
   return (
@@ -23,7 +23,9 @@ export function AiWhy({ result, busy, configured, canRun, onRun }: { result?: Co
           <ul className="space-y-1.5">
             {result.reasons.map((r) => (
               <li key={r.reason} className="flex gap-2">
-                <span className="mt-0.5 shrink-0 rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-medium">{CONFIDENCE[r.confidence]}</span>
+                <span title={CONFIDENCE_SCALE_TIP} className="mt-0.5 shrink-0 cursor-help rounded-full bg-muted px-1.5 py-0.5 text-[10px] font-semibold tabular-nums">
+                  {confidenceScore(r.confidence)}
+                </span>
                 <span className="text-[13px]">{r.reason}</span>
               </li>
             ))}
@@ -39,6 +41,7 @@ export function AiWhy({ result, busy, configured, canRun, onRun }: { result?: Co
             </div>
           )}
           {result.caveats.length > 0 && <p className="text-[11px] text-muted-foreground">{result.caveats.join(' ')}</p>}
+          <p className="text-[11px] text-muted-foreground">The number is Claude's confidence on a 1–3 scale (3 = strongest).</p>
         </div>
       )}
     </section>

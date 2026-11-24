@@ -18,10 +18,3 @@ export const STATUS_FILTERS: { value: string; label: string; test: (p: PlannedPo
   { value: 'published', label: 'Published', test: (p) => p.status === 'published' },
   { value: 'problem', label: 'Failed or missed', test: (p) => p.status === 'failed' || p.status === 'missed' },
 ]
-
-export const GROUPS: { value: string; label: string; test: (p: PlannedPost) => boolean }[] = [
-  { value: 'unpublished', label: 'Unpublished', test: (p) => p.status === 'draft' || dueByHand(p) },
-  { value: 'scheduled', label: 'Scheduled', test: (p) => (p.status === 'approved' && !dueByHand(p)) || p.status === 'publishing' },
-  { value: 'problem', label: 'Failed or missed', test: (p) => p.status === 'failed' || p.status === 'missed' },
-  { value: 'published', label: 'Published', test: (p) => p.status === 'published' },
-]

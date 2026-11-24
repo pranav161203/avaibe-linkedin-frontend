@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Section, SimpleSelect } from '@/components/common'
 import { type Role } from '@/lib/api'
-import { ROLE_OPTIONS } from './TeamTab'
+import { roleOptionsFor } from './TeamTab'
+import { useAuth } from '@/context/auth'
 import { useAddTeamMember } from '@/pages/settings/queries'
 
 export function AddMember() {
   const [email, setEmail] = useState('')
   const [name, setName] = useState('')
+  const auth = useAuth()
   const [role, setRole] = useState<Role>('viewer')
   const [canSwitch, setCanSwitch] = useState(false)
   const add = useAddTeamMember()
@@ -44,9 +46,9 @@ export function AddMember() {
           <Label className="mb-1.5 block">Name</Label>
           <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Filled in from Microsoft on first sign-in" />
         </div>
-        <SimpleSelect label="Role" value={role} onChange={(v) => setRole(v as Role)} options={ROLE_OPTIONS} />
+        <SimpleSelect label="Role" value={role} onChange={(v) => setRole(v as Role)} options={roleOptionsFor(auth.user?.role)} />
         <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" className="size-4 accent-(--primary)" checked={canSwitch || role === 'admin'} disabled={role === 'admin'} onChange={(e) => setCanSwitch(e.target.checked)} />
+          <input type="checkbox" className="size-4 accent-(--primary)" checked={canSwitch || role === 'admin' || role === 'superadmin'} disabled={role === 'admin' || role === 'superadmin'} onChange={(e) => setCanSwitch(e.target.checked)} />
           Can switch accounts (founders, digital marketing executive)
         </label>
         <div className="md:col-span-2">

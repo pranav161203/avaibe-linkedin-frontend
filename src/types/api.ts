@@ -20,8 +20,8 @@ export const METRIC_FIELDS = [
 ] as const
 export type MetricField = (typeof METRIC_FIELDS)[number]
 
-export type Role = 'viewer' | 'editor' | 'approver' | 'admin'
-export const ROLES: Role[] = ['viewer', 'editor', 'approver', 'admin']
+export type Role = 'viewer' | 'editor' | 'admin' | 'superadmin'
+export const ROLES: Role[] = ['viewer', 'editor', 'admin', 'superadmin']
 
 export interface Me {
   enabled: boolean
@@ -323,11 +323,10 @@ export interface PlannedPostInput {
   keywords: string[]
 }
 
-export type PostGoal = 'brand' | 'leads' | 'sales' | 'engagement'
+export type PostGoal = 'brand' | 'sales' | 'engagement'
 export const POST_GOALS: { value: PostGoal; label: string; hint: string }[] = [
   { value: 'brand', label: 'Brand', hint: 'Brand awareness: get AVAIBE known to the right people in the UAE' },
-  { value: 'leads', label: 'Leads', hint: 'Bring in enquiries: comments, DMs, demo requests' },
-  { value: 'sales', label: 'Sales', hint: 'Move people already talking to AVAIBE towards a deal' },
+  { value: 'sales', label: 'Sales', hint: 'Bring in enquiries (comments, DMs, demo requests) and move people towards a deal' },
   { value: 'engagement', label: 'Engagement', hint: 'Start conversations and grow the community' },
 ]
 

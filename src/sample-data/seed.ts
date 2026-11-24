@@ -421,7 +421,7 @@ export function createSeed(now = Date.now()): MockDb {
       format: 'image',
       status: 'draft',
       when: at(2, 10),
-      goal: 'leads',
+      goal: 'sales',
       topic: 'School ERP',
       cta: 'Book a demo',
       caption: caption(r, 'School ERP', 'Book a demo', ['#UAE', '#SchoolERP']),
@@ -479,7 +479,7 @@ export function createSeed(now = Date.now()): MockDb {
       status: 'failed',
       account_id: 2,
       when: at(-1, 9),
-      goal: 'leads',
+      goal: 'sales',
       topic: 'Case study',
       caption: caption(r, 'Case study', 'Send a DM', ['#EdTech']),
       has_image: true,
@@ -576,9 +576,9 @@ export function createSeed(now = Date.now()): MockDb {
   })
 
   const team: TeamMember[] = [
-    { id: id(), email: 'rania@avaibe.example', name: 'Rania Haddad', role: 'admin', can_switch_accounts: true, active: true, last_login_at: new Date(now - 2 * HOUR).toISOString() },
+    { id: id(), email: 'rania@avaibe.example', name: 'Rania Haddad', role: 'superadmin', can_switch_accounts: true, active: true, last_login_at: new Date(now - 2 * HOUR).toISOString() },
     { id: id(), email: 'karan@avaibe.example', name: 'Karan Mehta', role: 'admin', can_switch_accounts: true, active: true, last_login_at: new Date(now - DAY).toISOString() },
-    { id: id(), email: 'maya@avaibe.example', name: 'Maya Fernandes', role: 'approver', can_switch_accounts: true, active: true, last_login_at: new Date(now - 3 * DAY).toISOString() },
+    { id: id(), email: 'maya@avaibe.example', name: 'Maya Fernandes', role: 'editor', can_switch_accounts: true, active: true, last_login_at: new Date(now - 3 * DAY).toISOString() },
     { id: id(), email: 'yusuf@avaibe.example', name: 'Yusuf Ali', role: 'editor', can_switch_accounts: false, active: true, last_login_at: null },
     { id: id(), email: 'intern@avaibe.example', name: null, role: 'viewer', can_switch_accounts: false, active: false, last_login_at: new Date(now - 40 * DAY).toISOString() },
   ]

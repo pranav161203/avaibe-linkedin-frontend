@@ -1,3 +1,4 @@
+import { CONFIDENCE_SCALE_TIP, confidenceScore } from '@/lib/format'
 import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -63,7 +64,9 @@ export function ItemCard({ item, accountId, highlight, muted }: { item: Item; ac
                   <Badge variant="outline" className="capitalize">Effort: {item.idea!.idea.effort}</Badge>
                 </>
               )}
-              <Badge variant="outline" className="capitalize">{conf} confidence</Badge>
+              <Badge variant="outline" className="cursor-help tabular-nums" title={CONFIDENCE_SCALE_TIP}>
+                Confidence {confidenceScore(conf)}
+              </Badge>
               {status && status !== 'doing' && (
                 <Badge variant="secondary">
                   {STATUS_LABEL[status]}

@@ -463,7 +463,7 @@ export { ApiError } from '@/lib/api-error'
 export async function getMe(): Promise<Me> {
   return ok({
     enabled: false,
-    user: { email: ME_EMAIL, name: 'You', role: 'admin', can_switch_accounts: true, dev: true },
+    user: { email: ME_EMAIL, name: 'You', role: 'superadmin', can_switch_accounts: true, dev: true },
     allowed_account_ids: db().accounts.map((a) => a.id),
     default_account_id: db().defaultAccountId,
   })
@@ -795,7 +795,7 @@ export async function createDraftFromIdea({ runId, index }: { runId: number; ind
     image_alt: null,
     visibility: 'PUBLIC',
     scheduled_at: null,
-    goal: idea.type === 'leads' ? 'leads' : idea.type === 'sales' ? 'sales' : 'brand',
+    goal: idea.type === 'leads' || idea.type === 'sales' ? 'sales' : 'brand',
     topic: null,
     industry: null,
     cta: null,

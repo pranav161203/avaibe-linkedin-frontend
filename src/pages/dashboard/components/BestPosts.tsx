@@ -15,7 +15,7 @@ export function BestPosts({ accountId, range }: { accountId?: number; range: Tim
     .map((p) => ({ p, s: p.snapshots[p.snapshots.length - 1] }))
     .filter((x) => x.s?.impressions != null)
     .sort((a, b) => (b.s!.impressions ?? 0) - (a.s!.impressions ?? 0))
-    .slice(0, 5)
+    .slice(0, 7)
 
   return (
     <Card>

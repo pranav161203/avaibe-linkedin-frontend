@@ -2,8 +2,6 @@ import { format, parseISO } from 'date-fns'
 import { Demographics } from '@/pages/data/components/Demographics'
 import { Highlights } from '@/pages/data/components/Highlights'
 import { MetricsChart } from '@/pages/data/components/MetricsChart'
-import { More } from '@/pages/data/components/More'
-import { AudiencePage } from '@/pages/data/AudiencePage'
 import { FOLLOWER_METRICS } from '../constants'
 import { useSnapshots } from '../hooks/useSnapshots'
 import type { TabProps } from '../types'
@@ -34,9 +32,6 @@ export function FollowersTab({ accountId, daily, win, stats, dates, compareLabel
       />
       <MetricsChart daily={daily} from={win.from} to={win.to} metrics={FOLLOWER_METRICS} posts={posts} param="fm" title="When did people follow" />
       <Demographics snapshot={latest} noun="followers" />
-      <More title="Track the UAE share over time" hint="Manual snapshots, for when the export isn’t enough">
-        <AudiencePage embedded fixed="followers" />
-      </More>
     </div>
   )
 }

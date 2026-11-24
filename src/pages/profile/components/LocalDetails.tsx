@@ -50,7 +50,7 @@ export function LocalDetails() {
       </DetailsCard>
       <p className="flex items-start gap-1.5 px-1 text-xs text-muted-foreground">
         <Info className="mt-px size-3.5 shrink-0" />
-        Sign-in isn’t set up yet, so your name is saved in this browser only. Time zone changes apply straight away.
+        Sign-in isn’t set up yet, so your name and photo are saved in this browser only. Time zone changes apply straight away.
       </p>
     </div>
   )

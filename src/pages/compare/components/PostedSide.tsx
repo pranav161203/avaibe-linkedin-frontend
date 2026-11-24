@@ -18,7 +18,8 @@ export function PostedSide({ letter, side, cp }: { letter: 'A' | 'B'; side: Peri
         <PeriodTag letter={letter} />
         <span className="text-sm font-semibold">{periodLabel(side.from, side.to)}</span>
         <span className="ml-auto text-xs text-muted-foreground tabular-nums">
-          {side.posts.length} posts · {perWeek.toFixed(1)} a week
+          {side.posts.length} post{side.posts.length === 1 ? '' : 's'}
+          {side.days >= 7 && <> · {perWeek.toFixed(1)} a week</>}
         </span>
       </div>
 
@@ -29,7 +30,7 @@ export function PostedSide({ letter, side, cp }: { letter: 'A' | 'B'; side: Peri
             <li key={name} className="grid grid-cols-[90px_1fr_24px] items-center gap-2 text-xs">
               <span>{name}</span>
               <span className="h-2 rounded-[4px] bg-muted">
-                <span className={cn('block h-full rounded-[4px]', letter === 'A' ? 'bg-primary' : 'bg-muted-foreground/70')} style={{ width: `${(n / max) * 100}%` }} />
+                <span className={cn('block h-full rounded-[4px]', letter === 'A' ? 'bg-primary' : 'bg-period-b')} style={{ width: `${(n / max) * 100}%` }} />
               </span>
               <span className="text-right tabular-nums">{n}</span>
             </li>

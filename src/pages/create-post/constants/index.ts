@@ -1,4 +1,4 @@
-import { AlignLeft, BarChart3, FileText, Handshake, Hash, Image as ImageIcon, Inbox, Layers, Megaphone, MessagesSquare, MousePointerClick, PlayCircle, Sparkles, Type } from 'lucide-react'
+import { AlignLeft, BarChart3, FileText, Handshake, Hash, Image as ImageIcon, Layers, Megaphone, MessagesSquare, MousePointerClick, PlayCircle, Sparkles, Type } from 'lucide-react'
 import type { PlannedDetails, PlannedFormat, PostGoal } from '@/lib/api'
 
 export const MAX_CHARS = 3000
@@ -7,7 +7,6 @@ export const DURATION_LABELS: Record<NonNullable<PlannedDetails['duration']>, st
 
 export const GOAL_ICON: Record<PostGoal, typeof Type> = {
   brand: Megaphone,
-  leads: Inbox,
   sales: Handshake,
   engagement: MessagesSquare,
 }

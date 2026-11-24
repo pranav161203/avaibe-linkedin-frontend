@@ -7,8 +7,7 @@ import { PLANNED_FORMATS, type PlannedFormat } from '@/lib/api'
 import { needsAction, PLANNED_FORMAT_LABELS } from '@/lib/publishing'
 import { ConnectionBanner } from './components/ConnectionBanner'
 import { PlannedCard } from './components/PlannedCard'
-import { GROUPS, STATUS_FILTERS } from './constants'
-import { sortForGroup } from './utils'
+import { STATUS_FILTERS } from './constants'
 import { useGetLinkedInConnections } from '@/pages/linkedin/queries'
 import { useGetPlannedPosts } from '@/pages/publishing/queries'
 
@@ -120,24 +119,10 @@ export function PublishingPage() {
             : 'No posts in the queue. Plan one from the Calendar: New post, or click a day.'}
         </EmptyState>
       ) : (
-        <div className="space-y-6">
-          {GROUPS.map((g) => {
-            const items = sortForGroup(shown.filter(g.test), g.value)
-            if (!items.length) return null
-            return (
-              <section key={g.value} aria-label={g.label}>
-                <h2 className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                  {g.label}
-                  <span className="rounded-full bg-muted px-2 py-0.5 text-xs font-medium text-muted-foreground tabular-nums">{items.length}</span>
-                </h2>
-                <div className="space-y-3">
-                  {items.map((p) => (
-                    <PlannedCard key={p.id} p={p} accountId={account.id} accountName={account.name} connection={connection} showFormat={tab === 'all'} onEdit={() => navigate(`/create/${p.id}`)} />
-                  ))}
-                </div>
-              </section>
-            )
-          })}
+        <div className="space-y-3">
+          {shown.map((p) => (
+            <PlannedCard key={p.id} p={p} accountId={account.id} accountName={account.name} connection={connection} showFormat={tab === 'all'} onEdit={() => navigate(`/create/${p.id}`)} />
+          ))}
         </div>
       )}
 

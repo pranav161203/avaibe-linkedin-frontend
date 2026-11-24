@@ -61,13 +61,19 @@ export function useAuth() {
 export const ROLE_LABELS: Record<Role, string> = {
   viewer: 'Viewer',
   editor: 'Editor',
-  approver: 'Approver',
   admin: 'Admin',
+  superadmin: 'Super admin',
 }
 
 export const ROLE_HELP: Record<Role, string> = {
   viewer: 'Sees dashboards and posts',
-  editor: 'Also adds posts, numbers and drafts',
-  approver: 'Also approves and publishes posts',
-  admin: 'Also manages team, accounts, LinkedIn and settings',
+  editor: 'Also writes, schedules and publishes posts, adds numbers and leads',
+  admin: 'Also manages accounts and settings, and viewers and editors',
+  superadmin: 'Also manages admins and other super admins',
+}
+
+/** Who may manage whom (the server enforces the same): admins manage viewers and editors, super admins everyone */
+export function canManageRole(myRole: Role | undefined, target: Role): boolean {
+  if (myRole === 'superadmin') return true
+  return myRole === 'admin' && ROLES.indexOf(target) < ROLES.indexOf('admin')
 }

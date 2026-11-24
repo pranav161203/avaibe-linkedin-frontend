@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { endOfMonth, format, parseISO, startOfMonth, subMonths } from 'date-fns'
+import { differenceInCalendarDays, endOfMonth, format, parseISO, startOfMonth, subMonths } from 'date-fns'
 import type { DateRange } from 'react-day-picker'
 import { CalendarDays, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -47,6 +47,7 @@ function label(r: TimeRange): string {
   if (!r.from && !r.to) return 'Pick dates'
   const f = r.from ? parseISO(r.from) : null
   const t = r.to ? parseISO(r.to) : null
+  if (f && t && r.from === r.to) return format(f, 'EEE d MMM yyyy')
   if (f && t) {
     const sameYear = f.getFullYear() === t.getFullYear()
     return `${format(f, sameYear ? 'd MMM' : 'd MMM yyyy')} – ${format(t, 'd MMM yyyy')}`
@@ -54,12 +55,16 @@ function label(r: TimeRange): string {
   return f ? `From ${format(f, 'd MMM yyyy')}` : `Until ${format(t!, 'd MMM yyyy')}`
 }
 
-/** bare: just the button, without the "Time range" text beside it (the button itself says the period) */
-export function TimeRangePicker({ value, onChange, bare = false }: { value: TimeRange; onChange: (r: TimeRange) => void; bare?: boolean }) {
+/** bare: just the button, without the "Time range" text beside it (the button itself says the period).
+    minDays: a custom range shorter than this can't be applied (e.g. comparisons need a week or more). */
+export function TimeRangePicker({ value, onChange, bare = false, minDays = 1 }: { value: TimeRange; onChange: (r: TimeRange) => void; bare?: boolean; minDays?: number }) {
   const [open, setOpen] = useState(false)
   const today = new Date()
   // Dates being picked in the calendar, applied only on "Apply"
   const [draft, setDraft] = useState<DateRange | undefined>(undefined)
+
+  const draftDays = draft?.from ? differenceInCalendarDays(draft.to ?? draft.from, draft.from) + 1 : 0
+  const tooShort = !!draft?.from && draftDays < minDays
 
   const openChange = (o: boolean) => {
     setOpen(o)
@@ -118,6 +123,8 @@ export function TimeRangePicker({ value, onChange, bare = false }: { value: Time
                 weekStartsOn={1}
                 selected={draft}
                 onSelect={setDraft}
+                // Each month shows only its own days, so a range never appears twice
+                showOutsideDays={false}
                 // Show the month before the range's end and the end month itself; never page into the future
                 defaultMonth={subMonths(draft?.to ?? draft?.from ?? today, 1)}
                 endMonth={today}
@@ -125,10 +132,12 @@ export function TimeRangePicker({ value, onChange, bare = false }: { value: Time
                 className="p-3"
               />
               <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2.5">
-                <span className="text-xs text-muted-foreground tabular-nums">
-                  {draft?.from
-                    ? `${format(draft.from, 'd MMM yyyy')} – ${draft.to ? format(draft.to, 'd MMM yyyy') : 'pick an end date'}`
-                    : 'Pick a start date, then an end date'}
+                <span className={cn('text-xs tabular-nums', tooShort ? 'text-bad-fg' : 'text-muted-foreground')}>
+                  {!draft?.from
+                    ? 'Click a day, or a start and an end date'
+                    : !draft.to
+                      ? `${format(draft.from, 'EEE d MMM yyyy')} · 1 day`
+                      : `${format(draft.from, 'd MMM yyyy')} – ${format(draft.to, 'd MMM yyyy')} · ${draftDays} day${draftDays === 1 ? '' : 's'}${tooShort ? ` (pick at least ${minDays})` : ''}`}
                 </span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>
@@ -136,7 +145,7 @@ export function TimeRangePicker({ value, onChange, bare = false }: { value: Time
                   </Button>
                   <Button
                     size="sm"
-                    disabled={!draft?.from}
+                    disabled={!draft?.from || tooShort}
                     onClick={() => choose({ preset: 'custom', from: ymd(draft!.from!), to: ymd(draft!.to ?? draft!.from!) })}
                   >
                     Apply

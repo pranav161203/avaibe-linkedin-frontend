@@ -6,9 +6,7 @@ import { CardHeading } from '@/components/common'
 import { Demographics } from '@/pages/data/components/Demographics'
 import { Highlights } from '@/pages/data/components/Highlights'
 import { MetricsChart } from '@/pages/data/components/MetricsChart'
-import { More } from '@/pages/data/components/More'
 import { ymd } from '@/components/period'
-import { AudiencePage } from '@/pages/data/AudiencePage'
 import { fmtNumber, fmtPct } from '@/lib/format'
 import { VISITOR_METRICS } from '../constants'
 import { useSnapshots } from '../hooks/useSnapshots'
@@ -72,9 +70,6 @@ export function VisitorsTab({ accountId, daily, win, stats, dates, compareLabel,
           </CardContent>
         </Card>
       </div>
-      <More title="Track the UAE share over time" hint="Manual snapshots, for when the export isn’t enough">
-        <AudiencePage embedded fixed="visitors" />
-      </More>
     </div>
   )
 }

@@ -72,3 +72,8 @@ export function fmtMetric(metric: string, v: number | null | undefined): string 
 export function metricLabel(m: string): string {
   return METRIC_LABELS[m] ?? m
 }
+
+/** Qualitative confidence as a number on a 1-3 scale (not a probability: nothing here is measured that precisely) */
+export const CONFIDENCE_SCORE = { high: 3, medium: 2, low: 1 } as const
+export const confidenceScore = (level: keyof typeof CONFIDENCE_SCORE) => `${CONFIDENCE_SCORE[level]}/3`
+export const CONFIDENCE_SCALE_TIP = 'Confidence on a 1–3 scale: 3 = backed by your own data, 2 = sound practice or partly backed, 1 = an untested hunch.'

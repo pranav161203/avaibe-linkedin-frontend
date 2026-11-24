@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
 import { SimpleSelect, BackButton, PostRef } from '@/components/common'
 import { PostingTimeHint } from './PostingTimeHint'
 import { useAuth } from '@/context/auth'
@@ -50,7 +51,7 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
   const [saving, setSaving] = useState<'draft' | 'schedule' | null>(null)
   const savePost = useSavePlannedPost(accountId)
   const [preview, setPreview] = useState(false)
-  const canApprove = auth.can('approver')
+  const canApprove = auth.can('editor')
   const canEdit = auth.can('editor')
   const over = caption.length > MAX_CHARS
 
@@ -139,68 +140,66 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
           </header>
 
           <div className="space-y-5 px-6 py-5">
-            <div id="goal" className="scroll-mt-24">
-              <Label className="mb-2 block font-semibold">
-                Goal <span className="text-bad-fg">*</span>
-              </Label>
-              <div
-                role="radiogroup"
-                aria-label="Goal of the post"
-                className={cn('grid gap-2 sm:grid-cols-4', goalMissing && !goal && 'rounded-2xl ring-2 ring-bad/40 ring-offset-4 ring-offset-card')}
-              >
-                {POST_GOALS.map((g) => {
-                  const Icon = GOAL_ICON[g.value]
-                  const on = goal === g.value
-                  return (
-                    <button
-                      key={g.value}
-                      type="button"
-                      role="radio"
-                      aria-checked={on}
-                      title={g.hint}
-                      onClick={() => {
-                        setGoal(g.value)
-                        setGoalMissing(false)
-                      }}
-                      className={cn(
-                        'flex items-center gap-2 rounded-2xl px-3 py-2.5 text-left text-[13px] font-medium ring-1 transition-colors',
-                        on ? 'bg-primary/10 text-foreground ring-primary' : 'bg-card ring-border hover:bg-muted',
-                      )}
-                    >
-                      <Icon className={cn('size-4 shrink-0', on ? 'text-primary' : 'text-muted-foreground')} />
-                      {g.label}
-                    </button>
-                  )
-                })}
+            {/* Goal and Format side by side, as dropdowns */}
+            <div className="grid gap-4 sm:grid-cols-2">
+              <div id="goal" className="flex scroll-mt-24 items-center gap-3">
+                <Label className="shrink-0 font-semibold">
+                  Goal <span className="text-bad-fg">*</span>
+                </Label>
+                <Select
+                  value={goal}
+                  onValueChange={(v) => {
+                    if (!v) return
+                    setGoal(v as PostGoal)
+                    setGoalMissing(false)
+                  }}
+                >
+                  <SelectTrigger aria-label="Goal of the post" className={cn('h-10 min-w-0 flex-1 rounded-xl', goalMissing && !goal && 'ring-2 ring-bad/50')}>
+                    {goal ? (
+                      <span className="flex items-center gap-2">
+                        <GoalIconFor goal={goal} />
+                        {POST_GOALS.find((g) => g.value === goal)!.label}
+                      </span>
+                    ) : (
+                      <span className="text-muted-foreground">Choose a goal</span>
+                    )}
+                  </SelectTrigger>
+                  <SelectContent>
+                    {POST_GOALS.map((g) => (
+                      <SelectItem key={g.value} value={g.value}>
+                        <span className="flex items-center gap-2">
+                          <GoalIconFor goal={g.value} />
+                          {g.label}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              <p className={cn('mt-2 text-xs', goalMissing && !goal ? 'text-bad-fg' : 'text-muted-foreground')}>
-                {goal ? POST_GOALS.find((g) => g.value === goal)!.hint + '.' : 'Required. It shapes the AI’s suggestions and lets Data compare goals.'}
-              </p>
-            </div>
 
-            <div>
-              <Label className="mb-2 block font-semibold">Format</Label>
-              <div className="flex flex-wrap gap-1.5">
-                {PLANNED_FORMATS.map((f) => {
-                  const Icon = FORMAT_ICON[f]
-                  return (
-                    <button
-                      key={f}
-                      type="button"
-                      onClick={() => setFormat(f)}
-                      className={cn(
-                        'inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[13px] font-medium ring-1 transition-colors',
-                        format === f ? 'bg-primary text-primary-foreground ring-transparent shadow-sm' : 'bg-card text-foreground ring-border hover:bg-muted',
-                      )}
-                    >
-                      <Icon className="size-3.5" />
-                      {PLANNED_FORMAT_LABELS[f]}
-                    </button>
-                  )
-                })}
+              <div className="flex items-center gap-3">
+                <Label className="shrink-0 font-semibold">Format</Label>
+                <Select value={format} onValueChange={(v) => v && setFormat(v as PlannedFormat)}>
+                  <SelectTrigger aria-label="Format" className="h-10 min-w-0 flex-1 rounded-xl">
+                    <span className="flex items-center gap-2">
+                      <FormatIconFor format={format} />
+                      {PLANNED_FORMAT_LABELS[format]}
+                    </span>
+                  </SelectTrigger>
+                  <SelectContent>
+                    {PLANNED_FORMATS.map((f) => (
+                      <SelectItem key={f} value={f}>
+                        <span className="flex items-center gap-2">
+                          <FormatIconFor format={f} />
+                          {PLANNED_FORMAT_LABELS[f]}
+                        </span>
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
-              {manual && <p className="mt-2 text-xs text-muted-foreground">The app can’t publish this format yet: it will be posted on LinkedIn by hand.</p>}
             </div>
+            {manual && <p className="-mt-3 text-xs text-muted-foreground">The app can’t publish this format yet: it will be posted on LinkedIn by hand.</p>}
 
             <div>
               <Label className="mb-2 block font-semibold">
@@ -331,4 +330,14 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
       />
     </div>
   )
+}
+
+function GoalIconFor({ goal }: { goal: PostGoal }) {
+  const Icon = GOAL_ICON[goal]
+  return <Icon className="size-4 shrink-0 text-muted-foreground" />
+}
+
+function FormatIconFor({ format }: { format: PlannedFormat }) {
+  const Icon = FORMAT_ICON[format]
+  return <Icon className="size-4 shrink-0 text-muted-foreground" />
 }

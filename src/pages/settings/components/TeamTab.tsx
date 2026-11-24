@@ -5,14 +5,16 @@ import { Button } from '@/components/ui/button'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table'
 import { Section, SimpleSelect } from '@/components/common'
-import { useAuth, ROLE_HELP, ROLE_LABELS } from '@/context/auth'
+import { canManageRole, useAuth, ROLE_HELP, ROLE_LABELS } from '@/context/auth'
 import { useAccount } from '@/context/account'
 import { useTz } from '@/context/timezone'
 import { ROLES, type Role, type TeamMember, type TeamMemberInput } from '@/lib/api'
 import { AddMember } from './AddMember'
 import { useGetTeam, useRemoveTeamMember, useSetDefaultAccount, useUpdateTeamMember } from '@/pages/settings/queries'
 
-export const ROLE_OPTIONS = ROLES.map((r) => ({ value: r, label: ROLE_LABELS[r] }))
+/** The roles this person may give: admins up to Approver, super admins any */
+export const roleOptionsFor = (myRole: Role | undefined) => ROLES.filter((r) => canManageRole(myRole, r)).map((r) => ({ value: r, label: ROLE_LABELS[r] }))
+const isAdminLevel = (r: Role) => r === 'admin' || r === 'superadmin'
 
 export function TeamTab() {
   const auth = useAuth()
@@ -23,6 +25,8 @@ export function TeamTab() {
   const remove = useRemoveTeamMember()
   const setDefault = useSetDefaultAccount()
   const onError = (e: Error) => toast.error(e.message)
+  const myRole = auth.user?.role
+  const options = roleOptionsFor(myRole)
 
   const patch = (m: TeamMember, changes: Partial<TeamMemberInput>) =>
     update.mutate({
@@ -43,7 +47,7 @@ export function TeamTab() {
 
       <Section icon={Users}
         title="Team"
-        description="Only people listed here can sign in, using their AVAIBE Microsoft account. Admins can always switch accounts."
+        description="Only people listed here can sign in, using their AVAIBE Microsoft account. Admins and super admins can always switch accounts. Only super admins can change admins and super admins, and nobody can change their own access."
       >
         <Table>
           <TableHeader>
@@ -66,6 +70,9 @@ export function TeamTab() {
             )}
             {data.members.map((m) => {
               const isMe = auth.user?.email === m.email
+              // Locked: your own row, or someone above what you may manage (the server refuses these too)
+              const locked = isMe || !canManageRole(myRole, m.role)
+              const why = isMe ? 'You can’t change your own access: ask another admin' : 'Only a super admin can change admins and super admins'
               return (
                 <TableRow key={m.id} className={m.active ? '' : 'opacity-60'}>
                   <TableCell>
@@ -75,7 +82,13 @@ export function TeamTab() {
                     </div>
                   </TableCell>
                   <TableCell>
-                    <SimpleSelect value={m.role} onChange={(v) => patch(m, { role: v as Role })} options={ROLE_OPTIONS} />
+                    {locked ? (
+                      <span title={why} className="inline-flex rounded-full bg-muted px-2.5 py-1 text-xs font-medium">
+                        {ROLE_LABELS[m.role]}
+                      </span>
+                    ) : (
+                      <SimpleSelect value={m.role} onChange={(v) => patch(m, { role: v as Role })} options={options} />
+                    )}
                   </TableCell>
                   <TableCell>
                     <label className="flex items-center gap-2 text-sm">
@@ -83,18 +96,19 @@ export function TeamTab() {
                         type="checkbox"
                         className="size-4 accent-(--primary)"
                         checked={m.can_switch_accounts}
-                        disabled={m.role === 'admin'}
+                        disabled={locked || isAdminLevel(m.role)}
                         onChange={(e) => patch(m, { can_switch_accounts: e.target.checked })}
                       />
-                      {m.role === 'admin' ? <span className="text-xs text-muted-foreground">always (admin)</span> : m.can_switch_accounts ? 'Yes' : 'No'}
+                      {isAdminLevel(m.role) ? <span className="text-xs text-muted-foreground">always ({ROLE_LABELS[m.role].toLowerCase()})</span> : m.can_switch_accounts ? 'Yes' : 'No'}
                     </label>
                   </TableCell>
                   <TableCell>
                     <button
                       type="button"
-                      className="text-xs underline-offset-2 hover:underline"
+                      className="text-xs underline-offset-2 enabled:hover:underline disabled:cursor-not-allowed"
+                      disabled={locked}
                       onClick={() => patch(m, { active: !m.active })}
-                      title={m.active ? 'Switch off access (signs them out)' : 'Restore access'}
+                      title={locked ? why : m.active ? 'Switch off access (signs them out)' : 'Restore access'}
                     >
                       {m.active ? <span className="text-good-fg">Active</span> : <span className="text-bad-fg">Access off</span>}
                     </button>
@@ -104,6 +118,8 @@ export function TeamTab() {
                     <Button
                       size="icon-sm"
                       variant="ghost"
+                      disabled={locked}
+                      title={locked ? why : undefined}
                       aria-label={`Remove ${m.email}`}
                       onClick={() => {
                         if (window.confirm(`Remove ${m.email} from the team? They will be signed out.`)) remove.mutate(m.id, { onSuccess: () => toast.success('Removed from the team'), onError })

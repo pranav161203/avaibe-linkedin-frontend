@@ -108,12 +108,12 @@ export function PlannedCard({
               <Pencil /> Edit
             </Button>
           )}
-          {unpublished && auth.can('approver') && (
+          {unpublished && auth.can('editor') && (
             <Button size="sm" onClick={() => setReviewing(true)} disabled={action.isPending}>
               <CheckCircle2 /> Approve
             </Button>
           )}
-          {p.status === 'approved' && auth.can('approver') && (
+          {p.status === 'approved' && auth.can('editor') && (
             <>
               {!dueByHand(p) && (
                 <Button size="sm" variant="outline" onClick={() => run('unapprove')} disabled={action.isPending}>

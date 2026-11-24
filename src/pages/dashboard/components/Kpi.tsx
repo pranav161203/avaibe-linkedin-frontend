@@ -3,8 +3,9 @@ import type { LucideIcon } from 'lucide-react'
 import { Card, CardHeader } from '@/components/ui/card'
 import type { Change } from '@/components/period'
 import { cn } from '@/lib/utils'
+import { Sparkline } from './Sparkline'
 
-export function Kpi({ to, icon: Icon, label, value, change, note }: { to: string; icon: LucideIcon; label: string; value: string; change: Change | null; note: string }) {
+export function Kpi({ to, icon: Icon, label, value, change, note, trend }: { to: string; icon: LucideIcon; label: string; value: string; change: Change | null; note: string; trend?: (number | null)[] }) {
   return (
     <Link to={to} className="group block rounded-2xl focus-visible:ring-2 focus-visible:ring-ring focus-visible:outline-none">
       <Card size="sm" className="h-full transition-shadow group-hover:shadow-md">
@@ -13,11 +14,17 @@ export function Kpi({ to, icon: Icon, label, value, change, note }: { to: string
             {label}
             <Icon className="size-4 shrink-0 text-primary" aria-hidden />
           </div>
-          <div className="mt-2 flex flex-wrap items-center gap-2">
-            <span className="text-[34px] leading-none font-medium tracking-tight tabular-nums">{value}</span>
+          {/* Same three lines on every tile: title, number, then the change and what it's compared with */}
+          <div className="mt-2 text-[34px] leading-none font-medium tracking-tight tabular-nums">{value}</div>
+          <div className="mt-2 flex min-w-0 items-center gap-1.5 text-xs text-muted-foreground">
             <ChangePill c={change} />
+            <span className="truncate" title={note}>{note}</span>
           </div>
-          <div className="mt-1 text-xs text-muted-foreground">{note}</div>
+          {trend && (
+            <div className="mt-3">
+              <Sparkline values={trend} label={label} />
+            </div>
+          )}
         </CardHeader>
       </Card>
     </Link>
@@ -25,7 +32,7 @@ export function Kpi({ to, icon: Icon, label, value, change, note }: { to: string
 }
 
 /** The change as a small coloured pill: ▲ green up, ▼ red down, grey when about the same */
-function ChangePill({ c }: { c: Change | null }) {
+export function ChangePill({ c }: { c: Change | null }) {
   if (!c) return null
   const tone = c.dir === 'up' ? 'bg-good/15 text-good-fg' : c.dir === 'down' ? 'bg-bad/10 text-bad-fg' : 'bg-muted text-muted-foreground'
   return (

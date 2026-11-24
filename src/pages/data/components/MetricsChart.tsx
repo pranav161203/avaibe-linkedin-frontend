@@ -48,6 +48,7 @@ interface Point {
 }
 
 export type CompareLine = { from: string; to: string; label: string } | null
+export type MetricSummary = { a: string; b: string; change: number | null; note?: string; higher?: 'a' | 'b' | null }
 
 export function MetricsChart({
   daily,
@@ -58,6 +59,8 @@ export function MetricsChart({
   param = 'metric',
   title = 'Metrics',
   compare = null,
+  summary,
+  showChart = true,
 }: {
   daily: PageDay[]
   from: string
@@ -68,6 +71,9 @@ export function MetricsChart({
   param?: string
   title?: string
   compare?: CompareLine
+  /** Compare periods: each metric becomes a tile with both periods' totals and the change */
+  summary?: (m: ChartMetric) => MetricSummary
+  showChart?: boolean
 }) {
   const [params, setParams] = useSearchParams()
   const metric = metrics.find((m) => m.value === params.get(param)) ?? metrics[0]
@@ -140,7 +146,7 @@ export function MetricsChart({
       <CardHeader className="gap-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <CardHeading icon={LineChart} title={title} />
-          <div role="tablist" aria-label="Chart metric" className="flex flex-wrap gap-1 rounded-lg bg-secondary p-1">
+          {!summary && <div role="tablist" aria-label="Chart metric" className="flex flex-wrap gap-1 rounded-lg bg-secondary p-1">
             {metrics.map((m) => (
               <button
                 key={m.value}
@@ -159,9 +165,60 @@ export function MetricsChart({
                 {m.label}
               </button>
             ))}
-          </div>
+          </div>}
         </div>
-        <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
+        {summary && (
+          <div role="tablist" aria-label="Chart metric" className="grid grid-cols-2 gap-2 sm:grid-cols-4">
+            {metrics.map((m) => {
+              const s = summary(m)
+              const on = m.value === metric.value && showChart
+              const up = s.change != null && s.change > 0.02
+              const down = s.change != null && s.change < -0.02
+              return (
+                <button
+                  key={m.value}
+                  role="tab"
+                  aria-selected={on}
+                  type="button"
+                  disabled={!showChart}
+                  onClick={() => {
+                    setMetric(m.value)
+                    setPicked(null)
+                  }}
+                  className={cn('flex flex-col justify-start rounded-xl px-3.5 py-3 text-left ring-1 transition-colors disabled:cursor-default', on ? 'bg-primary/5 ring-primary/40' : 'ring-border enabled:hover:bg-accent')}
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs text-muted-foreground">{m.label}</span>
+                    {s.change != null && (
+                      <span className={cn('text-xs font-medium tabular-nums', up && 'text-good-fg', down && 'text-bad-fg', !up && !down && 'text-muted-foreground')}>
+                        {s.change >= 0 ? '+' : ''}
+                        {Math.round(s.change * 100)}%
+                      </span>
+                    )}
+                  </div>
+                  {/* A always on top, B below (same order as the chart); the higher one is bold */}
+                  <div className="mt-2 space-y-1">
+                    {(['a', 'b'] as const).map((k) => (
+                      <div key={k} className="flex items-center gap-2">
+                        <span
+                          className={cn(
+                            'flex size-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold',
+                            k === 'a' ? 'bg-primary text-primary-foreground' : 'bg-period-b text-period-b-fg',
+                          )}
+                        >
+                          {k.toUpperCase()}
+                        </span>
+                        <span className={cn('text-base tabular-nums', s.higher === k ? 'font-semibold text-foreground' : 'text-muted-foreground')}>{s[k]}</span>
+                      </div>
+                    ))}
+                  </div>
+                  {s.note && <div className="mt-1.5 truncate text-[11px] text-muted-foreground tabular-nums">{s.note}</div>}
+                </button>
+              )
+            })}
+          </div>
+        )}
+        {showChart && <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-muted-foreground">
           <span className="inline-flex items-center gap-1.5">
             <span className="h-0.5 w-4 rounded-full bg-[var(--chart-current)]" aria-hidden /> {metric.label} per {unit}
           </span>
@@ -172,7 +229,7 @@ export function MetricsChart({
           )}
           {compare && (
             <span className="inline-flex items-center gap-1.5">
-              <span className="w-4 border-t-2 border-dashed border-muted-foreground" aria-hidden /> {compare.label}
+              <span className="w-4 border-t-2 border-dashed border-period-b" aria-hidden /> {compare.label}
             </span>
           )}
           {markers.length > 0 && (
@@ -181,9 +238,9 @@ export function MetricsChart({
             </span>
           )}
 
-        </div>
+        </div>}
       </CardHeader>
-      <CardContent>
+      {showChart && <CardContent>
         {!hasData ? (
           <p className="py-10 text-center text-sm text-muted-foreground">No {metric.label.toLowerCase()} in this period yet.</p>
         ) : (
@@ -230,7 +287,7 @@ export function MetricsChart({
                 <YAxis tickLine={false} axisLine={false} width={44} fontSize={11} allowDecimals={false} tickFormatter={(v: number) => (v >= 10_000 ? `${Math.round(v / 1000)}K` : fmtNumber(v))} />
                 <ChartTooltip cursor={{ stroke: 'var(--muted-foreground)', strokeWidth: 1, strokeOpacity: 0.35 }} content={<PointTooltip unit={unit} metric={metric.label} />} />
                 {compare && (
-                  <Line dataKey="cmp" type="monotone" stroke="var(--muted-foreground)" strokeWidth={1.5} strokeDasharray="5 4" dot={false} activeDot={false} connectNulls isAnimationActive={false} />
+                  <Line dataKey="cmp" type="monotone" stroke="var(--period-b)" strokeWidth={2} strokeDasharray="5 4" dot={false} activeDot={false} connectNulls isAnimationActive={false} />
                 )}
                 <Area
                   dataKey="value"
@@ -267,7 +324,7 @@ export function MetricsChart({
             )}
           </>
         )}
-      </CardContent>
+      </CardContent>}
     </Card>
   )
 }

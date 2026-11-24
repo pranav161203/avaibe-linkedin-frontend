@@ -58,6 +58,8 @@
     --color-bad: var(--status-bad);
     --color-bad-fg: var(--status-bad-fg);
     --color-info: var(--info);
+    --color-period-b: var(--period-b);
+    --color-period-b-fg: var(--period-b-fg);
     --color-info-fg: var(--info-fg);
     --radius-sm: calc(var(--radius) * 0.6);
     --radius-md: calc(var(--radius) * 0.8);
@@ -117,6 +119,9 @@
        deliberately low-chroma and always dashed + labelled) */
     --chart-current: var(--a-600);
     --chart-previous: #64748b;
+    /* Period B on Compare periods: charcoal ink beside A's coral; as strong as A, never faded */
+    --period-b: #2b2725;
+    --period-b-fg: #ffffff;
 
     /* Chart series: the main series uses the accent; others are distinct, calm hues */
     --chart-1: #d9542f;
@@ -199,6 +204,8 @@
 
     --chart-current: var(--a-500);
     --chart-previous: #7d8ba1;
+    --period-b: #e7e2de;
+    --period-b-fg: #1c1917;
     --chart-1: #e0623a;
     --chart-2: #139e8f;
     --chart-3: #b07a1e;
