@@ -896,16 +896,16 @@ export async function markLeadReplied(id: number): Promise<Lead> {
 
 // ---------------------------- Settings ---------------------------------------------------- //
 
-export async function getSettings() {
+export async function getSettings(_companyId?: number) {
   return ok({ current: db().settings, defaults: DEFAULTS })
 }
 
-export async function saveSettings<K extends SettingsSection>({ section, body }: { section: K; body: AppSettings['current'][K] }): Promise<AppSettings['current'][K]> {
+export async function saveSettings<K extends SettingsSection>({ section, body }: { section: K; body: AppSettings['current'][K]; companyId?: number }): Promise<AppSettings['current'][K]> {
   ;(db().settings as Record<string, unknown>)[section] = body
   return saved(body)
 }
 
-export async function resetSettings(section: SettingsSection): Promise<unknown> {
+export async function resetSettings({ section }: { section: SettingsSection; companyId?: number }): Promise<unknown> {
   ;(db().settings as Record<string, unknown>)[section] = DEFAULTS[section]
   return saved(DEFAULTS[section])
 }

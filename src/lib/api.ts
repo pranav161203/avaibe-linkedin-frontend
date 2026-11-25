@@ -375,18 +375,21 @@ export async function markLeadReplied(id: number): Promise<Lead> {
 
 // ---------------------------- Settings ---------------------------------------------------- //
 
-export async function getSettings(): Promise<AppSettings> {
-  const res = await axiosAuth.get(API_ENDPOINTS.SETTINGS.GET_SETTINGS)
+/** companyId: an owner managing one company; omitted = your own company */
+const companyParams = (companyId?: number) => (companyId ? { params: { company_id: companyId } } : undefined)
+
+export async function getSettings(companyId?: number): Promise<AppSettings> {
+  const res = await axiosAuth.get(API_ENDPOINTS.SETTINGS.GET_SETTINGS, companyParams(companyId))
   return res.data
 }
 
-export async function saveSettings<K extends SettingsSection>({ section, body }: { section: K; body: AppSettings['current'][K] }): Promise<AppSettings['current'][K]> {
-  const res = await axiosAuth.put(API_ENDPOINTS.SETTINGS.PUT_SECTION(section), body)
+export async function saveSettings<K extends SettingsSection>({ section, body, companyId }: { section: K; body: AppSettings['current'][K]; companyId?: number }): Promise<AppSettings['current'][K]> {
+  const res = await axiosAuth.put(API_ENDPOINTS.SETTINGS.PUT_SECTION(section), body, companyParams(companyId))
   return res.data
 }
 
-export async function resetSettings(section: SettingsSection): Promise<unknown> {
-  const res = await axiosAuth.post(API_ENDPOINTS.SETTINGS.POST_RESET(section))
+export async function resetSettings({ section, companyId }: { section: SettingsSection; companyId?: number }): Promise<unknown> {
+  const res = await axiosAuth.post(API_ENDPOINTS.SETTINGS.POST_RESET(section), undefined, companyParams(companyId))
   return res.data
 }
 

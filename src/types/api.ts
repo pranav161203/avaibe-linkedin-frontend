@@ -158,6 +158,8 @@ export interface BrandSettings {
 }
 
 export interface AppSettings {
+  /** The company these settings belong to */
+  company_id?: number
   current: { segments: SegmentSettings; performance: PerformanceSettings; brand: BrandSettings }
   defaults: { segments: SegmentSettings; performance: PerformanceSettings; brand: BrandSettings }
 }

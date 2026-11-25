@@ -20,6 +20,7 @@ import {
   type SettingsSection,
 } from '@/lib/api'
 import { queryClient } from '@/providers'
+import { useSettingsCompany } from '@/pages/settings/context'
 
 export const useGetAccounts = (enabled = true) => {
   return useQuery({
@@ -36,10 +37,13 @@ export const useCreateAccount = () => {
   })
 }
 
-export const useGetSettings = () => {
+/** companyId: defaults to the company chosen on the Settings page (owners) or your own */
+export const useGetSettings = (companyId?: number) => {
+  const chosen = useSettingsCompany()
+  const id = companyId ?? chosen
   return useQuery({
-    queryKey: ['settings'],
-    queryFn: getSettings,
+    queryKey: ['settings', id ?? 'mine'],
+    queryFn: () => getSettings(id),
   })
 }
 
@@ -57,8 +61,10 @@ type SaveSettingsArgs =
   | { section: SettingsSection; reset: true }
 
 export const useSaveSettings = () => {
+  const companyId = useSettingsCompany()
   return useMutation({
-    mutationFn: (args: SaveSettingsArgs) => ('reset' in args ? resetSettings(args.section) : saveSettings(args as { section: SettingsSection; body: never })),
+    mutationFn: (args: SaveSettingsArgs) =>
+      'reset' in args ? resetSettings({ section: args.section, companyId }) : saveSettings({ ...(args as { section: SettingsSection; body: never }), companyId }),
     onSuccess: () => queryClient.invalidateQueries(),
   })
 }
