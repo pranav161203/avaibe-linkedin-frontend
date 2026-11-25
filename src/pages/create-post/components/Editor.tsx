@@ -29,6 +29,8 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
   const [params] = useSearchParams()
   const [zone] = useState(tz.zone)
   const formatParam = params.get('format') as PlannedFormat | null
+  // Where the editor was opened from: the back link and "save" return there
+  const origin = params.get('from') === 'calendar' ? { to: '/calendar', label: 'Calendar' } : params.get('from') === 'dashboard' ? { to: '/', label: 'Dashboard' } : { to: '/publishing', label: 'Publishing' }
   const [format, setFormat] = useState<PlannedFormat>(initial?.format ?? (formatParam && PLANNED_FORMATS.includes(formatParam) ? formatParam : 'text'))
   const [details, setDetails] = useState<PlannedDetails>(initial?.details ?? {})
   const setDetail = <K extends keyof PlannedDetails>(k: K, v: PlannedDetails[K]) => setDetails((d) => ({ ...d, [k]: v }))
@@ -99,7 +101,7 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
       } else {
         toast.success(initial?.status === 'approved' ? 'Saved as unpublished: it is no longer scheduled until it is published again.' : 'Draft saved')
       }
-      navigate(params.get('from') === 'calendar' ? '/calendar' : '/publishing')
+      navigate(origin.to)
     } catch (e) {
       toast.error((e as Error).message)
     } finally {
@@ -110,9 +112,9 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
   return (
     <div className="mx-auto max-w-page">
       <nav className="mb-1 flex items-center gap-1.5 text-sm text-muted-foreground" aria-label="Breadcrumb">
-        {(initial || params.get('from') === 'calendar') && <BackButton fallback={params.get('from') === 'calendar' ? '/calendar' : '/publishing'} />}
-        <Link to={params.get('from') === 'calendar' ? '/calendar' : '/publishing'} className="hover:text-foreground">
-          {params.get('from') === 'calendar' ? 'Calendar' : 'Publishing'}
+        {(initial || origin.to !== '/publishing') && <BackButton fallback={origin.to} />}
+        <Link to={origin.to} className="hover:text-foreground">
+          {origin.label}
         </Link>
         <ChevronRight className="size-3.5" />
         <span className="text-foreground">{initial ? 'Edit post' : 'Create post'}</span>

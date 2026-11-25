@@ -53,11 +53,11 @@ type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; role: 
 
 const OVERVIEW: NavItem[] = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, role: 'viewer' },
+  { to: '/calendar', label: 'Calendar', icon: CalendarDays, role: 'viewer' },
   { to: '/data', label: 'Data', icon: Database, role: 'viewer' },
 ]
 const CONTENT: NavItem[] = [
   { to: '/suggestions', label: 'Suggestions', icon: Lightbulb, role: 'viewer' },
-  { to: '/calendar', label: 'Calendar', icon: CalendarDays, role: 'viewer' },
   { to: '/publishing', label: 'Publishing', icon: Send, role: 'viewer' },
 ]
 const BRAND: NavItem[] = [
@@ -91,12 +91,14 @@ export function AppSidebar() {
   const [help, setHelp] = useState(false)
   const brand = useFoldingSection('/brand')
   const leads = useFoldingSection('/leads')
-  const fromCalendar = new URLSearchParams(search).get('from') === 'calendar'
+  const from = new URLSearchParams(search).get('from')
+  const fromCalendar = from === 'calendar'
+  const fromDashboard = from === 'dashboard'
   const isActive = (to: string) => {
-    if (to === '/') return pathname === '/'
+    if (to === '/') return pathname === '/' || (pathname.startsWith('/create') && fromDashboard)
     if (to === '/data') return pathname.startsWith('/data') || pathname.startsWith('/import') || pathname.startsWith('/posts') || pathname.startsWith('/compare')
     if (to === '/suggestions') return pathname.startsWith('/suggestions')
-    if (to === '/publishing') return pathname.startsWith('/publishing') || (pathname.startsWith('/create') && !fromCalendar)
+    if (to === '/publishing') return pathname.startsWith('/publishing') || (pathname.startsWith('/create') && !fromCalendar && !fromDashboard)
     if (to === '/calendar') return pathname.startsWith('/calendar') || (pathname.startsWith('/create') && fromCalendar)
     return pathname.startsWith(to)
   }

@@ -5,8 +5,9 @@ import { format, parseISO } from 'date-fns'
 import { Eye, Info, MousePointerClick, Pointer, UserPlus, Users } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { EmptyState, PageHeader } from '@/components/common'
+import { NewPostMenu } from '@/components/NewPostMenu'
 import { FormatsCard } from '@/pages/dashboard/components/FormatsCard'
-import { DotGridCard } from '@/pages/dashboard/components/DotGridCard'
+import { WeeklyPostsCard } from '@/pages/dashboard/components/WeeklyPostsCard'
 import { RingsCard } from '@/pages/dashboard/components/RingsCard'
 import { engagementOf, pt, rel, useSortedDaily, usePeriod, ymd } from '@/components/period'
 import { TimeRangePicker, type TimeRange } from '@/components/time-range'
@@ -86,7 +87,17 @@ export function DashboardPage() {
 
   return (
     <div className="mx-auto max-w-page">
-      <PageHeader eyebrow="Overview" title="Dashboard" description={account?.name} actions={<TimeRangePicker value={range} onChange={setRange} />} />
+      <PageHeader
+        eyebrow="Overview"
+        title="Dashboard"
+        description={account?.name}
+        actions={
+          <div className="flex flex-wrap items-center gap-2">
+            <TimeRangePicker value={range} onChange={setRange} />
+            <NewPostMenu from="dashboard" />
+          </div>
+        }
+      />
 
       {isLoading ? (
         <div className="grid gap-3 sm:grid-cols-5">
@@ -162,13 +173,13 @@ export function DashboardPage() {
 
       {stats && (
         <>
-          {/* Row 2: three cards of the same height: the rings, posting days, what needs doing */}
+          {/* Row 2: three cards of the same height: the rings, posts per week, what needs doing */}
           <div className="mt-4 grid gap-4 lg:grid-cols-3 [&>*]:h-full">
             <RingsCard
               uae={account?.kind === 'company' ? { share: uae.share, total: uae.total, asOf: uae.asOf ? format(parseISO(uae.asOf), 'd MMM') : null, to: dataLink('followers') } : null}
               posts={{ ...monthPosts, to: '/data?tab=posts' }}
             />
-            <DotGridCard posts={posts} />
+            <WeeklyPostsCard posts={posts} />
             <div id="tasks" className="scroll-mt-6 [&>*]:h-full">
               <Attention accountId={id} />
             </div>
