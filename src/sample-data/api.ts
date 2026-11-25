@@ -4,6 +4,7 @@ import type {
   CompanyUpdate,
   Invitation,
   InvitationInfo,
+  SignedInDevice,
   InviteInput,
   TeamData,
   Account,
@@ -494,6 +495,15 @@ export async function login(_body: { email: string; password: string }): Promise
   return ok({ signed_in: true })
 }
 export async function changePassword(_body: { current: string; new: string }): Promise<{ changed: boolean }> {
+  return fail(400, NO_SIGNIN)
+}
+export async function getSessions(): Promise<SignedInDevice[]> {
+  return ok([])
+}
+export async function signOutSession(_id: string): Promise<void> {
+  return fail(400, NO_SIGNIN)
+}
+export async function signOutOtherSessions(): Promise<{ signed_out: number }> {
   return fail(400, NO_SIGNIN)
 }
 export async function getInvitation(_token: string): Promise<InvitationInfo> {

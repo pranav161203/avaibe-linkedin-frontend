@@ -1,50 +1,39 @@
-import { Navigate, useSearchParams } from "react-router-dom";
-import { Skeleton } from "@/components/ui/skeleton";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { PageHeader } from "@/components/common";
-import { TeamTab } from "./components/TeamTab";
-import {
-  CompanyPicker,
-  OWNERS,
-  useCompanyChoice,
-} from "./components/CompanyPicker";
-import { SettingsCompany } from "./context";
-import { CompaniesTab } from "./components/CompaniesTab";
-import { useAuth } from "@/context/auth";
-import { AudienceTab } from "./components/AudienceTab";
-import { ClaudeTab } from "./components/ClaudeTab";
-import { GeneralTab } from "./components/GeneralTab";
-import { PerformanceTab } from "./components/PerformanceTab";
-import { TABS } from "./constants";
-import { useGetSettings } from "@/pages/settings/queries";
+import { Navigate, useSearchParams } from 'react-router-dom'
+import { Skeleton } from '@/components/ui/skeleton'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
+import { PageHeader } from '@/components/common'
+import { TeamTab } from './components/TeamTab'
+import { CompanyPicker, OWNERS, useCompanyChoice } from './components/CompanyPicker'
+import { SettingsCompany } from './context'
+import { CompaniesTab } from './components/CompaniesTab'
+import { useAuth } from '@/context/auth'
+import { AudienceTab } from './components/AudienceTab'
+import { ClaudeTab } from './components/ClaudeTab'
+import { GeneralTab } from './components/GeneralTab'
+import { PerformanceTab } from './components/PerformanceTab'
+import { TABS } from './constants'
+import { useGetSettings } from '@/pages/settings/queries'
 
 export function SettingsPage() {
-  const [params, setParams] = useSearchParams();
-  const tab = TABS.includes(params.get("tab") as (typeof TABS)[number])
-    ? params.get("tab")!
-    : "general";
-  const auth = useAuth();
-  const isOwner = auth.user?.role === "superadmin";
+  const [params, setParams] = useSearchParams()
+  const tab = TABS.includes(params.get('tab') as (typeof TABS)[number]) ? params.get('tab')! : 'general'
+  const auth = useAuth()
+  const isOwner = auth.user?.role === 'superadmin'
   // Owners pick the company for the company-specific tabs; everyone else always sees their own
-  const choice = useCompanyChoice(isOwner, tab === "team");
-  const companyId = isOwner ? choice.companyId : undefined;
-  const { data, isLoading } = useGetSettings(companyId);
-  const companyTab = ["team", "audience", "performance", "claude"].includes(
-    tab,
-  );
+  const choice = useCompanyChoice(isOwner, tab === 'team')
+  const companyId = isOwner ? choice.companyId : undefined
+  const { data, isLoading } = useGetSettings(companyId)
+  const companyTab = ['team', 'audience', 'performance', 'claude'].includes(tab)
 
-  if (params.get("tab") === "brand")
-    return <Navigate to="/settings?tab=claude" replace />;
+  if (params.get('tab') === 'brand') return <Navigate to="/settings?tab=claude" replace />
 
-  if (!auth.can("admin")) {
+  if (!auth.can('admin')) {
     return (
       <div className="mx-auto max-w-3xl">
         <PageHeader eyebrow="Workspace" title="Settings" />
-        <p className="text-sm text-muted-foreground">
-          Only admins can change settings.
-        </p>
+        <p className="text-sm text-muted-foreground">Only admins can change settings.</p>
       </div>
-    );
+    )
   }
 
   return (
@@ -59,8 +48,8 @@ export function SettingsPage() {
         onValueChange={(v) =>
           setParams(
             (p) => {
-              p.set("tab", String(v));
-              return p;
+              p.set('tab', String(v))
+              return p
             },
             { replace: true },
           )
@@ -76,11 +65,7 @@ export function SettingsPage() {
         </TabsList>
         {isOwner && companyTab && (
           <div className="mt-4">
-            <CompanyPicker
-              value={choice.value}
-              options={choice.options}
-              onChange={choice.set}
-            />
+            <CompanyPicker value={choice.value} options={choice.options} onChange={choice.set} />
           </div>
         )}
         <SettingsCompany.Provider value={companyId}>
@@ -107,10 +92,7 @@ export function SettingsPage() {
             {isLoading || !data ? (
               <Skeleton className="h-96" />
             ) : (
-              <AudienceTab
-                key={JSON.stringify(data.current.segments)}
-                current={data.current.segments}
-              />
+              <AudienceTab key={JSON.stringify(data.current.segments)} current={data.current.segments} />
             )}
           </TabsContent>
           <TabsContent value="performance" className="mt-4">
@@ -130,5 +112,5 @@ export function SettingsPage() {
         </SettingsCompany.Provider>
       </Tabs>
     </div>
-  );
+  )
 }

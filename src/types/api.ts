@@ -110,6 +110,19 @@ export interface CompanyInput {
 
 export type CompanyUpdate = Partial<CompanyInput> & { is_active?: boolean; default_account_id?: number | null }
 
+/** One signed-in device (a sign-in session) of the current person */
+export interface SignedInDevice {
+  id: string
+  /** e.g. "Chrome on Windows" */
+  device: string
+  method: 'password' | 'microsoft'
+  created_at: string
+  last_used_at: string
+  expires_at: string
+  /** The device making this request */
+  current: boolean
+}
+
 export interface InvitationInfo {
   email: string
   role: Role

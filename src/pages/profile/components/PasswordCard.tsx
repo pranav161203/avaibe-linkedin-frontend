@@ -31,7 +31,7 @@ export function PasswordCard() {
       setCurrent('')
       setNext('')
       setConfirm('')
-      qc.invalidateQueries({ queryKey: ['auth', 'me'] })
+      qc.invalidateQueries({ queryKey: ['auth'] }) // who is signed in, and the devices list
     } catch (err) {
       toast.error(err instanceof Error ? err.message : 'Password could not be updated')
     } finally {

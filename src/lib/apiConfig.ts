@@ -5,6 +5,9 @@ const API_ENDPOINTS = {
     POST_REFRESH: '/auth/refresh',
     POST_LOGOUT: '/auth/logout',
     POST_PASSWORD: '/auth/password',
+    GET_SESSIONS: '/auth/sessions',
+    DELETE_SESSION: (id: string) => `/auth/sessions/${id}`,
+    POST_SIGN_OUT_OTHERS: '/auth/sessions/sign-out-others',
     GET_INVITATION: '/auth/invitation',
     POST_SIGNUP: '/auth/signup',
     /** A full-page redirect, not an XHR call */

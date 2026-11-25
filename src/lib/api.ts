@@ -49,6 +49,7 @@ import type {
   TeamData,
   Invitation,
   InvitationInfo,
+  SignedInDevice,
   InviteInput,
   Company,
   CompanyInput,
@@ -99,6 +100,20 @@ export async function logout(): Promise<{ signed_out: boolean }> {
 
 export async function changePassword(body: { current: string; new: string }): Promise<{ changed: boolean }> {
   const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_PASSWORD, body)
+  return res.data
+}
+
+export async function getSessions(): Promise<SignedInDevice[]> {
+  const res = await axiosAuth.get(API_ENDPOINTS.AUTH.GET_SESSIONS)
+  return res.data
+}
+
+export async function signOutSession(id: string): Promise<void> {
+  await axiosAuth.delete(API_ENDPOINTS.AUTH.DELETE_SESSION(id))
+}
+
+export async function signOutOtherSessions(): Promise<{ signed_out: number }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_SIGN_OUT_OTHERS)
   return res.data
 }
 

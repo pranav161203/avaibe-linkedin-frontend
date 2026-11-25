@@ -4,6 +4,7 @@ import { LocalDetails } from './components/LocalDetails'
 import { ProfileCard } from './components/ProfileCard'
 import { SignedInDetails } from './components/SignedInDetails'
 import { PasswordCard } from './components/PasswordCard'
+import { SessionsCard } from './components/SessionsCard'
 
 export function ProfilePage() {
   const auth = useAuth()
@@ -17,6 +18,7 @@ export function ProfilePage() {
           <div className="space-y-4">
             <SignedInDetails />
             <PasswordCard />
+            <SessionsCard />
           </div>
         ) : (
           <LocalDetails />
