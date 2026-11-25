@@ -175,7 +175,9 @@ export function TeamTab({ companyId }: { companyId?: number }) {
                   <span className="font-medium">{i.email}</span>
                   <Badge variant="outline">{ROLE_LABELS[i.role]}</Badge>
                   <span className="text-xs text-muted-foreground">
-                    {i.invited_by && <>by {i.invited_by} · </>}link valid until {i.expires_at ? tz.dateTime(i.expires_at) : '—'}
+                    {i.invited_by && <>by {i.invited_by} · </>}
+                    {i.emailed_at && <>emailed {tz.dateTime(i.emailed_at)} · </>}
+                    link valid until {i.expires_at ? tz.dateTime(i.expires_at) : '—'}
                   </span>
                   <span className="ml-auto flex gap-1">
                     <Button
@@ -213,8 +215,8 @@ export function TeamTab({ companyId }: { companyId?: number }) {
         )}
       </Section>
 
-      {shown?.token && <InviteLink invitation={shown} onClose={() => setShown(null)} />}
-      <AddMember companyId={companyId} superTeam={superTeam} onInvited={setShown} />
+      {shown?.token && <InviteLink invitation={shown} emailEnabled={!!data.email_enabled} onClose={() => setShown(null)} />}
+      <AddMember companyId={companyId} superTeam={superTeam} emailEnabled={!!data.email_enabled} onInvited={setShown} />
 
       {data.company && (
         <Section icon={Star} title="Default account" description="Shown to members who cannot switch accounts.">

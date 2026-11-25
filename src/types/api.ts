@@ -65,8 +65,12 @@ export interface Invitation {
   invited_by: string | null
   created_at: string | null
   expires_at: string | null
+  /** When the current link was last emailed; null = shared by hand */
+  emailed_at?: string | null
   token?: string
   link?: string
+  /** Right after inviting or renewing: whether the email went out */
+  email_sent?: boolean
 }
 
 export interface InviteInput {
@@ -81,6 +85,8 @@ export interface TeamData {
   /** The company this list is for; null = the super admins */
   company: { id: number; name: string } | null
   default_account_id: number | null
+  /** Invitations are emailed (a mail server is configured); otherwise links are shared by hand */
+  email_enabled?: boolean
 }
 
 export interface Company {

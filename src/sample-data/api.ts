@@ -539,6 +539,7 @@ export async function getTeam(companyId?: number | null): Promise<TeamData> {
     invitations,
     company: company ? { id: company.id, name: company.name } : null,
     default_account_id: company ? (d.defaultAccountId as number | null) : null,
+    email_enabled: false,
   })
 }
 
@@ -551,7 +552,7 @@ export async function inviteTeamMember({ companyId, body }: { companyId?: number
   }
   d.invitations = d.invitations.filter((i) => !(i.email === inv.email && i.company_id === inv.company_id))
   d.invitations.push(inv)
-  return saved({ ...inv, token: sampleToken() })
+  return saved({ ...inv, token: sampleToken(), email_sent: false })
 }
 
 export async function revokeInvitation(id: number): Promise<void> {

@@ -7,7 +7,7 @@ import type { Invitation } from '@/lib/api'
 
 /** The one-time sign-up link, shown once right after inviting (or renewing). Built on this site's address, so it
  * works on whichever copy of the app you're using. */
-export function InviteLink({ invitation, onClose }: { invitation: Invitation; onClose: () => void }) {
+export function InviteLink({ invitation, emailEnabled, onClose }: { invitation: Invitation; emailEnabled: boolean; onClose: () => void }) {
   const tz = useTz()
   const [copied, setCopied] = useState(false)
   const link = `${window.location.origin}/signup?token=${invitation.token}`
@@ -24,7 +24,8 @@ export function InviteLink({ invitation, onClose }: { invitation: Invitation; on
     <div className="rounded-xl border border-primary/30 bg-primary/5 p-4">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-2 text-sm font-medium">
-          <Link2 className="size-4 text-primary" /> Invitation link for {invitation.email}
+          <Link2 className="size-4 text-primary" />{' '}
+          {invitation.email_sent ? `Invitation emailed to ${invitation.email}` : `Invitation link for ${invitation.email}`}
         </div>
         <Button size="icon-sm" variant="ghost" aria-label="Close" onClick={onClose}>
           <X />
@@ -36,6 +37,9 @@ export function InviteLink({ invitation, onClose }: { invitation: Invitation; on
           {copied ? <Check /> : <Copy />} {copied ? 'Copied' : 'Copy'}
         </Button>
       </div>
+      {emailEnabled && !invitation.email_sent && (
+        <p className="mt-2 text-xs text-serious-fg">The invitation email could not be sent. Share the link above instead.</p>
+      )}
       <p className="mt-2 text-xs text-muted-foreground">
         Single-use link{invitation.expires_at && <>, valid until {tz.dateTime(invitation.expires_at)}</>}. It will not be shown again.
       </p>

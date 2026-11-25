@@ -12,7 +12,17 @@ import { useAuth } from '@/context/auth'
 import { useInviteTeamMember } from '@/pages/settings/queries'
 
 /** Invite someone: makes a one-time sign-up link (no account exists until they open it). */
-export function AddMember({ companyId, superTeam, onInvited }: { companyId?: number; superTeam: boolean; onInvited: (inv: Invitation) => void }) {
+export function AddMember({
+  companyId,
+  superTeam,
+  emailEnabled,
+  onInvited,
+}: {
+  companyId?: number
+  superTeam: boolean
+  emailEnabled: boolean
+  onInvited: (inv: Invitation) => void
+}) {
   const auth = useAuth()
   const [email, setEmail] = useState('')
   const [role, setRole] = useState<Role>(superTeam ? 'superadmin' : companyId ? 'admin' : 'viewer')
@@ -26,7 +36,7 @@ export function AddMember({ companyId, superTeam, onInvited }: { companyId?: num
       { companyId, body: { email: email.trim(), role, can_switch_accounts: canSwitch } },
       {
         onSuccess: (inv) => {
-          toast.success(`Invitation created for ${inv.email}`)
+          toast.success(inv.email_sent ? `Invitation emailed to ${inv.email}` : `Invitation created for ${inv.email}`)
           onInvited(inv)
           setEmail('')
           setCanSwitch(false)
@@ -42,8 +52,10 @@ export function AddMember({ companyId, superTeam, onInvited }: { companyId?: num
       title={superTeam ? 'Invite an owner' : 'Invite a member'}
       description={
         superTeam
-          ? 'Owners have full access to all companies. An invitation link will be generated.'
-          : 'An invitation link will be generated for you to share. It expires in 7 days.'
+          ? `Owners have full access to all companies. ${emailEnabled ? 'An invitation email will be sent.' : 'An invitation link will be generated.'}`
+          : emailEnabled
+            ? 'An invitation email with a sign-up link will be sent. The link expires in 7 days.'
+            : 'An invitation link will be generated for you to share. It expires in 7 days.'
       }
     >
       <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
@@ -62,7 +74,7 @@ export function AddMember({ companyId, superTeam, onInvited }: { companyId?: num
         )}
         <div className="md:col-span-2">
           <Button type="submit" disabled={invite.isPending}>
-            <Send /> Create invitation link
+            <Send /> {emailEnabled ? 'Send invitation' : 'Create invitation link'}
           </Button>
         </div>
       </form>
