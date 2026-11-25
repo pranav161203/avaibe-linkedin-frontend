@@ -41,11 +41,11 @@ export function WeeklyPostsCard({ posts }: { posts: Post[] }) {
         <p className="text-sm">
           {usual != null && (
             <>
-              Usually <b className="font-semibold tabular-nums">{usual}</b> a week ·{' '}
+              Typical: <b className="font-semibold tabular-nums">{usual}</b> per week ·{' '}
             </>
           )}
-          this week <b className="font-semibold tabular-nums">{now.n}</b> so far
-          {quiet > 0 && <span className="text-muted-foreground"> · {quiet} week{quiet === 1 ? '' : 's'} with none</span>}
+          this week: <b className="font-semibold tabular-nums">{now.n}</b>
+          {quiet > 0 && <span className="text-muted-foreground"> · {quiet} week{quiet === 1 ? '' : 's'} without posts</span>}
         </p>
 
         <div className="relative mt-4 h-32" role="img" aria-label={`Posts per week for the last 12 weeks; usually ${usual ?? 0} a week, ${now.n} this week so far`}>
@@ -85,13 +85,13 @@ export function WeeklyPostsCard({ posts }: { posts: Post[] }) {
           {shown ? (
             <>
               Week of {format(shown.start, 'd MMM')}: <b className="font-medium text-foreground">{shown.n}</b> post{shown.n === 1 ? '' : 's'}
-              {shown.current && ' so far'}
+              {shown.current && ' to date'}
             </>
           ) : (
             <>
-              Hover a week for details ·{' '}
+              Hover over a week for details ·{' '}
               <Link to="/calendar" className="underline underline-offset-2">
-                open the Calendar
+                Open calendar
               </Link>
             </>
           )}

@@ -44,7 +44,7 @@ export function LeadsLogPage() {
       <PageHeader
         eyebrow="Leads & sales"
         title="Leads log"
-        description="Every enquiry, where it came from and who it’s from. LinkedIn doesn’t share enquiries, so the team records them here. Company, role and source only: no personal names or contact details."
+        description="Enquiries and their sources, recorded manually because LinkedIn does not report them. Record company, role and source only, without personal names or contact details."
         actions={
           auth.can('editor') && (
             <Button size="sm" onClick={() => setEditing('new')}>
@@ -58,8 +58,7 @@ export function LeadsLogPage() {
         <Skeleton className="h-64" />
       ) : n === 0 ? (
         <EmptyState>
-          No leads recorded yet. Add each enquiry as it comes in (from a post, a founder’s profile, the website…). After a few, this page shows which
-          posts and profiles bring real enquiries, not just likes.
+          No leads recorded. Add each enquiry as it arrives to see which posts and profiles generate enquiries, not just engagement.
         </EmptyState>
       ) : (
         <>
@@ -72,13 +71,13 @@ export function LeadsLogPage() {
             <Stat
               label="Qualified"
               value={fmtNumber(qualified)}
-              hint={`UAE-based decision-makers (unless changed)${qualKnown < n ? ` · ${n - qualKnown} not yet known` : ''}`}
+              hint={`UAE-based decision-makers${qualKnown < n ? ` · ${n - qualKnown} unknown` : ''}`}
             />
-            <Stat label="Source known" value={fmtPct(known / n)} hint="Aim for over 80%: ask every lead how they heard about you" />
+            <Stat label="Source known" value={fmtPct(known / n)} hint="Target: above 80%" />
             <Stat
               label="First reply"
               value={medianReply == null ? '–' : fmtHours(medianReply)}
-              hint={`Median, from the day of the enquiry${waiting ? ` · ${waiting} waiting for a reply` : ''}`}
+              hint={`Median time from enquiry${waiting ? ` · ${waiting} awaiting reply` : ''}`}
             />
           </div>
           <Sources leads={leads} />
@@ -131,14 +130,14 @@ export function LeadsLogPage() {
                         ) : l.stage === 'won' || l.stage === 'lost' ? (
                           <span className="text-xs text-muted-foreground">–</span>
                         ) : auth.can('editor') ? (
-                          <Button size="xs" variant="outline" onClick={() => replied.mutate(l.id)} title="Record that the team has replied now">
+                          <Button size="xs" variant="outline" onClick={() => replied.mutate(l.id)} title="Mark as replied now">
                             Mark replied
                             <span className={cn('tabular-nums', replyHours(l) > REPLY_TARGET_HOURS ? 'text-bad-fg' : 'text-muted-foreground')}>
                               · {fmtHours(replyHours(l))}
                             </span>
                           </Button>
                         ) : (
-                          <span className="text-xs text-bad-fg">waiting {fmtHours(replyHours(l))}</span>
+                          <span className="text-xs text-bad-fg">Waiting {fmtHours(replyHours(l))}</span>
                         )}
                       </TableCell>
                       <TableCell>
@@ -154,7 +153,7 @@ export function LeadsLogPage() {
                               variant="ghost"
                               size="icon-sm"
                               aria-label={`Delete ${l.company}`}
-                              onClick={() => confirm(`Delete the lead from ${l.company}?`) && del.mutate(l.id)}
+                              onClick={() => confirm(`Delete the lead from ${l.company}? This cannot be undone.`) && del.mutate(l.id)}
                             >
                               <Trash2 />
                             </Button>

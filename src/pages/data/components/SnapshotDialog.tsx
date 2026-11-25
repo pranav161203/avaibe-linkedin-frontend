@@ -47,7 +47,7 @@ export function SnapshotDialog({ post, checkpoint, fields, onClose }: {
         <DialogHeader>
           <DialogTitle>{checkpoint} snapshot</DialogTitle>
           <DialogDescription>
-            Numbers as LinkedIn shows them {checkpoint} after publishing. The capture time is recorded automatically.
+            Figures as shown on LinkedIn {checkpoint} after publishing. The capture time is recorded automatically.
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={submit} className="space-y-4">

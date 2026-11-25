@@ -13,7 +13,7 @@ export function MarkPostedDialog({ p, accountId, onClose }: { p: PlannedPost; ac
   const submit = () =>
     mark.mutate(url.trim(), {
       onSuccess: () => {
-        toast.success('Marked as posted. It now appears in Posts for tracking.')
+        toast.success('Marked as posted. Tracking has started.')
         onClose()
       },
       onError: (e) => toast.error(e.message),
@@ -24,8 +24,8 @@ export function MarkPostedDialog({ p, accountId, onClose }: { p: PlannedPost; ac
         <DialogHeader>
           <DialogTitle>Mark as posted</DialogTitle>
           <DialogDescription>
-            After posting this {PLANNED_FORMAT_LABELS[p.format].toLowerCase()} on LinkedIn, open the post there, copy its address and paste
-            it here. The app starts tracking it as a {PLANNED_FORMAT_LABELS[p.format].toLowerCase()} post, with its topic and CTA.
+            Paste the LinkedIn link of the published {PLANNED_FORMAT_LABELS[p.format].toLowerCase()} post. It will be tracked with its
+            format, topic and CTA.
           </DialogDescription>
         </DialogHeader>
         <Input value={url} onChange={(e) => setUrl(e.target.value)} placeholder="https://www.linkedin.com/feed/update/urn:li:activity:…" autoFocus />

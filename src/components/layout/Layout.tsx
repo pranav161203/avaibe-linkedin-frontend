@@ -26,8 +26,8 @@ export function Layout() {
     return (
       <div className="flex min-h-svh items-center justify-center bg-background p-6">
         <div className="max-w-md rounded-lg border bg-card p-5 text-sm">
-          <p className="font-medium">The app can’t load right now.</p>
-          <p className="mt-1 text-muted-foreground">Please try again in a minute. If it keeps happening, contact an admin.</p>
+          <p className="font-medium">The application could not be loaded.</p>
+          <p className="mt-1 text-muted-foreground">Try again shortly. If the problem persists, contact your administrator.</p>
           <button type="button" onClick={() => window.location.reload()} className="mt-3 text-sm font-medium underline underline-offset-2">
             Try again
           </button>
@@ -48,10 +48,9 @@ export function Layout() {
     <SidebarProvider>
       <AppSidebar />
       <SidebarInset className="min-w-0">
-        {__SAMPLE_DATA__ && <SampleDataBanner />}
         {DEMO && (
           <div className="bg-primary px-4 py-1.5 text-center text-xs font-medium text-primary-foreground">
-            Demo data: the numbers on these screens are sample figures for illustration, not AVAIBE’s real results.
+            Sample data: figures shown are for illustration only and do not reflect AVAIBE’s results.
           </div>
         )}
         <header className="flex h-14 shrink-0 items-center px-4 md:px-8">
@@ -61,8 +60,8 @@ export function Layout() {
         <div key={pathname} className="page-enter flex-1 px-4 pb-10 md:px-8">
           {error ? (
             <div className="rounded-lg border border-destructive/40 bg-destructive/5 p-4 text-sm">
-              <p className="font-medium">Couldn't load accounts.</p>
-              <p className="mt-1 text-muted-foreground">Please try again in a minute.{import.meta.env.DEV && ` (${error.message})`}</p>
+              <p className="font-medium">Accounts could not be loaded.</p>
+              <p className="mt-1 text-muted-foreground">Try again shortly.{import.meta.env.DEV && ` (${error.message})`}</p>
             </div>
           ) : (
             <Suspense fallback={<PageLoading />}>
@@ -72,21 +71,5 @@ export function Layout() {
         </div>
       </SidebarInset>
     </SidebarProvider>
-  )
-}
-
-function SampleDataBanner() {
-  const reset = async () => {
-    const { resetSampleData } = await import('@/sample-data/api')
-    resetSampleData()
-    window.location.reload()
-  }
-  return (
-    <div className="flex flex-wrap items-center justify-center gap-x-3 gap-y-1 bg-amber-500/15 px-4 py-1.5 text-center text-xs font-medium text-amber-900 dark:text-amber-200">
-      <span>Demo with sample data: the numbers are made up, and changes stay in this browser.</span>
-      <button type="button" onClick={reset} className="underline underline-offset-2 hover:no-underline">
-        Reset sample data
-      </button>
-    </div>
   )
 }

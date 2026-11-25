@@ -16,14 +16,14 @@ export function readProfilePhoto(): string | null {
 
 /** Crop to a centred square, shrink, and keep in this browser */
 export async function saveProfilePhoto(file: File): Promise<void> {
-  if (!file.type.startsWith('image/')) throw new Error('Choose an image file (JPG, PNG or WebP)')
-  if (file.size > 10 * 1024 * 1024) throw new Error('That image is over 10 MB')
+  if (!file.type.startsWith('image/')) throw new Error('Select an image file (JPG, PNG or WebP).')
+  if (file.size > 10 * 1024 * 1024) throw new Error('Images must be 10 MB or smaller.')
   const url = URL.createObjectURL(file)
   try {
     const img = await new Promise<HTMLImageElement>((resolve, reject) => {
       const i = new Image()
       i.onload = () => resolve(i)
-      i.onerror = () => reject(new Error('That image couldn’t be read'))
+      i.onerror = () => reject(new Error('The image could not be read.'))
       i.src = url
     })
     const side = Math.min(img.naturalWidth, img.naturalHeight)
@@ -32,7 +32,7 @@ export async function saveProfilePhoto(file: File): Promise<void> {
     canvas.getContext('2d')!.drawImage(img, (img.naturalWidth - side) / 2, (img.naturalHeight - side) / 2, side, side, 0, 0, PHOTO_SIZE, PHOTO_SIZE)
     localStorage.setItem(PHOTO_KEY, canvas.toDataURL('image/jpeg', 0.85))
   } catch (e) {
-    if (e instanceof DOMException) throw new Error('This browser is blocking local storage, so the photo can’t be saved')
+    if (e instanceof DOMException) throw new Error('The photo could not be saved because browser storage is blocked.')
     throw e
   } finally {
     URL.revokeObjectURL(url)

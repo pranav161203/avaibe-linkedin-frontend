@@ -75,14 +75,14 @@ function useNotes(): Note[] {
         key: `problem:${problems}`,
         tone: 'alert',
         icon: AlertTriangle,
-        text: `${plural(problems, 'post', 'posts')} failed or missed ${problems === 1 ? 'its' : 'their'} time`,
-        sub: 'Check and reschedule',
+        text: `${plural(problems, 'post', 'posts')} failed or missed ${problems === 1 ? 'its' : 'their'} scheduled time`,
+        sub: 'Review and reschedule',
         to: '/publishing?status=problem',
       })
     }
     const drafts = planned.filter((p) => p.status === 'draft').length
     if (drafts) {
-      notes.push({ key: `drafts:${drafts}`, tone: 'todo', icon: Hourglass, text: `${plural(drafts, 'post', 'posts')} waiting to be published`, to: '/publishing?status=draft' })
+      notes.push({ key: `drafts:${drafts}`, tone: 'todo', icon: Hourglass, text: `${plural(drafts, 'draft', 'drafts')} awaiting publication`, to: '/publishing?status=draft' })
     }
     const toMark = planned.filter(dueByHand).length
     if (toMark) {
@@ -90,7 +90,7 @@ function useNotes(): Note[] {
         key: `mark:${toMark}`,
         tone: 'todo',
         icon: Hourglass,
-        text: `${plural(toMark, 'post', 'posts')} to post on LinkedIn and mark as posted`,
+        text: `${plural(toMark, 'post', 'posts')} to publish manually on LinkedIn`,
         to: '/publishing?status=action',
       })
     }
@@ -104,7 +104,7 @@ function useNotes(): Note[] {
         tone: 'info',
         icon: CalendarDays,
         text: i.kind === 'uae_holiday' ? `UAE holiday: ${i.title}` : i.title,
-        sub: `${when}${i.status === 'expected' ? ' (date expected)' : ''}`,
+        sub: `${when}${i.status === 'expected' ? ' (date to be confirmed)' : ''}`,
         to: `/calendar?month=${i.start.slice(0, 7)}`,
       })
     }
@@ -175,19 +175,19 @@ function Notifications() {
           <SheetTitle className="flex items-center gap-2 text-base font-semibold">
             <Bell className="size-4" /> Notifications
           </SheetTitle>
-          <SheetDescription className="text-xs">What needs doing, and UAE holidays and events in the next {AHEAD_DAYS} days.</SheetDescription>
+          <SheetDescription className="text-xs">Pending actions, and UAE holidays and events in the next {AHEAD_DAYS} days.</SheetDescription>
         </SheetHeader>
         <div className="flex-1 space-y-6 overflow-y-auto px-5 py-5">
           {notes.length === 0 ? (
             <div className="flex flex-col items-center gap-2 py-16 text-center text-sm text-muted-foreground">
               <CheckCircle2 className="size-8 text-good-fg" />
-              You’re all caught up.
+              No notifications.
             </div>
           ) : (
             <>
               <section>
                 <h3 className="mb-2 text-xs font-semibold tracking-wider text-muted-foreground uppercase">Needs action{action.length > 0 && ` · ${action.length}`}</h3>
-                {action.length ? <List items={action} /> : <p className="text-sm text-muted-foreground">Nothing waiting on you.</p>}
+                {action.length ? <List items={action} /> : <p className="text-sm text-muted-foreground">No pending actions.</p>}
               </section>
               {coming.length > 0 && (
                 <section>

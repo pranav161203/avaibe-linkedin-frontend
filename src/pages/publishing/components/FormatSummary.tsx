@@ -42,10 +42,10 @@ export function FormatSummary({ p }: { p: PlannedPost }) {
             {p.media_name ?? 'Open file'} <ExternalLink className="size-3" />
           </a>
         ) : (
-          <span className="text-xs text-warn-fg">No file attached yet</span>
+          <span className="text-xs text-warn-fg">No file attached</span>
         )}
         {p.format === 'video' && (
-          <span className="text-xs text-muted-foreground">{d.subtitles ? 'Subtitles added' : 'No subtitles yet (many people watch on mute)'}</span>
+          <span className="text-xs text-muted-foreground">{d.subtitles ? 'Subtitles added' : 'No subtitles'}</span>
         )}
       </div>
     )

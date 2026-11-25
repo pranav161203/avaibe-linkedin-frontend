@@ -69,7 +69,7 @@ export function PostForm({ accountId, initial, onSubmit, submitting, submitLabel
         label={`Published at (${zoneLabel(zone)} time) *`}
         hint={
           !timeKnown
-            ? 'From LinkedIn’s export: the date is right, the time is a placeholder. Set the real time if you know it, and the post joins the posting-time heatmap.'
+            ? 'Imported from LinkedIn: the date is accurate but the time is a placeholder. Set the actual time to include this post in the posting-time heatmap.'
             : zone !== UAE && f.published_at
               ? `= ${isoToZonedInput(zonedInputToIso(f.published_at, zone), UAE).replace('T', ' ')} UAE`
               : undefined
@@ -95,7 +95,7 @@ export function PostForm({ accountId, initial, onSubmit, submitting, submitLabel
       </Field>
       <Field
         label="Topic"
-        hint={initial?.topic_suggested ? 'Topic and CTA were suggested from the caption. Correct them if needed; saving confirms them.' : undefined}
+        hint={initial?.topic_suggested ? 'Topic and CTA were suggested from the caption. Review and save to confirm.' : undefined}
       >
         <Input value={f.topic} onChange={set('topic')} placeholder="e.g. ERP challenges for UAE traders" />
       </Field>
@@ -115,10 +115,10 @@ export function PostForm({ accountId, initial, onSubmit, submitting, submitLabel
         <Input value={f.keywords} onChange={set('keywords')} placeholder="inventory management; VAT" />
       </Field>
       <Field label="Caption" className="md:col-span-2">
-        <Textarea rows={5} value={f.caption} onChange={set('caption')} placeholder="Paste the post copy. The first line is your hook." />
+        <Textarea rows={5} value={f.caption} onChange={set('caption')} placeholder="Paste the post text. The first line is the hook." />
       </Field>
       <Field label="Notes" className="md:col-span-2">
-        <Textarea rows={2} value={f.notes} onChange={set('notes')} placeholder="Anything unusual: boosted, reshared by founders, posted late, etc." />
+        <Textarea rows={2} value={f.notes} onChange={set('notes')} placeholder="Notable context, e.g. boosted, reshared by founders, published late" />
       </Field>
       <div className="md:col-span-2">
         <Button type="submit" disabled={submitting}>

@@ -86,7 +86,7 @@ export function CompareToPicker({
               <Check className={cn('mt-0.5 size-4 shrink-0 text-primary', mode === 'custom' && picking ? 'opacity-100' : 'opacity-0')} />
               <span>
                 <span className="block text-sm font-medium">Custom dates…</span>
-                <span className="block text-xs text-muted-foreground">Pick any start and end date</span>
+                <span className="block text-xs text-muted-foreground">Select a start and end date</span>
               </span>
             </button>
           </div>
@@ -107,7 +107,7 @@ export function CompareToPicker({
               <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2.5">
                 <span className="text-xs text-muted-foreground tabular-nums">
                   {!draft?.from
-                    ? 'Click a day, or a start and an end date'
+                    ? 'Select a day, or a start and end date'
                     : days === 1
                       ? `${format(draft.from, 'EEE d MMM yyyy')} · 1 day`
                       : `${format(draft.from, 'd MMM yyyy')} – ${format(draft.to!, 'd MMM yyyy')} · ${days} days`}

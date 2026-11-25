@@ -1,4 +1,4 @@
-import { CONFIDENCE_SCALE_TIP, confidenceScore } from '@/lib/format'
+import { CLAUDE_TIP, MEASURED_TIP } from '@/lib/format'
 import { useContext, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { toast } from 'sonner'
@@ -26,7 +26,8 @@ export function ItemCard({ item, accountId, highlight, muted, showArea }: { item
   const tz = useTz()
   const decide = useSaveDecision(accountId)
   const status = item.decision?.status
-  const conf = item.rule ? item.rule.confidence.level : item.idea!.idea.confidence
+  const measured = item.rule?.confidence.pct ?? null
+  const estimate = item.idea?.idea.confidence_pct ?? null
   const progress = item.rule?.progress
   const similarAll = useContext(SimilarCtx)
   const similar = similarAll?.results[item.key]
@@ -64,7 +65,7 @@ export function ItemCard({ item, accountId, highlight, muted, showArea }: { item
                   <Badge variant="outline" className={PRIORITY[item.rule.priority].cls}>
                     {PRIORITY[item.rule.priority].label}
                   </Badge>
-                  <Badge variant="secondary">{item.rule.category === 'page' ? 'Page setup' : item.rule.category === 'lead' ? 'From your Leads log' : 'From your data'}</Badge>
+                  <Badge variant="secondary">{item.rule.category === 'page' ? 'Page setup' : item.rule.category === 'lead' ? 'Leads log' : 'Performance data'}</Badge>
                 </>
               ) : (
                 <>
@@ -75,13 +76,21 @@ export function ItemCard({ item, accountId, highlight, muted, showArea }: { item
                   <Badge variant="outline" className="capitalize">Effort: {item.idea!.idea.effort}</Badge>
                 </>
               )}
-              <Badge variant="outline" className="cursor-help tabular-nums" title={CONFIDENCE_SCALE_TIP}>
-                Confidence {confidenceScore(conf)}
-              </Badge>
+              {measured != null ? (
+                <Badge variant="outline" className="cursor-help tabular-nums" title={`${MEASURED_TIP} ${item.rule!.confidence.reason}`}>
+                  {measured}% supporting posts
+                </Badge>
+              ) : (
+                estimate != null && (
+                  <Badge variant="outline" className="cursor-help tabular-nums" title={CLAUDE_TIP}>
+                    Estimated: {estimate}%
+                  </Badge>
+                )
+              )}
               {status && (
                 <Badge variant="secondary">
                   {STATUS_LABEL[status]}
-                  {status === 'later' && item.decision?.until && <> · back {tz.dateTime(item.decision.until).split(',')[0]}</>}
+                  {status === 'later' && item.decision?.until && <> · until {tz.dateTime(item.decision.until).split(',')[0]}</>}
                 </Badge>
               )}
             </span>
@@ -98,13 +107,13 @@ export function ItemCard({ item, accountId, highlight, muted, showArea }: { item
             (!status ? (
               <>
                 {/* Only records the team's decision; nothing is changed on LinkedIn or in the app */}
-                <Button size="sm" variant="outline" title="You've done this yourself: hide it as completed" disabled={decide.isPending} onClick={() => set('done', 'Marked done')}>
+                <Button size="sm" variant="outline" title="Mark as completed" disabled={decide.isPending} onClick={() => set('done', 'Marked as completed')}>
                   <CheckCircle2 /> Done
                 </Button>
-                <Button size="sm" variant="ghost" title="Hide it for a week" disabled={decide.isPending} onClick={() => set('later', 'Hidden for a week')}>
+                <Button size="sm" variant="ghost" title="Snooze for 7 days" disabled={decide.isPending} onClick={() => set('later', 'Snoozed for 7 days')}>
                   Later
                 </Button>
-                <Button size="sm" variant="ghost" title="Not relevant: hide it" disabled={decide.isPending} onClick={() => set('dismissed', 'Dismissed')}>
+                <Button size="sm" variant="ghost" title="Dismiss as not relevant" disabled={decide.isPending} onClick={() => set('dismissed', 'Dismissed')}>
                   Dismiss
                 </Button>
               </>

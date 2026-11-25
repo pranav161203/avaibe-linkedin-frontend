@@ -67,7 +67,7 @@ export async function copy(text: string) {
     await navigator.clipboard.writeText(text)
     toast.success('Copied')
   } catch {
-    toast.error('Couldn’t copy: select the text and copy it instead')
+    toast.error('Copy failed. Select the text manually.')
   }
 }
 

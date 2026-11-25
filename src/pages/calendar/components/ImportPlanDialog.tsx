@@ -50,7 +50,7 @@ export function ImportPlanDialog({ accountId, accountName, onClose }: { accountI
           invalidatePlanned(accountId)
           const refs = r.refs.length > 1 ? ` (${r.refs[0]} to ${r.refs[r.refs.length - 1]})` : r.refs.length ? ` (${r.refs[0]})` : ''
           toast.success(`Imported ${r.created} post${r.created === 1 ? '' : 's'}${refs}`, {
-            description: 'They’re in Publishing as Unpublished. Review each one, add any media, then schedule or publish.',
+            description: 'Added to Publishing as unpublished. Review each post and add media before scheduling.',
             action: { label: 'Open Publishing', onClick: () => navigate('/publishing') },
           })
           onClose()
@@ -76,13 +76,13 @@ export function ImportPlanDialog({ accountId, accountName, onClose }: { accountI
 
         <ol className="space-y-4">
           <Step n={1} title="Download the template">
-            <p>An Excel file with dropdowns for Format, Goal and Visibility, a “How to fill” sheet and an Example sheet.</p>
+            <p>An Excel template with Format, Goal and Visibility options, instructions and an example.</p>
             <a href={PLAN_TEMPLATE_URL} download className="mt-2 inline-flex h-8 items-center gap-1.5 rounded-lg border bg-card px-3 text-sm font-medium text-foreground hover:bg-accent">
               <Download className="size-4" /> avaibe_post_plan_template.xlsx
             </a>
           </Step>
 
-          <Step n={2} title="Fill one row per post on the Posts sheet">
+          <Step n={2} title="Add one row per post on the Posts sheet">
             <ul className="list-disc space-y-1 pl-4 text-[13px]">
               <li>
                 <b className="font-medium text-foreground">Required:</b> Format, Goal and Post text.
@@ -92,15 +92,15 @@ export function ImportPlanDialog({ accountId, accountName, onClose }: { accountI
                 <span className="tabular-nums">10:30</span>. Leave both empty to keep a post unscheduled.
               </li>
               <li>
-                <b className="font-medium text-foreground">Polls and articles:</b> fill their own columns (poll options separated by ;).
+                <b className="font-medium text-foreground">Polls and articles:</b> use their dedicated columns (separate poll options with ;).
               </li>
-              <li>Images, PDFs and videos can’t go in Excel: add them to each post after importing.</li>
-              <li>Keep the column headings as they are. Up to 200 posts per file.</li>
+              <li>Images, PDFs and videos are added to each post after import.</li>
+              <li>Do not change the column headings. Maximum 200 posts per file.</li>
             </ul>
           </Step>
 
-          <Step n={3} title="Upload it and check">
-            <p>The file is checked first. Nothing is saved until you click Import.</p>
+          <Step n={3} title="Upload and validate">
+            <p>The file is validated first. Nothing is saved until you select Import.</p>
             <input
               ref={input}
               type="file"
@@ -125,8 +125,8 @@ export function ImportPlanDialog({ accountId, accountName, onClose }: { accountI
             >
               {file ? <FileSpreadsheet className="size-5 shrink-0 text-primary" /> : <Upload className="size-5 shrink-0" />}
               <span className="min-w-0 flex-1">
-                <span className="block truncate text-sm font-medium text-foreground">{file ? file.name : 'Choose the filled file, or drop it here'}</span>
-                <span className="block text-xs">{file ? (run.isPending && !check ? 'Checking…' : 'Click to choose a different file') : '.xlsx, or the same columns saved as .csv'}</span>
+                <span className="block truncate text-sm font-medium text-foreground">{file ? file.name : 'Select a file or drop it here'}</span>
+                <span className="block text-xs">{file ? (run.isPending && !check ? 'Checking…' : 'Select a different file') : '.xlsx or .csv with the same columns'}</span>
               </span>
             </button>
           </Step>
@@ -160,7 +160,7 @@ export function ImportPlanDialog({ accountId, accountName, onClose }: { accountI
                 ))}
               </ul>
             )}
-            {check.errors > 0 && <p className="text-xs text-muted-foreground">Fix these rows in Excel and upload again, or import the ready ones now and add the rest later.</p>}
+            {check.errors > 0 && <p className="text-xs text-muted-foreground">Correct these rows and upload again, or import the valid rows now.</p>}
 
             {ready.length > 0 && (
               <div className="overflow-hidden rounded-lg bg-card ring-1 ring-border">

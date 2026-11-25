@@ -16,8 +16,8 @@ export function FileResult({ r }: { r: ExportFileResult }) {
     ]
     lines.push(parts.join(' · '))
   }
-  if (r.snapshots_kept_manual) lines.push(`${r.snapshots_kept_manual} hand-entered snapshots kept`)
-  if (r.posts_too_new) lines.push(`${r.posts_too_new} posts under a day old at export: no totals stored yet`)
+  if (r.snapshots_kept_manual) lines.push(`${r.snapshots_kept_manual} manually entered snapshots retained`)
+  if (r.posts_too_new) lines.push(`${r.posts_too_new} posts were less than a day old at export; totals not stored`)
   if (r.days_saved != null) {
     lines.push(
       `${plural(r.days_saved, 'day')} of page activity: ${fmtNumber(r.days_new ?? 0)} new, ${fmtNumber(r.days_changed ?? 0)} changed, ${fmtNumber(r.days_unchanged ?? 0)} unchanged`,

@@ -64,8 +64,8 @@ export function DataPage() {
   const dates = win && (
     <>
       Data for {format(parseISO(win.from), 'd MMM yyyy')} – {format(parseISO(win.to), 'd MMM yyyy')}
-      {stats?.partial && <> · LinkedIn data so far runs to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
-      {stats?.prevScaled && <> · the comparison period has a different number of days, so its totals are scaled to match</>}
+      {stats?.partial && <> · LinkedIn data available to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
+      {stats?.prevScaled && <> · comparison period totals are scaled to match the number of days</>}
     </>
   )
   const compareLabel = comparisonLabel(stats, cmp)
@@ -75,7 +75,7 @@ export function DataPage() {
       <PageHeader
         eyebrow="Overview"
         title="Data"
-        description="How your posts, page visitors and followers are doing."
+        description="Performance of posts, page visitors and followers."
         actions={
           <div className="flex items-center gap-2">
             {tab === 'analytics' && (
@@ -121,7 +121,7 @@ export function DataPage() {
         <Skeleton className="h-40 rounded-xl" />
       ) : !win || !stats ? (
         <EmptyState>
-          {daily.length ? 'Pick a start and end date to see this period.' : <>No LinkedIn data yet. <Link to="/import" className="underline">Import LinkedIn’s export</Link> to see how the account is doing.</>}
+          {daily.length ? 'Select a start and end date.' : <>No LinkedIn data available. <Link to="/import" className="underline">Import a LinkedIn export</Link> to get started.</>}
         </EmptyState>
       ) : tab === 'analytics' ? (
         <div className="space-y-4">
@@ -142,7 +142,7 @@ export function DataPage() {
             ]}
             summary={<ContentSummary periodPosts={periodPosts} allPosts={posts} />}
           />
-          <MetricsChart daily={daily} from={win.from} to={win.to} metrics={CONTENT_METRICS} posts={posts} param="cm" title="What happened when" />
+          <MetricsChart daily={daily} from={win.from} to={win.to} metrics={CONTENT_METRICS} posts={posts} param="cm" title="Activity over time" />
         </div>
       ) : tab === 'visitors' ? (
         <VisitorsTab accountId={id} daily={daily} win={win} stats={stats} dates={dates} compareLabel={compareLabel} posts={posts} />

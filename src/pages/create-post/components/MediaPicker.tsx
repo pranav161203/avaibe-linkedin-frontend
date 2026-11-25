@@ -34,7 +34,7 @@ export function MediaPicker({
       )}
       <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-3 text-sm text-muted-foreground hover:bg-muted">
         <Upload className="size-4" />
-        {file ? file.name : current ? `Replace ${label}` : `Attach ${label} for the approver to review`}
+        {file ? file.name : current ? `Replace ${label}` : `Attach ${label} for review`}
         <input type="file" accept={accept} className="hidden" onChange={(e) => onFile(e.target.files?.[0] ?? null)} />
       </label>
     </div>

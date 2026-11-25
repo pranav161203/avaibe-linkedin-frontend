@@ -27,11 +27,11 @@ export function FormatsCard({ posts, range, checkpoint }: { posts: Post[]; range
   return (
     <Card>
       <CardHeader>
-        <CardHeading icon={Layers} title="Which formats get seen" sub={`Typical (median) impressions per post in this period, at ${checkpoint === '7d' ? '7 days' : checkpoint} old`} />
+        <CardHeading icon={Layers} title="Impressions by format" sub={`Median impressions per post at ${checkpoint === '7d' ? '7 days' : checkpoint}`} />
       </CardHeader>
       <CardContent>
         {rows.length < 2 ? (
-          <p className="text-sm text-muted-foreground">Needs at least two formats with 2+ posts each (with figures at that age) in this period. Try a longer time range.</p>
+          <p className="text-sm text-muted-foreground">Requires at least two formats with two or more posts each in this period. Select a longer time range.</p>
         ) : (
           <ul className="space-y-2.5">
             {rows.map((r) => (

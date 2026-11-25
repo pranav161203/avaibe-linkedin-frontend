@@ -50,7 +50,7 @@ export function SimilarList({ s }: { s: SimilarResult }) {
           </li>
         ))}
       </ul>
-      <p className="mt-1.5 text-xs text-muted-foreground">Topics of imported posts were suggested from their captions; check them in Posts if one looks wrong.</p>
+      <p className="mt-1.5 text-xs text-muted-foreground">Topics for imported posts are inferred from captions and can be corrected in Posts.</p>
     </div>
   )
 }

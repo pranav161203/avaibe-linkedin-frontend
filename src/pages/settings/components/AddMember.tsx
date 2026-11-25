@@ -1,33 +1,34 @@
 import { useState, type FormEvent } from 'react'
 import { toast } from 'sonner'
-import { UserPlus } from 'lucide-react'
+import { Send } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Section, SimpleSelect } from '@/components/common'
-import { type Role } from '@/lib/api'
+import { type Invitation, type Role } from '@/lib/api'
 import { roleOptionsFor } from './TeamTab'
 import { useAuth } from '@/context/auth'
-import { useAddTeamMember } from '@/pages/settings/queries'
+import { useInviteTeamMember } from '@/pages/settings/queries'
 
-export function AddMember() {
-  const [email, setEmail] = useState('')
-  const [name, setName] = useState('')
+/** Invite someone: makes a one-time sign-up link (no account exists until they open it). */
+export function AddMember({ companyId, superTeam, onInvited }: { companyId?: number; superTeam: boolean; onInvited: (inv: Invitation) => void }) {
   const auth = useAuth()
-  const [role, setRole] = useState<Role>('viewer')
+  const [email, setEmail] = useState('')
+  const [role, setRole] = useState<Role>(superTeam ? 'superadmin' : companyId ? 'admin' : 'viewer')
   const [canSwitch, setCanSwitch] = useState(false)
-  const add = useAddTeamMember()
+  const invite = useInviteTeamMember()
+  const adminLevel = role === 'admin' || role === 'superadmin'
 
   const submit = (e: FormEvent) => {
     e.preventDefault()
-    add.mutate(
-      { email: email.trim(), name: name.trim() || null, role, can_switch_accounts: canSwitch, active: true },
+    invite.mutate(
+      { companyId, body: { email: email.trim(), role, can_switch_accounts: canSwitch } },
       {
-        onSuccess: (m) => {
-          toast.success(`${m.email} can now sign in`)
+        onSuccess: (inv) => {
+          toast.success(`Invitation created for ${inv.email}`)
+          onInvited(inv)
           setEmail('')
-          setName('')
-          setRole('viewer')
           setCanSwitch(false)
         },
         onError: (e) => toast.error(e.message),
@@ -36,24 +37,32 @@ export function AddMember() {
   }
 
   return (
-    <Section icon={UserPlus} title="Add a person" description="They sign in with this exact Microsoft work email.">
+    <Section
+      icon={Send}
+      title={superTeam ? 'Invite an owner' : 'Invite a member'}
+      description={
+        superTeam
+          ? 'Owners have full access to all companies. An invitation link will be generated.'
+          : 'An invitation link will be generated for you to share. It expires in 7 days.'
+      }
+    >
       <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
         <div>
           <Label className="mb-1.5 block">Work email *</Label>
           <Input type="email" required value={email} onChange={(e) => setEmail(e.target.value)} placeholder="name@company.com" />
         </div>
-        <div>
-          <Label className="mb-1.5 block">Name</Label>
-          <Input value={name} onChange={(e) => setName(e.target.value)} placeholder="Filled in from Microsoft on first sign-in" />
-        </div>
-        <SimpleSelect label="Role" value={role} onChange={(v) => setRole(v as Role)} options={roleOptionsFor(auth.user?.role)} />
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" className="size-4 accent-(--primary)" checked={canSwitch || role === 'admin' || role === 'superadmin'} disabled={role === 'admin' || role === 'superadmin'} onChange={(e) => setCanSwitch(e.target.checked)} />
-          Can switch accounts (founders, digital marketing executive)
-        </label>
+        {!superTeam && (
+          <SimpleSelect label="Role" value={role} onChange={(v) => setRole(v as Role)} options={roleOptionsFor(auth.user?.role)} />
+        )}
+        {!superTeam && (
+          <label className="flex cursor-pointer items-center gap-2.5 text-sm md:col-span-2">
+            <Checkbox checked={canSwitch || adminLevel} disabled={adminLevel} onChange={(e) => setCanSwitch(e.target.checked)} />
+            Can switch accounts
+          </label>
+        )}
         <div className="md:col-span-2">
-          <Button type="submit" disabled={add.isPending}>
-            <UserPlus /> Add to team
+          <Button type="submit" disabled={invite.isPending}>
+            <Send /> Create invitation link
           </Button>
         </div>
       </form>

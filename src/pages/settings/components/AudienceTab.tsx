@@ -22,19 +22,19 @@ export function AudienceTab({ current }: { current: SegmentSettings }) {
     const body = Object.fromEntries(SEGMENT_FIELDS.map((f) => [f.key, toList(draft[f.key])])) as unknown as SegmentSettings
     save.mutate(
       { section: 'segments', body },
-      { onSuccess: () => toast.success('Audience definitions saved. All figures now use them.'), onError: (e) => toast.error(e.message) },
+      { onSuccess: () => toast.success('Audience definitions saved'), onError: (e) => toast.error(e.message) },
     )
   }
   const reset = () =>
     save.mutate(
       { section: 'segments', reset: true },
-      { onSuccess: () => toast.success('Restored the default definitions'), onError: (e) => toast.error(e.message) },
+      { onSuccess: () => toast.success('Default definitions restored'), onError: (e) => toast.error(e.message) },
     )
 
   return (
     <Section icon={Target}
-      title="Who counts as your target audience"
-      description="These keywords decide the UAE, education and decision-maker shares everywhere in the app. Matching ignores case, and a keyword matches anywhere inside LinkedIn’s value (e.g. “dubai” matches “Dubai, United Arab Emirates”). One per line."
+      title="Target audience definitions"
+      description="These keywords determine the UAE, education and decision-maker shares across the app. Matching is case-insensitive and partial: “dubai” matches “Dubai, United Arab Emirates”. Enter one keyword per line."
       actions={
         <Button size="sm" variant="ghost" onClick={reset} disabled={save.isPending}>
           <RotateCcw /> Restore defaults
@@ -52,7 +52,7 @@ export function AudienceTab({ current }: { current: SegmentSettings }) {
         ))}
       </div>
       <p className="mt-4 rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-        Changes apply to all existing posts immediately: every share and estimate is recalculated from the saved breakdowns.
+        Changes apply to all existing posts immediately. Shares and estimates are recalculated from stored data.
       </p>
       <Button className="mt-4" onClick={submit} disabled={save.isPending}>
         {save.isPending ? 'Saving…' : 'Save definitions'}

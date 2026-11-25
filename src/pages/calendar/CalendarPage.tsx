@@ -81,7 +81,7 @@ export function CalendarPage() {
       <PageHeader
         eyebrow="Content"
         title="Calendar"
-        description="Your posts, planned posts, holidays and events in one view. Click a day to see what to keep in mind and to plan a post for it."
+        description="Published and planned posts, holidays and events. Select a day for details or to plan a post."
         actions={<NewPostMenu from="calendar" />}
       />
 
@@ -98,7 +98,7 @@ export function CalendarPage() {
           </Button>
           {!isSameMonth(month, parseISO(today)) && (
             <Button variant="outline" size="sm" className="ml-2" onClick={() => setMonth(parseISO(today))}>
-              Back to this month
+              Today
             </Button>
           )}
         </div>
@@ -163,11 +163,11 @@ export function CalendarPage() {
               </div>
             )}
           </div>
-          {isError && <p className="mt-2 text-sm text-bad-fg">The calendar couldn’t load. Try again in a moment.</p>}
+          {isError && <p className="mt-2 text-sm text-bad-fg">The calendar could not be loaded. Try again shortly.</p>}
           {data && (
             <p className="mt-2 text-xs text-muted-foreground">
-              Times are UAE time. Islamic holiday dates follow the moon sighting: future ones are marked <i>expected</i> until the UAE confirms
-              them. Holiday and event dates cover {data.dates_cover[0]}–{data.dates_cover[1]}.
+              Times are in UAE time. Islamic holiday dates depend on moon sighting and are marked <i>expected</i> until officially
+              confirmed. Holiday and event dates cover {data.dates_cover[0]}–{data.dates_cover[1]}.
             </p>
           )}
         </div>
@@ -184,7 +184,7 @@ export function CalendarPage() {
           ) : (
             <div className="rounded-2xl border border-dashed p-5 text-sm text-muted-foreground">
               <CalendarClock className="mb-2 size-5" />
-              Click a day to see its holidays and events, how that weekday usually does, and to plan a post for it.
+              Select a day to view holidays, events and weekday performance, or to plan a post.
             </div>
           )}
         </aside>

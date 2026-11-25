@@ -49,10 +49,10 @@ export function PipelinePage() {
       <PageHeader
         eyebrow="Leads & sales"
         title="Pipeline"
-        description="Each lead from the Leads log, by stage. Move a lead when it progresses; won and lost leads show which sources turn into business."
+        description="Leads by stage. Update the stage as each lead progresses to see which sources convert into business."
         actions={
           <Link to="/leads/log" className="text-sm text-muted-foreground underline-offset-4 hover:underline">
-            Add leads in the Leads log →
+            Go to Leads log →
           </Link>
         }
       />
@@ -60,7 +60,7 @@ export function PipelinePage() {
         <Skeleton className="h-64" />
       ) : leads.length === 0 ? (
         <EmptyState>
-          The pipeline fills from the <Link to="/leads/log" className="underline">Leads log</Link>. Record enquiries there first.
+          No leads yet. Record enquiries in the <Link to="/leads/log" className="underline">Leads log</Link>.
         </EmptyState>
       ) : (
         <>
@@ -68,11 +68,11 @@ export function PipelinePage() {
             <Stat
               label="Open pipeline"
               value={aed(stats.openValue)}
-              hint={`${stats.open.length} open lead${stats.open.length === 1 ? '' : 's'}${stats.stale ? ` · ${stats.stale} with no change for ${STALE_DAYS}+ days` : ''}`}
+              hint={`${stats.open.length} open lead${stats.open.length === 1 ? '' : 's'}${stats.stale ? ` · ${stats.stale} inactive for ${STALE_DAYS}+ days` : ''}`}
             />
             <Stat label="Won" value={aed(stats.wonValue)} hint={`${stats.won.length} deal${stats.won.length === 1 ? '' : 's'}`} />
             <Stat label="Win rate" value={stats.winRate == null ? '–' : fmtPct(stats.winRate)} hint={`of ${stats.closed} closed lead${stats.closed === 1 ? '' : 's'}`} />
-            <Stat label="Time to win" value={stats.medianDays == null ? '–' : `${stats.medianDays} days`} hint="Median, from enquiry to won" />
+            <Stat label="Time to win" value={stats.medianDays == null ? '–' : `${stats.medianDays} days`} hint="Median time from enquiry to won" />
           </div>
           <div className="mt-4 grid gap-3 overflow-x-auto pb-2 md:grid-cols-5">
             {STAGES.map((s) => {
@@ -101,8 +101,8 @@ export function PipelinePage() {
                             : `${differenceInCalendarDays(parseISO(todayUae()), parseISO(l.received_on))} days since enquiry`}
                         </div>
                         {isStale(l) && (
-                          <div className="mt-1.5 rounded-md bg-warn/10 px-1.5 py-0.5 text-xs text-warn-fg" title="Follow up, or move it to Lost">
-                            No change for {daysSinceUpdate(l)} days
+                          <div className="mt-1.5 rounded-md bg-warn/10 px-1.5 py-0.5 text-xs text-warn-fg" title="Follow up or mark as lost">
+                            Inactive for {daysSinceUpdate(l)} days
                           </div>
                         )}
                         {auth.can('editor') && (

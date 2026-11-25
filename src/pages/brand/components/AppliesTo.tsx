@@ -17,7 +17,7 @@ export function AppliesTo({ value, onChange }: { value: number[]; onChange: (ids
         {(
           [
             [true, 'All accounts'],
-            [false, 'Only some'],
+            [false, 'Selected accounts'],
           ] as const
         ).map(([isAll, label]) => (
           <button
@@ -35,7 +35,7 @@ export function AppliesTo({ value, onChange }: { value: number[]; onChange: (ids
         ))}
       </div>
       {all ? (
-        <p className="text-xs text-muted-foreground">Company-wide facts, used for every page and profile.</p>
+        <p className="text-xs text-muted-foreground">Applies to every company page and profile.</p>
       ) : (
         <ul className="space-y-1">
           {accounts.map((a) => {

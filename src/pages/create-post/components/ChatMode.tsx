@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 import { Globe, MessagesSquare, RotateCcw, SendHorizontal, Sparkles, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -93,18 +94,24 @@ export function ChatMode({
     return (
       <div className="rounded-xl border border-dashed px-6 py-10 text-center">
         <MessagesSquare className="mx-auto mb-3 size-6 text-primary/60" />
-        <p className="text-sm font-medium">Work on this post together with the AI</p>
+        <p className="text-sm font-medium">Draft this post with AI</p>
         <p className="mx-auto mt-1 mb-4 max-w-sm text-xs text-muted-foreground">
-          It starts by asking you a few questions (goal, audience, what readers should do), then writes and revises the post with you. Every message is one AI
-          request, so nothing is used until you start.
+          The assistant asks about the goal, audience and call to action, then drafts and revises the post. Each message counts as one AI
+          request.
         </p>
         <div className="flex flex-wrap items-center justify-center gap-3">
           <Button onClick={() => sendChat([])} disabled={!configured || !auth.can('editor') || leftToday === 0}>
             <MessagesSquare /> Start session
           </Button>
-          <label className="inline-flex cursor-pointer items-center gap-1.5 text-xs text-muted-foreground">
-            <input type="checkbox" checked={web} onChange={(ev) => setWeb(ev.target.checked)} />
-            <Globe className="size-3.5" /> Search the web too
+          <label
+            className={cn(
+              'inline-flex cursor-pointer items-center gap-2 rounded-full px-3 py-1.5 text-xs font-medium ring-1 transition-colors',
+              web ? 'bg-primary/10 text-primary ring-primary/30' : 'text-muted-foreground ring-border hover:bg-accent',
+            )}
+            title="Include current news, events and public competitor pages (additional cost per message)"
+          >
+            <Checkbox checked={web} onChange={(ev) => setWeb(ev.target.checked)} />
+            <Globe className="size-3.5" /> Web search
           </label>
         </div>
         {leftToday != null && configured && <p className="mt-2 text-xs text-muted-foreground">{leftToday} messages left today</p>}
@@ -116,7 +123,7 @@ export function ChatMode({
     <div className="flex flex-col rounded-xl ring-1 ring-border">
       <div className="max-h-[520px] min-h-64 space-y-4 overflow-y-auto p-4">
         {!entries.length && !send.isPending && (
-          <p className="py-6 text-center text-sm text-muted-foreground">Your question is in the box below. Press send to ask the AI.</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">Your message is ready below. Select send to continue.</p>
         )}
         {entries.map((e, i) =>
           e.role === 'user' ? (
@@ -195,7 +202,7 @@ export function ChatMode({
               <Sparkles className="size-3.5 animate-pulse" />
             </span>
             <div className="rounded-2xl rounded-tl-md bg-muted/60 px-4 py-2.5 text-sm text-muted-foreground">
-              {web ? 'Searching the web, then thinking…' : 'Thinking…'}
+              {web ? 'Searching the web…' : 'Generating…'}
             </div>
           </div>
         )}
@@ -217,7 +224,7 @@ export function ChatMode({
                 }
               }}
               rows={2}
-              placeholder="Answer, or ask for a change (e.g. “make it shorter”, “aim it at CTOs”)…"
+              placeholder="Reply or request a change, e.g. “shorten it” or “target CTOs”"
               className="min-h-11 resize-none rounded-xl"
             />
             <Button size="icon" onClick={submit} disabled={!text.trim() || !canSend} aria-label="Send">
@@ -231,10 +238,10 @@ export function ChatMode({
               'inline-flex cursor-pointer items-center gap-1.5 rounded-full px-2 py-0.5 ring-1',
               web ? 'bg-primary/10 text-primary ring-primary/30' : 'ring-border',
             )}
-            title="Let the AI look up current news, events and public competitor pages for your next messages (about $0.03–0.06 more per message)"
+            title="Include current news, events and public competitor pages in the next messages (about $0.03–0.06 additional per message)"
           >
             <input type="checkbox" className="sr-only" checked={web} onChange={(ev) => setWeb(ev.target.checked)} />
-            <Globe className="size-3" /> Web search {web ? 'on' : 'off'}
+            <Globe className="size-3" /> Web Search {web ? 'on' : 'off'}
           </label>
           <span>
             {entries.length} of {limit} messages · about ${cost.toFixed(3)} so far

@@ -61,8 +61,8 @@ export function buildRows(posts: Post[]): Row[] {
 
 /** Why a post has no view count (shown on hover), so a blank isn't mistaken for missing data */
 export function viewsBlankReason(format: string): string {
-  if (format === 'video') return 'Video views not recorded yet (LinkedIn’s API keeps them for about 6 months)'
-  if (format === 'newsletter') return 'Article views come only from LinkedIn’s Excel export, not the API'
-  if (format === 'untagged') return 'Set the post type to see whether views apply'
-  return 'LinkedIn doesn’t count views for this post type (only for videos and articles)'
+  if (format === 'video') return 'Video views not recorded. LinkedIn retains them for about 6 months.'
+  if (format === 'newsletter') return 'Article views are available only from the LinkedIn Excel export'
+  if (format === 'untagged') return 'Set the post format to determine whether views apply'
+  return 'LinkedIn reports views only for videos and articles'
 }

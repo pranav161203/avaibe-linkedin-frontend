@@ -23,7 +23,7 @@ export function RecordSnapshot({ accountId, defaultType }: { accountId: number; 
     if (!rows.length) return toast.error('Add at least one row')
     const parsed = rows.map((r) => ({ dimension: r.dimension, value: r.value.trim(), count: parseNum(r.count), pct: parseNum(r.pct) }))
     if (parsed.some((r) => !r.value || (r.count === null && r.pct === null) || Number.isNaN(r.count) || Number.isNaN(r.pct))) {
-      return toast.error('Every row needs a value and a count or percentage')
+      return toast.error('Each row requires a value and a count or percentage')
     }
     save.mutate(
       { as_of: asOf, audience: type, total: parseNum(total), rows: parsed },
@@ -41,7 +41,7 @@ export function RecordSnapshot({ accountId, defaultType }: { accountId: number; 
   return (
     <Section icon={ClipboardList}
       title="Record a snapshot"
-      description="From the page admin view go to Analytics → Followers (or Visitors) and copy the location, industry and seniority breakdowns. Counts are better than percentages when LinkedIn shows them. Saving the same date again replaces it."
+      description="In the page admin view, go to Analytics → Followers (or Visitors) and enter the location, industry and seniority breakdowns. Use counts where LinkedIn provides them. Saving the same date replaces the existing snapshot."
     >
       <div className="space-y-4">
         <div className="flex flex-wrap items-end gap-3">

@@ -224,7 +224,7 @@ export function MetricsChart({
           </span>
           {posts.length > 0 && (
             <span className="inline-flex items-center gap-1.5">
-              <span className="size-2 rounded-full border-2 border-[var(--chart-current)] bg-card" aria-hidden /> a post went out
+              <span className="size-2 rounded-full border-2 border-[var(--chart-current)] bg-card" aria-hidden /> Post published
             </span>
           )}
           {compare && (
@@ -316,9 +316,9 @@ export function MetricsChart({
                 <p className="mt-3 text-sm text-muted-foreground">
                   Highest: {format(parseISO(view.peak.key), unit === 'week' ? "'week of' d MMM" : 'EEE d MMM')}, {fmtNumber(view.peak.value)}.{' '}
                   <button type="button" onClick={() => setPicked(view.peak!.key)} className="font-medium text-foreground underline underline-offset-2">
-                    See why
+                    View details
                   </button>{' '}
-                  · or click any {unit} on the chart.
+                  · or select any {unit} on the chart.
                 </p>
               )
             )}
@@ -337,7 +337,7 @@ function PointTooltip({ active, payload, unit, metric }: { active?: boolean; pay
       <div className="mb-1 font-medium">{unit === 'week' ? `7 days from ${p.label}` : format(parseISO(p.key), 'EEE d MMM yyyy')}</div>
       <div className="flex justify-between gap-4">
         <span className="text-muted-foreground">{metric}</span>
-        <span className="font-semibold tabular-nums">{p.value == null ? 'No data yet' : fmtNumber(p.value)}</span>
+        <span className="font-semibold tabular-nums">{p.value == null ? 'No data' : fmtNumber(p.value)}</span>
       </div>
       {p.cmpKey && (
         <div className="flex justify-between gap-4">
@@ -394,7 +394,7 @@ function Explainer({
         <div className="flex items-center gap-3 text-xs text-muted-foreground">
           {ratio != null && (
             <span>
-              {ratio >= 1.15 ? `${ratio.toFixed(1)}× a typical ${unit}` : ratio <= 0.85 ? `${Math.round(ratio * 100)}% of a typical ${unit}` : `about a typical ${unit}`}
+              {ratio >= 1.15 ? `${ratio.toFixed(1)}× a typical ${unit}` : ratio <= 0.85 ? `${Math.round(ratio * 100)}% of a typical ${unit}` : `in line with a typical ${unit}`}
               {' '}({fmtNumber(typical)})
             </span>
           )}
@@ -403,11 +403,11 @@ function Explainer({
           </button>
         </div>
       </div>
-      {point.covered < point.days && <p className="mt-1 text-xs text-muted-foreground">{point.covered} of {point.days} days reported so far.</p>}
+      {point.covered < point.days && <p className="mt-1 text-xs text-muted-foreground">{point.covered} of {point.days} days reported.</p>}
 
       {nearby.length > 0 ? (
         <>
-          <p className="mt-3 text-xs text-muted-foreground">Posts that went out {unit === 'day' ? 'that day or up to 3 days before' : 'that week or just before'}:</p>
+          <p className="mt-3 text-xs text-muted-foreground">Posts published {unit === 'day' ? 'that day or up to 3 days before' : 'that week or shortly before'}:</p>
           <ul className="mt-1.5 space-y-1">
             {nearby.map((p) => (
               <li key={p.id}>
@@ -423,13 +423,13 @@ function Explainer({
         </>
       ) : (
         <p className="mt-2 text-sm text-muted-foreground">
-          No posts went out just before. Possible reasons: an older post being reshared, a founder sharing the page, or people finding the page in search.
+          No posts were published shortly before. Possible causes: an earlier post being reshared, a founder sharing the page, or search traffic.
         </p>
       )}
       {events.length > 0 && (
         <p className="mt-3 flex flex-wrap items-center gap-1.5 text-xs text-muted-foreground">
           <CalendarDays className="size-3.5" />
-          Around then: {events.map((e) => e.title).join(' · ')}
+          Events in this period: {events.map((e) => e.title).join(' · ')}
         </p>
       )}
     </div>

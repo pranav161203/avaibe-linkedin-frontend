@@ -33,20 +33,20 @@ export function ApproveDialog({
     ? new Date(p.scheduled_at!).toLocaleString('en-GB', { timeZone: 'Asia/Dubai', weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })
     : ''
   const where = byApp ? `${p.visibility === 'PUBLIC' ? 'publicly' : 'to connections'} on ${connection!.name}’s LinkedIn` : ''
-  const byHandWhy = p.manual ? 'This format is posted on LinkedIn by hand' : 'The app can’t post to this account yet (company pages need LinkedIn’s approval first)'
+  const byHandWhy = p.manual ? 'This format is posted manually' : 'Automatic publishing is not yet available for this account'
   const note = p.by_hand
     ? later
       ? `${byHandWhy}. Schedule it and you’ll be reminded at that time to copy the text and post it; Publish now copies the text straight away.`
       : `${byHandWhy}: Publish copies the text for you to paste on LinkedIn, then you mark it as posted.`
     : !connection
-      ? 'This account isn’t connected to LinkedIn.'
+      ? 'This account is not connected to LinkedIn.'
       : connection.expired
-        ? 'The LinkedIn connection has expired. Reconnect it under your picture → LinkedIn connections to publish from here.'
+        ? 'The LinkedIn connection has expired. Reconnect it under LinkedIn connections in the profile menu.'
         : waitMins !== null
-          ? `LinkedIn asked the app to wait. Publishing is possible again in about ${waitMins} min.`
+          ? `LinkedIn rate limit reached. Publishing is available again in about ${waitMins} min.`
           : later
-            ? `It goes out ${where}. The time is UAE time${tz.zone !== 'Asia/Dubai' ? ` (${tz.dual(p.scheduled_at!)})` : ''}; until then you can still edit or unschedule it.`
-            : `Publish posts it ${where} right away. To remove it afterwards you’d delete it on LinkedIn itself.`
+            ? `Publishes ${where} (UAE time${tz.zone !== 'Asia/Dubai' ? `; ${tz.dual(p.scheduled_at!)}` : ''}). It can be edited or unscheduled until then.`
+            : `Publishes ${where} immediately. Once published, it can only be removed on LinkedIn.`
   const blocked = !p.by_hand && !!connection && (connection.expired || waitMins !== null)
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
@@ -54,7 +54,7 @@ export function ApproveDialog({
         <DialogHeader>
           <DialogTitle>Preview</DialogTitle>
           <DialogDescription>
-            Check it as it will appear on LinkedIn.
+            Review the post as it will appear on LinkedIn.
           </DialogDescription>
         </DialogHeader>
         <FeedPreview

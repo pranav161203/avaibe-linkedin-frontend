@@ -73,14 +73,14 @@ export function ResultsPage() {
     return {
       funnel: [
         { label: 'Impressions', value: posts.reduce((s, p) => s + latestImpressions(p), 0), hint: `${posts.length} posts` },
-        { label: 'Clicks', value: posts.reduce((s, p) => s + latestClicks(p), 0), hint: 'on those posts' },
-        { label: 'Leads from LinkedIn', value: fromLinkedIn.length, hint: `of ${periodLeads.length} leads in all` },
+        { label: 'Clicks', value: posts.reduce((s, p) => s + latestClicks(p), 0), hint: 'On these posts' },
+        { label: 'Leads from LinkedIn', value: fromLinkedIn.length, hint: `Of ${periodLeads.length} total leads` },
         { label: 'Qualified', value: fromLinkedIn.filter((l) => l.is_qualified).length, hint: 'UAE decision-makers' },
         { label: 'Won', value: won.length, hint: aed(sumAed(won)) },
       ],
       postRows,
       bySource: group((l) => SOURCE_LABEL[l.source]),
-      byProfile: group((l) => (l.via_account_name ?? (FROM_LINKEDIN.includes(l.source) ? account.name : 'Not through LinkedIn'))),
+      byProfile: group((l) => (l.via_account_name ?? (FROM_LINKEDIN.includes(l.source) ? account.name : 'Other channels'))),
       totalWonAed,
       linkedInWonAed: sumAed(won),
       leadsCount: periodLeads.length,
@@ -95,7 +95,7 @@ export function ResultsPage() {
       <PageHeader
         eyebrow="Leads & sales"
         title="Results"
-        description="What LinkedIn brings the business: from people seeing the posts to won deals, which posts brought enquiries, and where the money came from."
+        description="LinkedIn’s business impact: the path from impressions to won deals, the posts that generated enquiries, and revenue by source."
         actions={<SimpleSelect label="Period" value={period} onChange={setPeriod} options={PERIODS} />}
       />
 
@@ -103,14 +103,13 @@ export function ResultsPage() {
         <Skeleton className="h-96 rounded-xl" />
       ) : r.leadsCount === 0 ? (
         <EmptyState>
-          No leads in this period. Results appear as enquiries are recorded in the <Link to="/leads/log" className="underline">Leads log</Link>, with the post or profile
-          they came through.
+          No leads in this period. Results appear once enquiries are recorded in the <Link to="/leads/log" className="underline">Leads log</Link>.
         </EmptyState>
       ) : (
         <>
           <Card>
             <CardHeader>
-              <CardHeading icon={Filter} title="From seeing a post to a won deal" sub={`${account.name} and its founder profiles · the share of each step that reached the next`} />
+              <CardHeading icon={Filter} title="Conversion funnel" sub={`${account.name} and founder profiles · Conversion rate between steps`} />
             </CardHeader>
             <CardContent>
               <ol className="grid gap-2 md:grid-cols-5">
@@ -134,18 +133,18 @@ export function ResultsPage() {
                 })}
               </ol>
               <p className="mt-3 text-xs text-muted-foreground">
-                Leads are counted when they arrived, posts when they were published. Only leads recorded as coming from a post, a page or a profile count as “from LinkedIn”.
+                Leads are counted by date received and posts by publish date. Only leads attributed to a post, page or profile count as LinkedIn leads.
               </p>
             </CardContent>
           </Card>
 
           <Card>
             <CardHeader>
-              <CardHeading icon={Trophy} title="Posts that brought leads" sub="Ranked by qualified leads, not likes. Link each lead to its post in the Leads log to see more here." />
+              <CardHeading icon={Trophy} title="Posts that brought leads" sub="Ranked by qualified leads. Link leads to posts in the Leads log for complete results." />
             </CardHeader>
             <CardContent className="overflow-x-auto px-0">
               {r.postRows.length === 0 ? (
-                <p className="px-4 pb-2 text-sm text-muted-foreground">No lead in this period is linked to a post yet.</p>
+                <p className="px-4 pb-2 text-sm text-muted-foreground">No leads in this period are linked to a post.</p>
               ) : (
                 <Table>
                   <TableHeader>
@@ -156,8 +155,8 @@ export function ResultsPage() {
                       <TableHead className="text-right">Qualified</TableHead>
                       <TableHead className="text-right">Won</TableHead>
                       <TableHead className="text-right">Won value</TableHead>
-                      <TableHead className="pr-4 text-right" title="Leads per 10,000 impressions: compares posts of different reach fairly">
-                        Per 10k views
+                      <TableHead className="pr-4 text-right" title="Leads per 10,000 impressions, for comparing posts with different reach">
+                        Per 10k impressions
                       </TableHead>
                     </TableRow>
                   </TableHeader>
@@ -190,11 +189,11 @@ export function ResultsPage() {
             <CardHeader>
               <CardHeading
                 icon={Banknote}
-                title="Where the money came from"
+                title="Revenue by source"
                 sub={
                   r.totalWonAed
-                    ? `${aed(r.linkedInWonAed)} of ${aed(r.totalWonAed)} won in this period came through LinkedIn (${fmtPct(r.linkedInWonAed / r.totalWonAed)})`
-                    : 'Nothing won in this period yet: open deals are shown so you can see what’s coming'
+                    ? `${aed(r.linkedInWonAed)} of ${aed(r.totalWonAed)} won this period came through LinkedIn (${fmtPct(r.linkedInWonAed / r.totalWonAed)})`
+                    : 'No deals won this period. Open deals are shown below.'
                 }
               />
             </CardHeader>

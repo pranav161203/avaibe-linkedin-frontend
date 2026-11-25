@@ -1,7 +1,12 @@
 import { useMutation, useQuery } from '@tanstack/react-query'
 import {
-  addTeamMember,
   createAccount,
+  createCompany,
+  getCompanies,
+  inviteTeamMember,
+  renewInvitation,
+  revokeInvitation,
+  updateCompany,
   getAccounts,
   getClaudeStatus,
   getSettings,
@@ -63,17 +68,59 @@ const invalidateTeam = () => {
   queryClient.invalidateQueries({ queryKey: ['auth', 'me'] })
 }
 
-export const useGetTeam = () => {
+const invalidateCompanies = () => {
+  invalidateTeam()
+  queryClient.invalidateQueries({ queryKey: ['companies'] })
+}
+
+/** companyId: a super admin looking at one company's team; undefined = your own */
+export const useGetTeam = (companyId?: number | null) => {
   return useQuery({
-    queryKey: ['team'],
-    queryFn: getTeam,
+    queryKey: ['team', companyId ?? 'mine'],
+    queryFn: () => getTeam(companyId),
   })
 }
 
-export const useAddTeamMember = () => {
+export const useInviteTeamMember = () => {
   return useMutation({
-    mutationFn: addTeamMember,
+    mutationFn: inviteTeamMember,
+    onSuccess: invalidateCompanies,
+  })
+}
+
+export const useRevokeInvitation = () => {
+  return useMutation({
+    mutationFn: revokeInvitation,
+    onSuccess: invalidateCompanies,
+  })
+}
+
+export const useRenewInvitation = () => {
+  return useMutation({
+    mutationFn: renewInvitation,
     onSuccess: invalidateTeam,
+  })
+}
+
+export const useGetCompanies = (enabled = true) => {
+  return useQuery({
+    queryKey: ['companies'],
+    queryFn: getCompanies,
+    enabled,
+  })
+}
+
+export const useCreateCompany = () => {
+  return useMutation({
+    mutationFn: createCompany,
+    onSuccess: invalidateCompanies,
+  })
+}
+
+export const useUpdateCompany = () => {
+  return useMutation({
+    mutationFn: updateCompany,
+    onSuccess: invalidateCompanies,
   })
 }
 

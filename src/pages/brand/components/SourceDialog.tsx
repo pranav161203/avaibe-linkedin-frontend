@@ -37,7 +37,7 @@ export function SourceDialog({ id, startEditing, onClose }: { id: number; startE
       { id, title, content, accountIds },
       {
         onSuccess: (r) => {
-          toast.success(`Saved: ${r.chunks} passage${r.chunks === 1 ? '' : 's'}`)
+          toast.success(`Source saved · ${r.chunks} passage${r.chunks === 1 ? '' : 's'}`)
           setEditing(false)
         },
         onError: (e) => toast.error(e.message),
@@ -54,7 +54,7 @@ export function SourceDialog({ id, startEditing, onClose }: { id: number; startE
           </DialogTitle>
           {s && (
             <DialogDescription className="tabular-nums">
-              {s.kind === 'file' ? s.file_name : 'Text'} · {fmtNumber(s.chars)} characters · {fmtNumber(s.chunks)} passages · {s.sections ?? 0} sections · {appliesLabel(s.account_ids, accounts)} · updated{' '}
+              {s.kind === 'file' ? s.file_name : 'Text'} · {fmtNumber(s.chars)} characters · {fmtNumber(s.chunks)} passages · {s.sections ?? 0} sections · {appliesLabel(s.account_ids, accounts)} · Updated{' '}
               {tz.dateTime(s.updated_at)}
             </DialogDescription>
           )}
@@ -68,7 +68,7 @@ export function SourceDialog({ id, startEditing, onClose }: { id: number; startE
               <Input value={title} onChange={(e) => setTitle(e.target.value)} maxLength={200} aria-label="Title" />
               <Textarea value={content} onChange={(e) => setContent(e.target.value)} rows={16} className="font-mono text-xs" aria-label="Content" />
               <AppliesTo value={accountIds} onChange={setAccountIds} />
-              <p className="text-xs text-muted-foreground">Claude uses the new text as soon as you save.</p>
+              <p className="text-xs text-muted-foreground">Changes take effect when saved.</p>
             </div>
           ) : (
             <Rendered text={s.content ?? ''} />
@@ -117,7 +117,7 @@ export function ConfirmDelete({ title, busy, onCancel, onConfirm }: { title: str
       <DialogContent className="sm:max-w-sm">
         <DialogHeader>
           <DialogTitle>Delete “{title}”?</DialogTitle>
-          <DialogDescription>Claude stops using it straight away. This can’t be undone.</DialogDescription>
+          <DialogDescription>Claude will stop using this source immediately. This cannot be undone.</DialogDescription>
         </DialogHeader>
         <DialogFooter>
           <Button variant="ghost" onClick={onCancel}>

@@ -37,7 +37,7 @@ export function PreviewDialog({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>Preview</DialogTitle>
-          <DialogDescription>Roughly how it appears in the LinkedIn feed. Line breaks and the “…see more” point vary by device.</DialogDescription>
+          <DialogDescription>Approximate appearance in the LinkedIn feed. Line breaks and truncation vary by device.</DialogDescription>
         </DialogHeader>
         <FeedPreview accountName={accountName} caption={caption} format={format} details={details} imageSrc={imageUrl} hasStoredImage={hasStoredImage} />
       </DialogContent>

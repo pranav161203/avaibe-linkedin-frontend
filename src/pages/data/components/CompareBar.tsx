@@ -14,7 +14,7 @@ export function CompareBar({ picked, onClear }: { picked: number[]; onClear: () 
     >
       <span className="font-medium">
         {picked.length} selected
-        <span className="ml-1.5 font-normal opacity-70">{picked.length < 2 ? '· pick at least one more' : picked.length >= MAX_COMPARE ? '· maximum reached' : `· up to ${MAX_COMPARE}`}</span>
+        <span className="ml-1.5 font-normal opacity-70">{picked.length < 2 ? '· select at least one more' : picked.length >= MAX_COMPARE ? '· maximum reached' : `· up to ${MAX_COMPARE}`}</span>
       </span>
       <div className="flex gap-2">
         <Button size="sm" variant="ghost" onClick={onClear} className="text-background hover:bg-background/15 hover:text-background">

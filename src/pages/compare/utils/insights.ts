@@ -63,7 +63,7 @@ export const FACTORS: { key: string; label: string; get: (p: Post, items: Map<st
       return n === 0 ? 'none' : n <= 3 ? '1–3' : n <= 5 ? '4–5' : '6 or more'
     },
   },
-  { key: 'cta', label: 'Call to action', get: (p) => (p.cta || CTA_WORDS.test(p.caption ?? '') ? 'asks people to do something' : 'no clear ask') },
+  { key: 'cta', label: 'Call to action', get: (p) => (p.cta || CTA_WORDS.test(p.caption ?? '') ? 'clear call to action' : 'no call to action') },
   {
     key: 'event',
     label: 'Holiday or event that day',
@@ -174,7 +174,7 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
     const score = enough ? beatRate(hw.xs, ho.xs) : null
     const evidence = judge(score, hw.n, ho.n)
     const detail = !enough
-      ? `Too few of your posts to tell (${hw.n} with “${wv}”, ${ho.n} with “${ov}”).`
+      ? `Insufficient data (${hw.n} with “${wv}”, ${ho.n} with “${ov}”).`
       : `In your history, “${wv}” posts beat “${ov}” posts ${score}% of the time (${hw.n} vs ${ho.n} posts; ${lift(hw.lift)} vs ${lift(ho.lift)} your typical post).`
     findings.push({
       key: f.key,
@@ -200,15 +200,15 @@ export function analysePosts(posts: Post[], history: Post[], cp: Checkpoint, ite
       text: `Make another ${fmt ? FORMAT_LABELS[win.p.format].toLowerCase() : ''} post${slot ? ` and schedule it for ${win.p.slot_uae} UAE` : ''}.`.replace('another  post', 'another post'),
       format: fmt ? fmtValue : undefined,
     })
-  if (topic && win.p.topic) next.push({ text: `Follow up on “${win.p.topic}” from a new angle while it's working.`, topic: win.p.topic, format: fmtValue })
+  if (topic && win.p.topic) next.push({ text: `Publish a follow-up on “${win.p.topic}” from a new angle.`, topic: win.p.topic, format: fmtValue })
   for (const f of good.filter((x) => ['hook', 'hashtags', 'length', 'cta'].includes(x.key)).slice(0, 2))
     next.push({ text: `Keep the ${f.label.toLowerCase()} like ${ref(win.p)}'s: ${f.text.split(' vs ')[0]}.` })
   if (!next.length)
-    next.push({ text: 'None of the differences is backed by your history yet. Test one change at a time (only the time, or only the format) so the next comparison is clearer.' })
+    next.push({ text: 'No difference is supported by historical data yet. Change one variable at a time, such as time or format, to make future comparisons clearer.' })
 
   const caution =
     win.imp < 150 || rest.some((x) => x.imp < 50)
-      ? 'Small numbers: at this size, one share or one reposting can swing the result. Treat these as hints, not proof.'
+      ? 'Low volumes: a single share or repost can change the result. Treat these findings as indicative.'
       : null
 
   return { headline, subline, findings, same, next: next.slice(0, 3), caution }
@@ -273,7 +273,7 @@ export function analysePeriods(
   const impChange = pct(perDay(totalsA.impressions, a.days), perDay(totalsB.impressions, b.days))
   const headline =
     impChange == null
-      ? 'Not enough data in one of the periods to compare impressions.'
+      ? 'Insufficient data in one period to compare impressions.'
       : Math.abs(impChange) < 3
         ? `Impressions held steady (${fmtNumber(totalsA.impressions)} vs ${fmtNumber(totalsB.impressions)}).`
         : `Impressions ${impChange >= 0 ? 'rose' : 'fell'} ${Math.abs(Math.round(impChange))}% (${fmtNumber(totalsA.impressions)} vs ${fmtNumber(totalsB.impressions)}${a.days !== b.days ? ', per day' : ''}).`
@@ -293,14 +293,14 @@ export function analysePeriods(
   if (volChange != null)
     findings.push({
       key: 'volume',
-      label: 'How often you posted',
+      label: 'Posting frequency',
       // Under a week, plain counts read better than a weekly rate
       text: a.days < 7 || b.days < 7 ? `${a.posts.length} vs ${b.posts.length} posts` : `${perWeekA.toFixed(1)} vs ${perWeekB.toFixed(1)} posts a week (${sign(volChange)})`,
       detail:
         perPostChange == null
-          ? 'Per-post reach couldn’t be compared (too few posts with figures at the same age).'
+          ? 'Per-post reach could not be compared: too few posts with figures at the same age.'
           : `A typical post got ${fmtNumber(a.perPost)} vs ${fmtNumber(b.perPost)} impressions (${sign(perPostChange)}). ${
-              Math.abs(volChange) > Math.abs(perPostChange) ? 'So the change comes more from how much you posted than from how well each post did.' : 'So the change comes more from how well each post did than from how much you posted.'
+              Math.abs(volChange) > Math.abs(perPostChange) ? 'The change is driven more by posting volume than by per-post performance.' : 'So the change comes more from how well each post did than from how much you posted.'
             }`,
       evidence: Math.abs(volChange) < 10 ? 'unlikely' : Math.abs(volChange) >= 20 && impChange != null && Math.sign(volChange) === Math.sign(impChange) ? 'likely' : 'possible',
     })
@@ -326,7 +326,7 @@ export function analysePeriods(
       detail:
         beat != null
           ? `In your history, ${beat}% of ${name} posts beat your typical post (${h.n} posts; ${lift(h.lift)} your typical post).`
-          : `Too few ${name} posts in your history to say how they usually do.`,
+          : `Insufficient history for ${name} posts.`,
       score: beat,
       scoreTip: beat == null ? undefined : `${beat}% of your ${name} posts got more impressions than your typical post. 50% means they're ordinary.`,
       evidence:
@@ -344,23 +344,23 @@ export function analysePeriods(
       key: 'events',
       label: 'Holidays and events',
       text: [onlyA.length ? `Only in A: ${onlyA.slice(0, 3).join(', ')}` : '', onlyB.length ? `Only in B: ${onlyB.slice(0, 3).join(', ')}` : ''].filter(Boolean).join(' · '),
-      detail: 'Holidays usually bring quieter feeds; industry events (GESS, GITEX) and national days can bring more attention. Worth keeping in mind before drawing conclusions.',
+      detail: 'Holidays typically reduce activity; industry events (GESS, GITEX) and national days can increase it. Consider these before drawing conclusions.',
       evidence: 'possible',
     })
 
   findings.sort((x, y) => ORDER.indexOf(x.evidence) - ORDER.indexOf(y.evidence))
 
   const next: NextStep[] = []
-  if (volChange != null && volChange < -20 && a.days >= 7 && b.days >= 7) next.push({ text: `Get back to about ${Math.round(perWeekB)} posts a week: posting less is the clearest difference.` })
+  if (volChange != null && volChange < -20 && a.days >= 7 && b.days >= 7) next.push({ text: `Return to about ${Math.round(perWeekB)} posts per week. Reduced posting is the clearest difference.` })
   if (volChange != null && volChange > 20 && perPostChange != null && perPostChange < -15)
-    next.push({ text: 'You posted more but each post reached fewer people: favour fewer, stronger posts over volume.' })
+    next.push({ text: 'Posting volume rose but reach per post fell. Prioritise fewer, stronger posts.' })
   const fmtFinding = findings.find((f) => f.key === 'format' && f.evidence === 'possible')
   if (fmtFinding) {
     const name = fmtFinding.text.replace(/^(More|Fewer) /, '').replace(/ posts.*$/, '')
     const fmt = Object.entries(FORMAT_LABELS).find(([, l]) => l.toLowerCase() === name.toLowerCase())?.[0]
     const planned = fmt === 'newsletter' ? 'article' : fmt && fmt !== 'untagged' ? (fmt as PlannedFormat) : undefined
-    next.push({ text: `Watch the format mix: ${fmtFinding.text.toLowerCase()} lines up with the change.`, format: planned })
+    next.push({ text: `Review the format mix: ${fmtFinding.text.toLowerCase()} coincides with the change.`, format: planned })
   }
-  if (!next.length) next.push({ text: 'No single difference stands out. Keep the posting rhythm steady and change one thing at a time.' })
+  if (!next.length) next.push({ text: 'No single factor stands out. Maintain a steady posting schedule and change one variable at a time.' })
   return { headline, subline, findings, next: next.slice(0, 3) }
 }

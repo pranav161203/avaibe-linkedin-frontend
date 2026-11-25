@@ -24,40 +24,40 @@ export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData
   if (uae) {
     lines.push({
       tone: 'quiet',
-      text: `UAE public holiday (${uae.title}${uae.status === 'expected' ? ', date expected' : ''}). Decision-makers are mostly off: skip business posts, or share a short greeting.`,
+      text: `UAE public holiday (${uae.title}${uae.status === 'expected' ? ', date expected' : ''}). Most decision-makers are unavailable. Avoid business posts; a short greeting is appropriate.`,
     })
   } else if (UAE_WEEKEND.has(d.getDay())) {
-    lines.push({ tone: 'quiet', text: 'Weekend in the UAE. Business posts usually do better on working days.' })
+    lines.push({ tone: 'quiet', text: 'UAE weekend. Business posts typically perform better on working days.' })
   }
   if (ramadan) {
     lines.push({
       tone: 'note',
-      text: 'Ramadan: working hours are shorter and people are often online later in the evening. Your usual best time may not apply. Worth testing an evening slot.',
+      text: 'Ramadan: shorter working hours and later evening activity. The usual best time may not apply; consider testing an evening slot.',
     })
   }
   if (d.getDay() === 5 && !uae) {
-    lines.push({ tone: 'note', text: 'Friday: a short working day for many in the UAE, with Friday prayers around midday.' })
+    lines.push({ tone: 'note', text: 'Friday: shorter working day in the UAE, with prayers around midday.' })
   }
   if (india) {
     lines.push({
       tone: 'note',
-      text: `${india.title} in India${india.note ? ` (${india.note.toLowerCase()})` : ''}. If many of your followers are in India, the first hours after posting may be slower.`,
+      text: `${india.title} in India${india.note ? ` (${india.note.toLowerCase()})` : ''}. Early engagement may be lower if a large share of followers are in India.`,
     })
   }
   if (summer && !uae) {
-    lines.push({ tone: 'note', text: 'UAE summer: many residents travel, so activity is usually lower. Judge results against other summer posts.' })
+    lines.push({ tone: 'note', text: 'UAE summer: activity is typically lower due to travel. Compare results with other summer posts.' })
   }
   if (t.ready && adv) {
     for (const key of adv.labels) {
       const e = t.special[key]
       if (!e || e.posts === 0) continue
-      const what = `your ${e.posts} past post${e.posts === 1 ? '' : 's'} on ${e.label.replace(/ \(.*\)$/, '')}`
+      const what = `${e.posts} past post${e.posts === 1 ? '' : 's'} on ${e.label.replace(/ \(.*\)$/, '')}`
       if (e.verdict === 'better' || e.verdict === 'worse') {
-        lines.push({ tone: e.verdict === 'worse' ? 'quiet' : 'good', text: `In your data, ${what} got ${e.lift.toFixed(2)}× a normal day (likely ${e.low.toFixed(2)}–${e.high.toFixed(2)}×).` })
+        lines.push({ tone: e.verdict === 'worse' ? 'quiet' : 'good', text: `Historical data: ${what} achieved ${e.lift.toFixed(2)}× a typical day (range ${e.low.toFixed(2)}–${e.high.toFixed(2)}×).` })
       } else if (e.verdict === 'no_clear_difference') {
-        lines.push({ tone: 'note', text: `In your data, ${what} did about the same as normal days.` })
+        lines.push({ tone: 'note', text: `Historical data: ${what} performed in line with typical days.` })
       } else {
-        lines.push({ tone: 'note', text: `Only ${what}: too few to measure the effect.` })
+        lines.push({ tone: 'note', text: `Insufficient data: ${what}.` })
       }
     }
   }
@@ -66,15 +66,15 @@ export function dayAdvice(day: string, items: CalendarItem[], data: CalendarData
     lines.push({ tone: 'note', text: `${t.reason} Posts imported from a LinkedIn export only have a date.` })
   } else if (adv && !uae && !UAE_WEEKEND.has(d.getDay())) {
     if (proven(data, adv)) {
-      lines.push({ tone: 'good', text: `Best time: ${adv.best_slot} UAE, about ${pct(adv.best_lift)} vs a typical slot. Backed by your past posts and by testing on newer ones.` })
+      lines.push({ tone: 'good', text: `Recommended time: ${adv.best_slot} UAE, ${pct(adv.best_lift)} vs a typical slot. Supported by historical and recent post performance.` })
     } else {
       lines.push({
         tone: 'note',
-        text: `No proven best time yet: any time between 8 AM and 6 PM UAE is fine. Slightly ahead so far: ${adv.best_slot} (not proven). What you post matters more than when.`,
+        text: `No proven best time yet. Any time between 8 AM and 6 PM UAE is suitable; ${adv.best_slot} is slightly ahead but not yet proven. Content has more impact than timing.`,
       })
     }
     if (adv.test_slot) {
-      lines.push({ tone: 'note', text: `Worth testing now and then: ${adv.test_slot}, not yet tried enough on ${adv.weekday}s.` })
+      lines.push({ tone: 'note', text: `Suggested test slot: ${adv.test_slot} (insufficient data on ${adv.weekday}s).` })
     }
   }
   return lines

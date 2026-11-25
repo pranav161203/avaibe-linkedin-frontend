@@ -30,7 +30,7 @@ export function FollowersTab({ accountId, daily, win, stats, dates, compareLabel
           },
         ]}
       />
-      <MetricsChart daily={daily} from={win.from} to={win.to} metrics={FOLLOWER_METRICS} posts={posts} param="fm" title="When did people follow" />
+      <MetricsChart daily={daily} from={win.from} to={win.to} metrics={FOLLOWER_METRICS} posts={posts} param="fm" title="Follower growth" />
       <Demographics snapshot={latest} noun="followers" />
     </div>
   )

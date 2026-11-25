@@ -1,4 +1,5 @@
 import { ImagePlus } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -36,7 +37,7 @@ export function FormatFields(props: {
         )}
         <label className="flex cursor-pointer items-center gap-2 rounded-xl border border-dashed px-3 py-3 text-sm text-muted-foreground hover:bg-muted">
           <ImagePlus className="size-4" />
-          {file ? file.name : initial?.has_image && !removeImage ? 'Replace image (JPG, PNG or GIF, max 10 MB)' : 'Add an image (JPG, PNG or GIF, max 10 MB)'}
+          {file ? file.name : initial?.has_image && !removeImage ? 'Replace image (JPG, PNG or GIF, up to 10 MB)' : 'Add image (JPG, PNG or GIF, up to 10 MB)'}
           <input type="file" accept="image/jpeg,image/png,image/gif" className="hidden" onChange={(e) => setFile(e.target.files?.[0] ?? null)} />
         </label>
         {(file || (initial?.has_image && !removeImage)) && (
@@ -44,7 +45,7 @@ export function FormatFields(props: {
             className="mt-2 h-10 rounded-xl"
             value={imageAlt}
             onChange={(e) => setImageAlt(e.target.value)}
-            placeholder="Alt text: describe the image for screen readers"
+            placeholder="Alt text for screen readers"
           />
         )}
         {file && <FilePreview file={file} />}
@@ -69,7 +70,7 @@ export function FormatFields(props: {
           onFile={setMedia}
           current={initial?.has_media ? initial : undefined}
         />
-        <p className="text-xs text-muted-foreground">LinkedIn carousels are PDF documents: one slide per page. Make the first slide the hook.</p>
+        <p className="text-xs text-muted-foreground">Carousels are uploaded as PDF documents, one slide per page.</p>
       </div>
     )
   }
@@ -84,8 +85,8 @@ export function FormatFields(props: {
           onFile={setMedia}
           current={initial?.has_media ? initial : undefined}
         />
-        <label className="flex items-center gap-2 text-sm">
-          <input type="checkbox" checked={!!details.subtitles} onChange={(e) => setDetail('subtitles', e.target.checked)} />
+        <label className="flex cursor-pointer items-center gap-2.5 text-sm">
+          <Checkbox checked={!!details.subtitles} onChange={(e) => setDetail('subtitles', e.target.checked)} />
           Subtitles added (many people watch with the sound off)
         </label>
       </div>

@@ -25,15 +25,15 @@ export function NewPostMenu({ from }: { from: 'calendar' | 'dashboard' }) {
           <DropdownMenuItem onClick={() => navigate(`/create?from=${from}`)}>
             <PenLine />
             <span>
-              <span className="block">Write a post</span>
-              <span className="block text-xs text-muted-foreground">One post in the editor</span>
+              <span className="block">Create a post</span>
+              <span className="block text-xs text-muted-foreground">Write a single post in the editor</span>
             </span>
           </DropdownMenuItem>
           <DropdownMenuItem onClick={() => setImporting(true)}>
             <FileSpreadsheet />
             <span>
               <span className="block">Import from Excel</span>
-              <span className="block text-xs text-muted-foreground">Plan many posts from a spreadsheet</span>
+              <span className="block text-xs text-muted-foreground">Plan multiple posts from a spreadsheet</span>
             </span>
           </DropdownMenuItem>
         </DropdownMenuContent>

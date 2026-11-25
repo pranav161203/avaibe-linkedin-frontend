@@ -29,7 +29,7 @@ export function AddKnowledge({ maxChars }: { maxChars: number }) {
   const submit = () =>
     add.mutate(mode === 'file' ? { title: title.trim(), file: file!, accountIds } : { title: title.trim(), content, accountIds }, {
       onSuccess: (s) => {
-        toast.success(`Added “${s.title}”: ${s.chunks} passage${s.chunks === 1 ? '' : 's'}`)
+        toast.success(`“${s.title}” added · ${s.chunks} passage${s.chunks === 1 ? '' : 's'}`)
         reset()
       },
       onError: (e) => toast.error(e.message),
@@ -70,7 +70,7 @@ export function AddKnowledge({ maxChars }: { maxChars: number }) {
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={200}
-            placeholder={mode === 'file' ? 'Uses the file name if empty' : 'e.g. Our services and who they are for'}
+            placeholder={mode === 'file' ? 'Defaults to the file name' : 'For example: Services overview'}
           />
         </div>
 
@@ -86,7 +86,7 @@ export function AddKnowledge({ maxChars }: { maxChars: number }) {
               className="font-mono text-xs"
             />
             <p className={cn('text-xs text-muted-foreground tabular-nums', content.length > maxChars && 'text-bad-fg')}>
-              {fmtNumber(content.length)} / {fmtNumber(maxChars)} characters. Start sections with ## headings so each passage keeps its topic.
+              {fmtNumber(content.length)} / {fmtNumber(maxChars)} characters. Use ## headings to separate sections.
             </p>
           </div>
         ) : (
@@ -114,17 +114,17 @@ export function AddKnowledge({ maxChars }: { maxChars: number }) {
               className="flex w-full flex-col items-center gap-1.5 rounded-xl border border-dashed bg-muted/30 px-4 py-6 text-center transition-colors hover:bg-accent"
             >
               <Upload className="size-5 text-muted-foreground" />
-              <span className="text-sm font-medium">{file ? file.name : 'Choose a file, or drop it here'}</span>
-              <span className="text-xs text-muted-foreground">.txt, .md, .pdf or .docx, up to 5 MB. Scanned PDFs can’t be read.</span>
+              <span className="text-sm font-medium">{file ? file.name : 'Choose a file or drag it here'}</span>
+              <span className="text-xs text-muted-foreground">.txt, .md, .pdf or .docx, up to 5 MB. Scanned PDFs are not supported.</span>
             </button>
           </div>
         )}
 
         <AppliesTo value={accountIds} onChange={setAccountIds} />
 
-        <p className="text-[11px] text-muted-foreground">Company facts only: no personal details of clients or staff, and nothing secret.</p>
+        <p className="text-[11px] text-muted-foreground">Company information only. Do not include personal details or confidential information.</p>
         <Button onClick={submit} disabled={!ready || add.isPending} className="w-full">
-          {add.isPending ? (mode === 'file' ? 'Reading the file…' : 'Adding…') : 'Add to knowledge base'}
+          {add.isPending ? (mode === 'file' ? 'Processing file…' : 'Adding…') : 'Add to knowledge base'}
         </Button>
       </div>
     </section>

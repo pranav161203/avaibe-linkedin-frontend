@@ -11,7 +11,7 @@ export function useParts(draft: Draft, visual: Visual) {
       value: 'text',
       label: 'Post text',
       icon: Type,
-      detail: draft.caption.trim() ? `${draft.caption.length.toLocaleString()} characters: hook, clarity, call to action, hashtags` : 'Nothing written yet',
+      detail: draft.caption.trim() ? `${draft.caption.length.toLocaleString()} characters: hook, clarity, call to action, hashtags` : 'No text yet',
     },
   ]
   const visualLabel = VISUAL_LABEL[draft.format]
@@ -21,7 +21,7 @@ export function useParts(draft: Draft, visual: Visual) {
       label: visualLabel,
       icon: FORMAT_ICON[draft.format],
       detail: !visual
-        ? 'Nothing attached yet: suggests what to make, with a prompt'
+        ? 'No file attached. A visual and prompt will be suggested.'
         : visual.kind === 'video'
           ? `${visual.name}: the AI can’t watch videos, so it suggests from the text`
           : `${visual.name}: the AI looks at it`,
@@ -32,7 +32,7 @@ export function useParts(draft: Draft, visual: Visual) {
     icon: CalendarClock,
     detail: draft.scheduledAt
       ? `${tz.weekday(draft.scheduledAt)} ${tz.dual(draft.scheduledAt)}: checked against your past posts`
-      : 'Not set: suggests a time from your past posts',
+      : 'Not set. A time will be suggested from past performance.',
   })
   if (draft.format === 'poll')
     parts.push({

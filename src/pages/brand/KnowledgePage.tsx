@@ -36,7 +36,7 @@ export function KnowledgePage() {
       <PageHeader
         eyebrow="Brand"
         title="Knowledge base"
-        description="What Claude should know about AVAIBE: services, projects, case studies and policies. Each source is split into short passages, and Claude only gets the ones that match the task."
+        description="Company services, projects, case studies and policies for Claude to reference. Sources are split into passages, and only relevant passages are used for each task."
       />
 
       <div className="mb-5 flex flex-wrap items-center gap-x-4 gap-y-1 rounded-[1.4rem] bg-card px-5 py-3 text-sm">
@@ -46,7 +46,7 @@ export function KnowledgePage() {
           <span className="tabular-nums">{fmtNumber(data?.total_chunks ?? 0)}</span> searchable passages
         </span>
         <span className="text-xs text-muted-foreground">
-          For {account?.name ?? 'this account'}: company-wide sources plus its own · used by Analyse, Chat, Ideas and Trends
+          {account?.name ?? 'This account'}: company-wide and account-specific sources · Used by Analyse, Chat, Ideas and Trends
         </span>
       </div>
 
@@ -65,7 +65,7 @@ export function KnowledgePage() {
             </div>
           ) : sources.length === 0 ? (
             <EmptyState icon={BookOpen}>
-              Nothing yet. Add your company profile, services, case studies or FAQs, so Claude writes about what AVAIBE really does.
+              No sources added. Add a company profile, services, case studies or FAQs to ground Claude’s output.
             </EmptyState>
           ) : (
             <ul className="divide-y">
@@ -87,7 +87,7 @@ export function KnowledgePage() {
                       </span>
                     </span>
                     <span className="block truncate text-xs text-muted-foreground tabular-nums">
-                      {s.kind === 'file' ? s.file_name : 'Text'} · {fmtNumber(s.chars)} characters · {fmtNumber(s.chunks)} passage{s.chunks === 1 ? '' : 's'} · updated{' '}
+                      {s.kind === 'file' ? s.file_name : 'Text'} · {fmtNumber(s.chars)} characters · {fmtNumber(s.chunks)} passage{s.chunks === 1 ? '' : 's'} · Updated{' '}
                       {tz.dateTime(s.updated_at).split(' ')[0]}
                       {s.updated_by && ` by ${s.updated_by}`}
                     </span>
@@ -142,8 +142,8 @@ function TryQuestion({ accountId, accountName }: { accountId?: number; accountNa
   const { data, isFetching } = useSearchKnowledge(q, accountId)
   return (
     <section className="rounded-[1.8rem] bg-card p-5">
-      <h2 className="text-base font-semibold">Test a question</h2>
-      <p className="mt-0.5 mb-3 text-xs text-muted-foreground">See which passages Claude would get when working for {accountName ?? 'this account'}. It matches words, so use the words your sources use.</p>
+      <h2 className="text-base font-semibold">Test retrieval</h2>
+      <p className="mt-0.5 mb-3 text-xs text-muted-foreground">Preview the passages Claude would receive for {accountName ?? 'this account'}. Matching is keyword-based.</p>
       <form
         onSubmit={(e) => {
           e.preventDefault()
@@ -151,7 +151,7 @@ function TryQuestion({ accountId, accountName }: { accountId?: number; accountNa
         }}
         className="flex gap-2"
       >
-        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="e.g. Which schools use our LMS?" maxLength={300} />
+        <Input value={text} onChange={(e) => setText(e.target.value)} placeholder="For example: Which schools use our LMS?" maxLength={300} />
         <Button type="submit" size="sm" variant="outline" disabled={text.trim().length < 2} aria-label="Search">
           <Search />
         </Button>
@@ -159,7 +159,7 @@ function TryQuestion({ accountId, accountName }: { accountId?: number; accountNa
       {q && !isFetching && data && (
         <div className="mt-3 space-y-2">
           {data.results.length === 0 ? (
-            <p className="text-sm text-muted-foreground">No passage matches those words.</p>
+            <p className="text-sm text-muted-foreground">No matching passages.</p>
           ) : (
             data.results.map((h, i) => (
               <div key={i} className="rounded-xl bg-muted/50 p-3">

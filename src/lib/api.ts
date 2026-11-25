@@ -1,4 +1,4 @@
-import { axiosAuth, BASE_URL } from './axios'
+import { axiosAuth, BASE_URL, tryRefresh } from './axios'
 import API_ENDPOINTS from './apiConfig'
 import type {
   Account,
@@ -46,6 +46,13 @@ import type {
   SuggestionsResult,
   TeamMember,
   TeamMemberInput,
+  TeamData,
+  Invitation,
+  InvitationInfo,
+  InviteInput,
+  Company,
+  CompanyInput,
+  CompanyUpdate,
   PostAssistBody,
   PostChatBody,
   PostChatRun,
@@ -74,7 +81,14 @@ function fileForm(file: File): FormData {
 // ---------------------------- Auth & team ------------------------------------------------- //
 
 export async function getMe(): Promise<Me> {
-  const res = await axiosAuth.get(API_ENDPOINTS.AUTH.GET_ME)
+  let res = await axiosAuth.get<Me>(API_ENDPOINTS.AUTH.GET_ME)
+  // The access token lasts minutes: if it has run out, renew it once with the refresh token and ask again
+  if (res.data.enabled && !res.data.user && (await tryRefresh())) res = await axiosAuth.get<Me>(API_ENDPOINTS.AUTH.GET_ME)
+  return res.data
+}
+
+export async function login(body: { email: string; password: string }): Promise<{ signed_in: boolean }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_LOGIN, body)
   return res.data
 }
 
@@ -83,15 +97,56 @@ export async function logout(): Promise<{ signed_out: boolean }> {
   return res.data
 }
 
-export async function getTeam(): Promise<{ members: TeamMember[]; default_account_id: number | null }> {
-  const res = await axiosAuth.get(API_ENDPOINTS.TEAM.GET_TEAM)
+export async function changePassword(body: { current: string; new: string }): Promise<{ changed: boolean }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_PASSWORD, body)
   return res.data
 }
 
-export async function addTeamMember(body: TeamMemberInput): Promise<TeamMember> {
-  const res = await axiosAuth.post(API_ENDPOINTS.TEAM.POST_MEMBER, body)
+export async function getInvitation(token: string): Promise<InvitationInfo> {
+  const res = await axiosAuth.get(API_ENDPOINTS.AUTH.GET_INVITATION, { params: { token } })
   return res.data
 }
+
+export async function signup(body: { token: string; name: string; password: string }): Promise<{ signed_in: boolean }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_SIGNUP, body)
+  return res.data
+}
+
+/** companyId: a super admin looking at one company's team; omitted = your own (super admins: the super admins) */
+export async function getTeam(companyId?: number | null): Promise<TeamData> {
+  const res = await axiosAuth.get(API_ENDPOINTS.TEAM.GET_TEAM, { params: { company_id: companyId ?? undefined } })
+  return res.data
+}
+
+export async function inviteTeamMember({ companyId, body }: { companyId?: number | null; body: InviteInput }): Promise<Invitation> {
+  const res = await axiosAuth.post(API_ENDPOINTS.TEAM.POST_MEMBER, body, { params: { company_id: companyId ?? undefined } })
+  return res.data
+}
+
+export async function revokeInvitation(id: number): Promise<void> {
+  await axiosAuth.delete(API_ENDPOINTS.TEAM.INVITATION(id))
+}
+
+export async function renewInvitation(id: number): Promise<Invitation> {
+  const res = await axiosAuth.post(API_ENDPOINTS.TEAM.RENEW_INVITATION(id))
+  return res.data
+}
+
+export async function getCompanies(): Promise<{ companies: Company[] }> {
+  const res = await axiosAuth.get(API_ENDPOINTS.COMPANIES.LIST)
+  return res.data
+}
+
+export async function createCompany(body: CompanyInput): Promise<Company> {
+  const res = await axiosAuth.post(API_ENDPOINTS.COMPANIES.LIST, body)
+  return res.data
+}
+
+export async function updateCompany({ id, body }: { id: number; body: CompanyUpdate }): Promise<Company> {
+  const res = await axiosAuth.put(API_ENDPOINTS.COMPANIES.ONE(id), body)
+  return res.data
+}
+
 
 export async function updateTeamMember({ id, body }: { id: number; body: TeamMemberInput }): Promise<TeamMember> {
   const res = await axiosAuth.put(API_ENDPOINTS.TEAM.PUT_MEMBER(id), body)
@@ -102,8 +157,8 @@ export async function removeTeamMember(id: number): Promise<void> {
   await axiosAuth.delete(API_ENDPOINTS.TEAM.DELETE_MEMBER(id))
 }
 
-export async function setDefaultAccount(accountId: number): Promise<{ default_account_id: number }> {
-  const res = await axiosAuth.put(API_ENDPOINTS.TEAM.PUT_DEFAULT_ACCOUNT, { default_account_id: accountId })
+export async function setDefaultAccount({ accountId, companyId }: { accountId: number; companyId?: number | null }): Promise<{ default_account_id: number }> {
+  const res = await axiosAuth.put(API_ENDPOINTS.TEAM.PUT_DEFAULT_ACCOUNT, { default_account_id: accountId }, { params: { company_id: companyId ?? undefined } })
   return res.data
 }
 

@@ -39,7 +39,7 @@ export function GeneralTab() {
 
   return (
     <div className="space-y-4">
-      <Section icon={Clock} title="Time zone" description="How times are shown and entered for you. Posting-time analysis always stays in UAE time.">
+      <Section icon={Clock} title="Time zone" description="Used to display and enter times. Posting-time analysis always uses UAE time.">
         <SimpleSelect
           label="Show times in"
           value={tz.zone}
@@ -48,7 +48,7 @@ export function GeneralTab() {
         />
       </Section>
 
-      <Section icon={Building2} title="Tracked accounts" description="Each LinkedIn asset has its own baseline. Company page and personal profiles are never mixed.">
+      <Section icon={Building2} title="Tracked accounts" description="Each account is measured against its own baseline. Company pages and personal profiles are analysed separately.">
         <Table>
           <TableHeader>
             <TableRow>
@@ -79,11 +79,11 @@ export function GeneralTab() {
         </Table>
       </Section>
 
-      <Section icon={Plus} title="Add account" description="For example AVAIBE's real company page, or Abhilash's and Anoop's profiles.">
+      <Section icon={Plus} title="Add account" description="Add a LinkedIn company page or personal profile to track.">
         <form onSubmit={submit} className="grid gap-3 md:grid-cols-2">
           <div>
             <Label className="mb-1.5 block">Name *</Label>
-            <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. AVAIBE" />
+            <Input required value={name} onChange={(e) => setName(e.target.value)} placeholder="Account name" />
           </div>
           <div>
             <Label className="mb-1.5 block">LinkedIn URL</Label>

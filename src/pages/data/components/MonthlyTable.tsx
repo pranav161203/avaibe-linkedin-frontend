@@ -32,7 +32,7 @@ export function MonthlyTable({ days }: { days: PageDay[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardHeading icon={CalendarDays} title="Month by month" />
+        <CardHeading icon={CalendarDays} title="Monthly summary" />
       </CardHeader>
       <CardContent>
         <div className="overflow-x-auto">

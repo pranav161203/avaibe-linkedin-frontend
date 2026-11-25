@@ -39,7 +39,7 @@ export function Num({ v }: { v: number | null }) {
 }
 
 export function VsTypical({ v, checkpoint }: { v: number | null; checkpoint?: string }) {
-  if (v == null) return <span className="text-xs text-muted-foreground" title="Too few posts of the same age to compare yet">—</span>
+  if (v == null) return <span className="text-xs text-muted-foreground" title="Insufficient posts of the same age for comparison">—</span>
   const up = v >= 1.15
   const down = v <= 0.85
   return (
@@ -48,7 +48,7 @@ export function VsTypical({ v, checkpoint }: { v: number | null; checkpoint?: st
         'inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-xs font-medium whitespace-nowrap tabular-nums',
         up ? 'bg-good/10 text-good-fg' : down ? 'bg-bad/10 text-bad-fg' : 'bg-muted text-muted-foreground',
       )}
-      title={`Compared with this account’s usual post at ${checkpoint}`}
+      title={`Compared with this account’s median post at ${checkpoint}`}
     >
       {up ? '▲' : down ? '▼' : '≈'} {v.toFixed(1)}×
     </span>

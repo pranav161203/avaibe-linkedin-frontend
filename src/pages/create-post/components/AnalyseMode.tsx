@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Checkbox } from '@/components/ui/checkbox'
 import { toast } from 'sonner'
 import { CalendarClock, Clock, ImagePlus, Sparkles, TriangleAlert, Type } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -91,14 +92,14 @@ export function AnalyseMode({
         </div>
       ) : (
         <div className="rounded-xl ring-1 ring-border">
-          <div className="px-4 pt-3 pb-1 text-sm font-semibold">What should the AI look at?</div>
+          <div className="px-4 pt-3 pb-1 text-sm font-semibold">Select what to analyse</div>
           <ul className="divide-y">
             {parts.map((o) => {
               const on = chosen.includes(o.value)
               return (
                 <li key={o.value}>
                   <label className="flex cursor-pointer items-start gap-3 px-4 py-2.5 hover:bg-muted/50">
-                    <input type="checkbox" className="mt-1 accent-[var(--primary)]" checked={on} onChange={() => toggle(o.value)} />
+                    <Checkbox className="mt-0.5" checked={on} onChange={() => toggle(o.value)} />
                     <o.icon className={cn('mt-0.5 size-4 shrink-0', on ? 'text-primary' : 'text-muted-foreground')} />
                     <span className="min-w-0">
                       <span className="block text-sm font-medium">{o.label}</span>
@@ -112,11 +113,11 @@ export function AnalyseMode({
           <div className="flex flex-wrap items-center gap-2 border-t px-4 py-3">
             <span className="mr-auto text-xs text-muted-foreground">
               {!draft.caption.trim()
-                ? 'Write some post text first.'
+                ? 'Add post text first.'
                 : !chosen.length
-                  ? 'Pick at least one.'
+                  ? 'Select at least one item.'
                   : left != null && configured
-                    ? `Uses 1 of ${left} analyses left today`
+                    ? `${left} analyses remaining today`
                     : ''}
             </span>
             <Button variant="ghost" onClick={() => setPicking(false)} disabled={run.isPending}>
@@ -137,17 +138,17 @@ export function AnalyseMode({
       ) : !r ? (
         <div className="rounded-xl border border-dashed px-6 py-10 text-center">
           <Sparkles className="mx-auto mb-3 size-6 text-primary/60" />
-          <p className="text-sm font-medium">Nothing is sent to the AI until you click Analyse</p>
+          <p className="text-sm font-medium">No data is sent until you select Analyse</p>
           <p className="mx-auto mt-1 max-w-sm text-xs text-muted-foreground">
-            Pick the parts of the post to check: the text, the {VISUAL_LABEL[draft.format]?.toLowerCase() ?? 'visual'}, the posting time and more. Suggestions
-            for each appear here.
+            Select the parts of the post to review, such as the text, {VISUAL_LABEL[draft.format]?.toLowerCase() ?? 'visual'} and posting time. Recommendations
+            appear here.
           </p>
         </div>
       ) : (
         <div className="space-y-4">
           {stale && (
             <p className="rounded-lg bg-muted px-3 py-2 text-xs text-muted-foreground">
-              You’ve edited the text since this analysis. Click “Analyse again” to refresh it.
+              The text has changed since this analysis. Select “Analyse again” to update it.
             </p>
           )}
 

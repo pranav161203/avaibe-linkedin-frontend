@@ -21,11 +21,11 @@ export function Attention({ accountId }: { accountId?: number }) {
   return (
     <Card>
       <CardHeader>
-        <CardHeading icon={BellRing} title="Needs your attention" />
+        <CardHeading icon={BellRing} title="Action required" />
       </CardHeader>
       <CardContent>
         {rows.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Nothing waiting.</p>
+          <p className="text-sm text-muted-foreground">No pending actions.</p>
         ) : (
           <ul className="-mx-2">
             {rows.map((r) => (

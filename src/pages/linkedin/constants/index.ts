@@ -10,16 +10,16 @@ export const PRODUCTS = [
   {
     name: 'Share on LinkedIn',
     status: 'active' as const,
-    gives: 'Post to the connected person’s personal profile',
+    gives: 'Publish to the connected member’s personal profile',
   },
   {
     name: 'Sign In with LinkedIn (OpenID Connect)',
     status: 'active' as const,
-    gives: 'Identify the connected person (name, email, photo)',
+    gives: 'Identify the connected member (name, email, photo)',
   },
   {
     name: 'Community Management API',
     status: 'pending' as const,
-    gives: 'Post as the company page, read page and post analytics, follower demographics. Needs approval with AVAIBE’s registered company details.',
+    gives: 'Publish as the company page and read page analytics, post analytics and follower demographics. Requires approval using AVAIBE’s registered company details.',
   },
 ]

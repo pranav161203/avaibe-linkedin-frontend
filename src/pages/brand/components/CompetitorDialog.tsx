@@ -29,10 +29,10 @@ export function CompetitorDialog({
     set(k, e.target.value === '' ? null : Number(e.target.value))
 
   const submit = () => {
-    if (!c.name.trim()) return toast.error('Give the competitor a name')
+    if (!c.name.trim()) return toast.error('Enter a competitor name')
     for (const k of ['website', 'linkedin_url'] as const) {
       const v = c[k]
-      if (v && !/^https?:\/\/\S+$/.test(v)) return toast.error(`${k === 'website' ? 'Website' : 'LinkedIn'} must be a full link starting with https://`)
+      if (v && !/^https?:\/\/\S+$/.test(v)) return toast.error(`${k === 'website' ? 'Website' : 'LinkedIn'} must be a full URL starting with https://`)
     }
     onSave({ ...c, name: c.name.trim() })
   }
@@ -42,7 +42,7 @@ export function CompetitorDialog({
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>{initial ? `Edit ${initial.name}` : 'Add competitor'}</DialogTitle>
-          <DialogDescription>Keep what you observed publicly apart from your own interpretation.</DialogDescription>
+          <DialogDescription>Record public observations separately from your interpretation.</DialogDescription>
         </DialogHeader>
         <div className="space-y-5">
           <div className="grid gap-3 sm:grid-cols-2">
@@ -77,7 +77,7 @@ export function CompetitorDialog({
                 <Input type="number" min={0} value={c.followers ?? ''} onChange={num('followers')} />
               </div>
               <div>
-                <Label className="mb-1.5 block text-xs">Posts per week (approx.)</Label>
+                <Label className="mb-1.5 block text-xs">Posts per week (approximate)</Label>
                 <Input type="number" min={0} step="0.5" value={c.posts_per_week ?? ''} onChange={num('posts_per_week')} />
               </div>
               <div>
@@ -85,11 +85,11 @@ export function CompetitorDialog({
                 <Input type="date" value={c.checked_on ?? ''} onChange={text('checked_on')} />
               </div>
               <div className="sm:col-span-3">
-                <Label className="mb-1.5 block text-xs">Main topics they post about</Label>
-                <Input value={c.topics ?? ''} maxLength={400} onChange={text('topics')} placeholder="e.g. ERP case studies, VAT, hiring" />
+                <Label className="mb-1.5 block text-xs">Main topics</Label>
+                <Input value={c.topics ?? ''} maxLength={400} onChange={text('topics')} placeholder="For example: ERP case studies, VAT, hiring" />
               </div>
               <div className="sm:col-span-3">
-                <Label className="mb-1.5 block text-xs">How they describe themselves (their tagline or About)</Label>
+                <Label className="mb-1.5 block text-xs">Positioning (tagline or About section)</Label>
                 <Textarea rows={2} value={c.positioning ?? ''} maxLength={600} onChange={text('positioning')} />
               </div>
             </div>
@@ -99,11 +99,11 @@ export function CompetitorDialog({
             <div className="mb-2 text-sm font-medium">Our view (interpretation)</div>
             <div className="grid gap-3">
               <div>
-                <Label className="mb-1.5 block text-xs">What they do well</Label>
+                <Label className="mb-1.5 block text-xs">Strengths</Label>
                 <Textarea rows={2} value={c.strengths ?? ''} maxLength={600} onChange={text('strengths')} />
               </div>
               <div>
-                <Label className="mb-1.5 block text-xs">Where AVAIBE can be different</Label>
+                <Label className="mb-1.5 block text-xs">Differentiation opportunity</Label>
                 <Textarea rows={2} value={c.opportunity ?? ''} maxLength={600} onChange={text('opportunity')} />
               </div>
             </div>

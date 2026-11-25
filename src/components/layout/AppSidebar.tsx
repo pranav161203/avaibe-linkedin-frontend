@@ -122,7 +122,7 @@ export function AppSidebar() {
           {item.to === '/publishing' && publishingWaiting > 0 && (
             <span
               aria-label={`${publishingWaiting} posts need action`}
-              title={`${publishingWaiting} post${publishingWaiting === 1 ? '' : 's'} waiting for someone`}
+              title={`${publishingWaiting} post${publishingWaiting === 1 ? '' : 's'} need${publishingWaiting === 1 ? 's' : ''} action`}
               className="pointer-events-none absolute top-2.5 right-2 size-2 rounded-full bg-bad ring-2 ring-sidebar group-data-[collapsible=icon]:top-1 group-data-[collapsible=icon]:right-1"
             />
           )}
@@ -178,10 +178,30 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter>
+        {__SAMPLE_DATA__ && (
+          // Small, but always there: the hosted demo's numbers are made up, never AVAIBE's real results
+          <div
+            className="px-2 text-[11px] text-muted-foreground group-data-[collapsible=icon]:hidden"
+            title="Figures are for demonstration only. Changes are stored in this browser."
+          >
+            Sample data ·{' '}
+            <button
+              type="button"
+              className="underline underline-offset-2 hover:text-foreground"
+              onClick={async () => {
+                const { resetSampleData } = await import('@/sample-data/api')
+                resetSampleData()
+                window.location.reload()
+              }}
+            >
+              reset
+            </button>
+          </div>
+        )}
         {COPY_LABEL && (
           <div
             className="px-2 text-[11px] text-muted-foreground group-data-[collapsible=icon]:hidden"
-            title="Editable copy of the app with its own database. The original is on port 5173."
+            title="Editable copy with a separate database. The original runs on port 5173."
           >
             {COPY_LABEL} · editable copy
           </div>

@@ -22,8 +22,8 @@ export function BestPosts({ accountId, range }: { accountId?: number; range: Tim
       <CardHeader>
         <CardHeading
           icon={Trophy}
-          title="Best posts in this period"
-          sub="Impressions so far; newer posts have had less time to collect them."
+          title="Top posts"
+          sub="Impressions to date. Recent posts have had less time to accumulate impressions."
           action={
             <Link to="/data?tab=posts" className="pt-1 text-xs text-muted-foreground hover:text-foreground">
               All posts
@@ -33,7 +33,7 @@ export function BestPosts({ accountId, range }: { accountId?: number; range: Tim
       </CardHeader>
       <CardContent>
         {best.length === 0 ? (
-          <p className="text-sm text-muted-foreground">No posts with numbers in this period.</p>
+          <p className="text-sm text-muted-foreground">No posts with metrics in this period.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[520px] table-fixed text-sm">

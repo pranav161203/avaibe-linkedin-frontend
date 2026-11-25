@@ -17,7 +17,7 @@ export function AudienceCard({ audience, followersLink, visitorsLink }: { audien
       <CardHeader>
         <CardHeading
           icon={Users}
-          title="Who your audience is"
+          title="Audience"
           sub={latest ? `${latest.total != null ? `${fmtNumber(latest.total)} ${kind} · ` : ''}as of ${format(parseISO(latest.as_of), 'd MMM')}` : undefined}
         />
         <div role="tablist" aria-label="Audience" className="mt-3 flex w-fit rounded-lg bg-secondary p-1">
@@ -38,7 +38,7 @@ export function AudienceCard({ audience, followersLink, visitorsLink }: { audien
       <CardContent>
         {!latest ? (
           <p className="text-sm text-muted-foreground">
-            No {kind} breakdown yet. <Link to="/import" className="underline">Import LinkedIn’s export</Link>.
+            No {kind} breakdown available. <Link to="/import" className="underline">Import a LinkedIn export</Link>.
           </p>
         ) : (
           <>
@@ -63,7 +63,7 @@ export function AudienceCard({ audience, followersLink, visitorsLink }: { audien
               })}
             </ul>
             <p className="mt-4 text-[11px] leading-relaxed text-muted-foreground">
-              Groups overlap, so they don’t add up to 100%. LinkedIn lists only its biggest values, so these are minimums.{' '}
+              Groups overlap and may not total 100%. LinkedIn reports only the largest values, so figures are minimums.{' '}
               <Link to={kind === 'followers' ? followersLink : visitorsLink} className="underline">
                 Full breakdown
               </Link>

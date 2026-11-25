@@ -7,11 +7,12 @@ export function SignedInDetails() {
     <DetailsCard>
       <DetailRow label="Name">{u.name ?? '—'}</DetailRow>
       <DetailRow label="Work email">{u.email}</DetailRow>
-      <DetailRow label="Role" hint="Ask an admin to change it">
+      <DetailRow label="Company">{u.company?.name ?? 'All companies'}</DetailRow>
+      <DetailRow label="Role" hint="Managed by an admin">
         {ROLE_LABELS[u.role]} <span className="text-muted-foreground">· {ROLE_HELP[u.role]}</span>
       </DetailRow>
-      <DetailRow label="Accounts">{u.can_switch_accounts ? 'Can switch between all accounts' : 'Company page only'}</DetailRow>
-      <DetailRow label="Show times in" hint="Dates and times across the app">
+      <DetailRow label="Accounts">{u.can_switch_accounts ? 'All company accounts' : 'Default account only'}</DetailRow>
+      <DetailRow label="Show times in" hint="Applies to all dates and times">
         <TimeZoneSelect />
       </DetailRow>
     </DetailsCard>

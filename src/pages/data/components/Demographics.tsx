@@ -54,7 +54,7 @@ export function Demographics({ snapshot, noun }: { snapshot: PageAudienceSnapsho
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground">
-            No {noun} breakdown yet. <Link to="/import" className="underline">Import LinkedIn’s export</Link> or record one below.
+            No {noun} breakdown available. <Link to="/import" className="underline">Import a LinkedIn export</Link> or record one below.
           </p>
         </CardContent>
       </Card>
@@ -130,8 +130,8 @@ export function Demographics({ snapshot, noun }: { snapshot: PageAudienceSnapsho
           <p className="mt-4 text-xs text-muted-foreground">
             {uaeRow.length
               ? `The UAE is #${uaeRank + 1} of ${rows.length} countries${uaeRank >= 6 ? ' (added to the list above)' : ''}. `
-              : 'No UAE locations in LinkedIn’s list. '}
-            Countries are added up from LinkedIn’s regions, and LinkedIn lists only the biggest ones, so small countries are undercounted.
+              : 'No UAE locations in the LinkedIn data. '}
+            Country totals are aggregated from LinkedIn regions. LinkedIn reports only the largest regions, so smaller countries are undercounted.
           </p>
         )}
       </CardContent>

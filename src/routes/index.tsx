@@ -10,6 +10,7 @@ export function AppRoutes() {
       <Suspense fallback={<PageLoading />}>
         <Routes>
           <Route path="signin" element={<P.SignInPage />} />
+          <Route path="signup" element={<P.SignUpPage />} />
           <Route element={<Layout />}>
             <Route index element={<P.DashboardPage />} />
             <Route path="data" element={<P.DataPage />} />

@@ -29,7 +29,7 @@ export function VisitorsTab({ accountId, daily, win, stats, dates, compareLabel,
         compareLabel={compareLabel}
         items={[
           { label: 'Page views', value: stats.cur.page_views, prev: stats.prev?.page_views },
-          { label: 'Unique visitors', value: visitors, prev: stats.prev?.unique_visitors, hint: 'Unique each day, added up' },
+          { label: 'Unique visitors', value: visitors, prev: stats.prev?.unique_visitors, hint: 'Sum of daily unique visitors' },
           {
             label: 'From the UAE',
             value: latest?.shares.uae_share ?? null,
@@ -38,17 +38,17 @@ export function VisitorsTab({ accountId, daily, win, stats, dates, compareLabel,
             small: (latest?.total ?? 0) < 100,
             hint: latest ? `Visitor breakdown as of ${format(parseISO(latest.as_of), 'd MMM')}` : undefined,
           },
-          { label: 'Leads logged', value: inWin.length, prev: inPrev.length, hint: 'From your Leads log' },
+          { label: 'Leads logged', value: inWin.length, prev: inPrev.length, hint: 'From the Leads log' },
         ]}
       />
-      <MetricsChart daily={daily} from={win.from} to={win.to} metrics={VISITOR_METRICS} posts={posts} param="vm" title="When did people visit" />
+      <MetricsChart daily={daily} from={win.from} to={win.to} metrics={VISITOR_METRICS} posts={posts} param="vm" title="Visits over time" />
       <div className="grid gap-4 lg:grid-cols-5">
         <div className="lg:col-span-3">
           <Demographics snapshot={latest} noun="visitors" />
         </div>
         <Card className="lg:col-span-2">
           <CardHeader>
-            <CardHeading icon={Filter} title="From visit to lead" sub="Same period. LinkedIn stops at the visit; your Leads log carries it on." />
+            <CardHeading icon={Filter} title="Visit to lead conversion" sub="Same period. LinkedIn tracks visits; the Leads log tracks enquiries." />
           </CardHeader>
           <CardContent>
             <Funnel
@@ -63,9 +63,9 @@ export function VisitorsTab({ accountId, daily, win, stats, dates, compareLabel,
               {visitors && inWin.length
                 ? `${fmtNumber((inWin.length / visitors) * 1000, 1)} leads per 1,000 visitors. `
                 : !leads.length
-                  ? 'No leads logged yet, so visits can’t be linked to enquiries. '
+                  ? 'No leads logged; visits cannot be linked to enquiries. '
                   : ''}
-              Not every lead comes through the page, and button clicks aren’t in your data yet.
+              Not all leads originate from the page. Button clicks are not yet tracked.
             </p>
           </CardContent>
         </Card>

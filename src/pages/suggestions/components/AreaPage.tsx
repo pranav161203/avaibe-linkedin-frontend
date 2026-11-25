@@ -48,7 +48,7 @@ export function AreaPage({ areas, eyebrow = 'Suggestions', title, description, f
 
       {usesData && suggestions && suggestions.baseline != null && (
         <p className="text-xs text-muted-foreground">
-          Based on your own posts, compared at <b>{suggestions.checkpoint ?? '24h'}</b> · typical post: <b>{fmtNumber(suggestions.baseline)}</b>{' '}
+          Based on your post history, measured at <b>{suggestions.checkpoint ?? '24h'}</b> · median: <b>{fmtNumber(suggestions.baseline)}</b>{' '}
           {suggestions.metric_label}
         </p>
       )}
@@ -65,7 +65,7 @@ export function AreaPage({ areas, eyebrow = 'Suggestions', title, description, f
       ) : (
         <>
           {open.length === 0 ? (
-            <EmptyState icon={CheckCircle2}>{closed.length ? 'Everything here has been decided. ' : ''}{empty ?? def.empty}</EmptyState>
+            <EmptyState icon={CheckCircle2}>{closed.length ? 'All suggestions have been reviewed. ' : ''}{empty ?? def.empty}</EmptyState>
           ) : (
             open.length > 0 && (
               <>

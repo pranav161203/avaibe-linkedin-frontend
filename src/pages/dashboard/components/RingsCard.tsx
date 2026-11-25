@@ -53,7 +53,7 @@ export function RingsCard({
         <div className="min-w-0">
           <div className="text-sm font-semibold group-hover:text-primary">Posts in {posts.month}</div>
           <div className="mt-0.5 text-xs text-muted-foreground">
-            {posts.usual ? `A usual month has about ${posts.usual} (last 3 months)` : 'Published so far this month'}
+            {posts.usual ? `Typical month: ${posts.usual} (last 3 months)` : 'Published so far this month'}
           </div>
         </div>
       </Link>

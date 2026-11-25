@@ -43,7 +43,7 @@ export function AiPanel({
         <Sparkles className="mt-0.5 size-7 shrink-0 text-primary" />
         <div className="min-w-0 flex-1">
           <h2 className="text-xl font-bold tracking-tight">AI suggestions</h2>
-          <p className="text-sm text-muted-foreground">Improve your post, get ideas and data-backed recommendations.</p>
+          <p className="text-sm text-muted-foreground">Review and improve the post with recommendations based on your data.</p>
         </div>
         <div role="tablist" aria-label="AI mode" className="flex rounded-lg bg-secondary p-1">
           {MODES.map((m) => (
@@ -70,8 +70,7 @@ export function AiPanel({
           <div className="flex gap-3 rounded-xl border border-warn/50 bg-warn/10 px-4 py-3 text-sm">
             <TriangleAlert className="mt-0.5 size-4 shrink-0" />
             <span>
-              Claude isn’t connected yet, so the AI is switched off. It needs an Anthropic API key added to the backend (waiting on manager approval).
-              Everything else on this page works without it.
+              Claude is not connected, so AI suggestions are unavailable. All other features on this page remain available.
             </span>
           </div>
         )}

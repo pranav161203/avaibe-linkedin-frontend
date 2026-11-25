@@ -11,7 +11,7 @@ async function copyText(text: string, what = 'Prompt') {
     await navigator.clipboard.writeText(text)
     toast.success(`${what} copied`)
   } catch {
-    toast.error('Couldn’t copy: select the text and copy it instead')
+    toast.error('Copy failed. Select the text manually.')
   }
 }
 
@@ -31,7 +31,7 @@ export function VisualPromptView({ kind, prompt }: { kind: 'image' | 'video'; pr
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">{kind === 'video' ? 'Video prompt' : 'Image prompt'}</div>
           <div className="text-xs text-muted-foreground">
-            Paste it into <ToolLink name={kind === 'video' ? 'Seedance' : 'Seedream'} /> or a similar tool, then upload the {kind} on the left.
+            Use in <ToolLink name={kind === 'video' ? 'Seedance' : 'Seedream'} /> or a similar tool, then upload the {kind}.
           </div>
         </div>
       </div>
@@ -52,7 +52,7 @@ export function SlidePromptsView({ prompts }: { prompts: CarouselPrompts }) {
         <div className="min-w-0 flex-1">
           <div className="text-sm font-semibold">Slide prompts</div>
           <div className="text-xs text-muted-foreground">
-            Make each slide in <ToolLink name="Seedream" /> or a similar tool, join them into one PDF and upload it on the left.
+            Create each slide in <ToolLink name="Seedream" /> or a similar tool, combine them into one PDF and upload it.
           </div>
         </div>
         <Button variant="outline" size="sm" onClick={() => copyText(prompts.slides.map((s, i) => `Slide ${i + 1}: ${s.prompt}`).join('\n\n'), 'All slide prompts')}>

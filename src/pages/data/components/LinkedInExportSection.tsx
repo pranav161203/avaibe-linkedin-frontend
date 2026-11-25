@@ -38,20 +38,20 @@ export function LinkedInExportSection({ accountId, accountName, accountKind }: {
   return (
     <Section icon={FileSpreadsheet}
       title={`LinkedIn page export → ${accountName ?? '…'}`}
-      description="On LinkedIn: company page → Analytics → Content, Followers and Visitors → Export. Upload the files as they are (.xls or .xlsx). Importing again later updates the same posts instead of duplicating them."
+      description="On LinkedIn, go to the company page → Analytics → Content, Followers and Visitors → Export. Upload the files unchanged (.xls or .xlsx). Re-importing updates existing posts without creating duplicates."
     >
       {accountKind && accountKind !== 'company' && (
         <p className="mb-3 flex items-start gap-2 rounded-md border border-warn/50 bg-warn/10 px-3 py-2 text-xs">
           <AlertTriangle className="mt-0.5 size-4 shrink-0" />
           <span>
             <b>{accountName}</b> is a {accountKind} profile, but these exports come from a company page. Switch to the company page in the
-            sidebar first. You’ll be asked to confirm if you import here anyway.
+            sidebar first. Importing here requires confirmation.
           </span>
         </p>
       )}
       <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-end">
         <div>
-          <Label className="mb-1.5 block">Files (select all of them at once)</Label>
+          <Label className="mb-1.5 block">Files (select all at once)</Label>
           <Input
             type="file"
             multiple
@@ -65,7 +65,7 @@ export function LinkedInExportSection({ accountId, accountName, accountKind }: {
         </div>
       </div>
       <p className="mt-1.5 text-xs text-muted-foreground">
-        Leave the date empty to read it from LinkedIn&apos;s file name. It decides how old each post was when its totals were taken.
+        If left blank, the date is read from the file name. It determines each post’s age when its totals were recorded.
       </p>
       <Button
         className="mt-3"
@@ -77,16 +77,16 @@ export function LinkedInExportSection({ accountId, accountName, accountKind }: {
 
       <ul className="mt-4 space-y-1 text-xs text-muted-foreground">
         <li>
-          <b>No posting times:</b> LinkedIn only exports the date. These posts count in day-of-week analysis but stay out of the
-          hour-by-hour heatmap. If you know a post&apos;s time, set it on the post.
+          <b>No posting times:</b> LinkedIn exports the date only. These posts are included in day-of-week analysis but excluded from the
+          hourly heatmap. Set the time on a post if it is known.
         </li>
         <li>
-          <b>Totals, not snapshots:</b> each post&apos;s numbers are stored as its 7-day figure (or 24h/48h if it was younger at export).
-          Snapshots you typed in yourself are never overwritten.
+          <b>Totals, not snapshots:</b> each post’s figures are stored as its 7-day value (24h or 48h if it was newer at export).
+          Manually entered snapshots are never overwritten.
         </li>
         <li>
-          <b>To check:</b> formats LinkedIn didn&apos;t label come in as “Not tagged yet”, and topics/CTAs are suggested from the caption.
-          Open each post to confirm; saving it marks the topic as confirmed.
+          <b>Review required:</b> unlabelled formats are imported as “Not tagged yet”, and topics and CTAs are suggested from the caption.
+          Open each post and save it to confirm.
         </li>
       </ul>
 
@@ -96,8 +96,8 @@ export function LinkedInExportSection({ accountId, accountName, accountKind }: {
             <FileResult key={f.file} r={f} />
           ))}
           <p className="text-xs">
-            Next: <Link to="/data?tab=posts" className="underline">check formats and topics</Link> ·{' '}
-            <Link to="/" className="underline">open the dashboard</Link> · <Link to="/data?tab=followers" className="underline">see the audience</Link>
+            Next steps: <Link to="/data?tab=posts" className="underline">Review formats and topics</Link> ·{' '}
+            <Link to="/" className="underline">Open dashboard</Link> · <Link to="/data?tab=followers" className="underline">View audience</Link>
           </p>
         </div>
       )}
@@ -107,8 +107,8 @@ export function LinkedInExportSection({ accountId, accountName, accountKind }: {
           <DialogHeader>
             <DialogTitle>Import into a profile?</DialogTitle>
             <DialogDescription>
-              <b>{accountName}</b> is a {accountKind} profile, but LinkedIn page exports come from a company page. If these files are the
-              company page’s, its posts, visitors and followers would be stored under {accountName} and mixed into this profile’s results.
+              <b>{accountName}</b> is a {accountKind} profile, but LinkedIn page exports come from a company page. If these files belong to the
+              company page, its posts, visitors and followers will be stored under {accountName} and combined with this profile’s results.
             </DialogDescription>
           </DialogHeader>
           <DialogFooter>

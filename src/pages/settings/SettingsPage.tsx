@@ -3,6 +3,8 @@ import { Skeleton } from '@/components/ui/skeleton'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { PageHeader } from '@/components/common'
 import { TeamTab } from './components/TeamTab'
+import { OwnerTeamTab } from './components/OwnerTeamTab'
+import { CompaniesTab } from './components/CompaniesTab'
 import { useAuth } from '@/context/auth'
 import { AudienceTab } from './components/AudienceTab'
 import { ClaudeTab } from './components/ClaudeTab'
@@ -30,11 +32,12 @@ export function SettingsPage() {
 
   return (
     <div className="mx-auto max-w-page">
-      <PageHeader eyebrow="Workspace" title="Settings" description="How the app defines your audience, judges performance, and connects to other services." />
+      <PageHeader eyebrow="Workspace" title="Settings" description="Accounts, team access, audience definitions, performance rules and AI configuration." />
       <Tabs value={tab} onValueChange={(v) => setParams({ tab: String(v) }, { replace: true })}>
         <TabsList className="flex-wrap">
           <TabsTrigger value="general">General</TabsTrigger>
           <TabsTrigger value="team">Team</TabsTrigger>
+          {auth.user?.role === 'superadmin' && <TabsTrigger value="companies">Companies</TabsTrigger>}
           <TabsTrigger value="audience">Audience definitions</TabsTrigger>
           <TabsTrigger value="performance">Performance rules</TabsTrigger>
           <TabsTrigger value="claude">Claude</TabsTrigger>
@@ -43,8 +46,13 @@ export function SettingsPage() {
           <GeneralTab />
         </TabsContent>
         <TabsContent value="team" className="mt-4">
-          <TeamTab />
+          {auth.user?.role === 'superadmin' ? <OwnerTeamTab /> : <TeamTab />}
         </TabsContent>
+        {auth.user?.role === 'superadmin' && (
+          <TabsContent value="companies" className="mt-4">
+            <CompaniesTab />
+          </TabsContent>
+        )}
         <TabsContent value="audience" className="mt-4">
           {isLoading || !data ? (
             <Skeleton className="h-96" />

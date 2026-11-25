@@ -1,4 +1,5 @@
 import { Paperclip } from 'lucide-react'
+import { Checkbox } from '@/components/ui/checkbox'
 import type { Visual } from '../types'
 
 export function VisualChip({ visual, include, setInclude }: { visual: NonNullable<Visual>; include: boolean; setInclude: (v: boolean) => void }) {
@@ -12,7 +13,7 @@ export function VisualChip({ visual, include, setInclude }: { visual: NonNullabl
   return (
     <div className="rounded-xl bg-muted/50 px-4 py-2.5 text-xs">
       <label className="flex cursor-pointer items-center gap-2">
-        <input type="checkbox" checked={include} onChange={(e) => setInclude(e.target.checked)} />
+        <Checkbox checked={include} onChange={(e) => setInclude(e.target.checked)} />
         <Paperclip className="size-3.5 shrink-0 text-muted-foreground" />
         <span className="min-w-0 truncate">
           The AI will also look at <span className="font-medium">{visual.name}</span>

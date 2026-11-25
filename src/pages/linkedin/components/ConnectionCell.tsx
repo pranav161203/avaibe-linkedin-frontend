@@ -10,7 +10,7 @@ export function ConnectionCell({ account, connection, configured }: { account: A
   const connectLinkedIn = useConnectLinkedIn()
 
   if (account.kind === 'company') {
-    return <span className="text-xs text-muted-foreground">Manual tracking (needs Community Management API)</span>
+    return <span className="text-xs text-muted-foreground">Manual tracking (requires Community Management API)</span>
   }
 
   const connect = () =>
@@ -35,9 +35,9 @@ export function ConnectionCell({ account, connection, configured }: { account: A
       {connection.picture_url && <img src={connection.picture_url} alt="" className="size-6 rounded-full" />}
       <span className="text-sm">{connection.name ?? 'Connected'}</span>
       {connection.expired ? (
-        <Badge variant="outline" className="border-bad/40 text-bad-fg">expired</Badge>
+        <Badge variant="outline" className="border-bad/40 text-bad-fg">Expired</Badge>
       ) : connection.days_left <= 7 ? (
-        <Badge variant="outline" className="border-serious/40 text-serious-fg">expires in {connection.days_left}d</Badge>
+        <Badge variant="outline" className="border-serious/40 text-serious-fg">Expires in {connection.days_left}d</Badge>
       ) : (
         <span className="text-xs text-muted-foreground">valid {connection.days_left} more days</span>
       )}

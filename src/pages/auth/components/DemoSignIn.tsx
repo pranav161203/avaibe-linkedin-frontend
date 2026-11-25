@@ -38,9 +38,9 @@ export function DemoSignIn({ signedOut }: { signedOut: boolean }) {
         </div>
 
         <h1 className="text-gradient text-2xl font-semibold">Welcome back</h1>
-        <p className="mt-1 text-sm text-muted-foreground">Sign in to see how your LinkedIn is doing.</p>
+        <p className="mt-1 text-sm text-muted-foreground">Sign in to your account.</p>
 
-        {signedOut && <p className="mt-4 rounded-md bg-muted px-3 py-2 text-sm">You’ve been signed out.</p>}
+        {signedOut && <p className="mt-4 rounded-md bg-muted px-3 py-2 text-sm">You have been signed out.</p>}
 
         <div className="mt-6 space-y-4">
           <div className="space-y-1.5">
@@ -94,7 +94,7 @@ export function DemoSignIn({ signedOut }: { signedOut: boolean }) {
         </div>
 
         <p className="mt-5 rounded-md bg-muted/60 px-3 py-2 text-center text-[11px] text-muted-foreground">
-          Demo sign-in: any email works, nothing is checked and your password isn’t saved or sent anywhere.
+          Demo mode: credentials are not verified, stored or transmitted.
         </p>
       </form>
     </div>

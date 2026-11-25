@@ -25,12 +25,18 @@ export const ROLES: Role[] = ['viewer', 'editor', 'admin', 'superadmin']
 
 export interface Me {
   enabled: boolean
+  /** Which sign-in options the server offers */
+  methods?: { password: boolean; microsoft: boolean }
   user: {
+    id?: number | null
     email: string
     name: string | null
     role: Role
     can_switch_accounts: boolean
     dev: boolean
+    has_password?: boolean
+    /** Empty for super admins, who work across companies */
+    company?: { id: number; name: string } | null
   } | null
   allowed_account_ids?: number[]
   default_account_id?: number | null
@@ -44,6 +50,70 @@ export interface TeamMember {
   can_switch_accounts: boolean
   active: boolean
   last_login_at: string | null
+  has_password?: boolean
+  created_at?: string | null
+  /** Email of whoever invited them */
+  created_by?: string | null
+}
+
+/** A pending invitation. token/link only come back right after creating or renewing it. */
+export interface Invitation {
+  id: number
+  email: string
+  role: Role
+  can_switch_accounts: boolean
+  invited_by: string | null
+  created_at: string | null
+  expires_at: string | null
+  token?: string
+  link?: string
+}
+
+export interface InviteInput {
+  email: string
+  role: Role
+  can_switch_accounts: boolean
+}
+
+export interface TeamData {
+  members: TeamMember[]
+  invitations: Invitation[]
+  /** The company this list is for; null = the super admins */
+  company: { id: number; name: string } | null
+  default_account_id: number | null
+}
+
+export interface Company {
+  id: number
+  name: string
+  slug: string
+  website: string | null
+  country: string
+  industry: string | null
+  is_active: boolean
+  default_account_id: number | null
+  users: number | null
+  accounts: number | null
+  pending_invitations: number | null
+  created_at: string
+  created_by: string | null
+  updated_at: string
+  updated_by: string | null
+}
+
+export interface CompanyInput {
+  name: string
+  website?: string | null
+  country?: string
+  industry?: string | null
+}
+
+export type CompanyUpdate = Partial<CompanyInput> & { is_active?: boolean; default_account_id?: number | null }
+
+export interface InvitationInfo {
+  email: string
+  role: Role
+  company: string | null
 }
 
 export interface TeamMemberInput {
@@ -105,8 +175,11 @@ export interface ClaudeUsage {
 export interface ClaudeStatus {
   configured: boolean
   model: string
+  daily_limit_per_account: number
+  /** Owners only (null for everyone else) */
   key_hint: string | null
-  usage: ClaudeUsage
+  /** Platform-wide usage and cost: owners only */
+  usage: ClaudeUsage | null
 }
 
 export type IdeaType = 'post' | 'campaign' | 'outreach' | 'brand' | 'seo_aeo' | 'leads' | 'sales'
@@ -161,6 +234,8 @@ export interface Idea {
   boost: string
   risk: string
   confidence: Level
+  /** Claude's own estimate, 0-100 (older runs don't have it) */
+  confidence_pct?: number | null
   confidence_reason: string
   effort: Level
   measure: { metric: string; period: string; target: string }
@@ -250,6 +325,7 @@ export interface TrendIdea {
   use_by: string
   risks: string[]
   confidence: 'high' | 'medium' | 'low'
+  confidence_pct?: number | null
   sources: { title: string; url: string; date: string | null }[]
 }
 export interface TrendsRun extends Omit<IdeasRun, 'result'> {
@@ -367,6 +443,7 @@ export interface Account {
   linkedin_url: string | null
   is_test: boolean
   parent_id?: number | null
+  company_id?: number | null
 }
 
 export interface Classification {
@@ -634,7 +711,8 @@ export interface Suggestion {
   why: string[]
   boost: string
   risk: string
-  confidence: { level: 'high' | 'medium' | 'low'; reason: string }
+  /** pct: measured share of the posts it rests on that back it (only data-based suggestions have one) */
+  confidence: { level: 'high' | 'medium' | 'low'; reason: string; pct?: number | null }
   measure: { metric: string; period: string; target: string }
   action: { label: string; to: string } | null
   progress: { done: number; total: number; label: string } | null
@@ -744,7 +822,7 @@ export interface ExportFileResult {
 
 export interface CompareExplanation {
   summary: string
-  reasons: { reason: string; confidence: 'high' | 'medium' | 'low' }[]
+  reasons: { reason: string; confidence: 'high' | 'medium' | 'low'; confidence_pct?: number | null }[]
   try_next: string[]
   caveats: string[]
 }

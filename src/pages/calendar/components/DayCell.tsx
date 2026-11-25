@@ -121,7 +121,7 @@ export function DayCell({
       {entries.slice(0, MAX)}
       {entries.length > MAX && <div className="text-[11px] text-muted-foreground">+{entries.length - MAX} more</div>}
       {showHint && (
-        <div className="mt-auto flex items-center gap-1 text-[10px] text-muted-foreground" title="Best time for this date, from your past posts">
+        <div className="mt-auto flex items-center gap-1 text-[10px] text-muted-foreground" title="Recommended time based on past performance">
           <Clock className="size-3" /> {hint}
         </div>
       )}

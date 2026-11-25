@@ -20,10 +20,10 @@ export interface Highlight {
 const SMALL_COUNT = 20
 
 function changeLine(h: Highlight, compareLabel: string): { text: string; dir: 'up' | 'down' | 'flat' | 'none' } {
-  if (h.value == null) return { text: 'Not in your data yet', dir: 'none' }
-  if (h.prev == null) return { text: 'No earlier period to compare', dir: 'none' }
+  if (h.value == null) return { text: 'No data', dir: 'none' }
+  if (h.prev == null) return { text: 'No prior period', dir: 'none' }
   const small = h.small ?? (!h.pct && Math.max(h.value, h.prev) < SMALL_COUNT)
-  if (small) return { text: 'Too few to compare', dir: 'none' }
+  if (small) return { text: 'Insufficient data', dir: 'none' }
   if (h.pct) {
     const d = (h.value - h.prev) * 100
     return { text: `${d >= 0 ? '+' : ''}${d.toFixed(1)} pt ${compareLabel}`, dir: Math.abs(d) < 0.1 ? 'flat' : d > 0 ? 'up' : 'down' }

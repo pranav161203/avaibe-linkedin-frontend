@@ -72,11 +72,11 @@ function CombinedSuggestions() {
       areas={current.areas}
       eyebrow="Content"
       title="Suggestions"
-      description="What to do next, in one list: what to post, how the page comes across, and how to turn attention into enquiries and sales."
+      description="Recommended actions for content, brand, and lead conversion."
       filter={chips}
       above={current.id === 'brand' && account ? <TrendsPanel accountId={account.id} /> : undefined}
       showArea={current.id === 'all'}
-      empty={current.id === 'all' ? 'No suggestions right now. They appear as new posts and numbers come in, and when Claude generates ideas.' : undefined}
+      empty={current.id === 'all' ? 'No suggestions available. New suggestions appear as post data is added or ideas are generated.' : undefined}
     />
   )
 }

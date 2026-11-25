@@ -73,7 +73,7 @@ export function metricLabel(m: string): string {
   return METRIC_LABELS[m] ?? m
 }
 
-/** Qualitative confidence as a number on a 1-3 scale (not a probability: nothing here is measured that precisely) */
-export const CONFIDENCE_SCORE = { high: 3, medium: 2, low: 1 } as const
-export const confidenceScore = (level: keyof typeof CONFIDENCE_SCORE) => `${CONFIDENCE_SCORE[level]}/3`
-export const CONFIDENCE_SCALE_TIP = 'Confidence on a 1–3 scale: 3 = backed by your own data, 2 = sound practice or partly backed, 1 = an untested hunch.'
+/** Confidence as a percentage. Measured (share of the account's own posts that back it) or Claude's own estimate;
+ * suggestions with neither (best practice, data fixes) show no number rather than an invented one. */
+export const MEASURED_TIP = 'Measured on your own posts: the share of the posts this rests on that back it.'
+export const CLAUDE_TIP = 'Claude’s own estimate, from the evidence it was given. Not a measurement.'

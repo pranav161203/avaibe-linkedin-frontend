@@ -52,7 +52,7 @@ function Picker({ post, onClose }: { post: Post; onClose: () => void }) {
       if (sameFormat.length) groups.push({ title: `Same format: ${FORMAT_LABELS[post.format]}`, posts: sameFormat })
     }
     const before = take(others.filter((p) => p.published_at < post.published_at).sort(newestFirst), 1)
-    if (before.length) groups.push({ title: 'The post just before this one', posts: before })
+    if (before.length) groups.push({ title: 'Previous post', posts: before })
   }
 
   const pick = (other: Post) => navigate(`/compare?ids=${post.id},${other.id}`)
@@ -69,13 +69,13 @@ function Picker({ post, onClose }: { post: Post; onClose: () => void }) {
 
         <div className="relative">
           <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-          <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search any post by ID or words" className="h-10 rounded-xl pl-9" />
+          <Input autoFocus value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search posts by ID or text" className="h-10 rounded-xl pl-9" />
         </div>
 
         {isLoading ? (
           <p className="py-6 text-center text-sm text-muted-foreground">Loading posts…</p>
         ) : groups.every((g) => !g.posts.length) ? (
-          <p className="py-6 text-center text-sm text-muted-foreground">{needle ? `No other post matches “${q.trim()}”.` : 'No other posts yet.'}</p>
+          <p className="py-6 text-center text-sm text-muted-foreground">{needle ? `No other post matches “${q.trim()}”.` : 'No other posts available.'}</p>
         ) : (
           <div className="space-y-4">
             {groups

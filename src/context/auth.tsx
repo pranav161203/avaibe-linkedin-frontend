@@ -62,14 +62,14 @@ export const ROLE_LABELS: Record<Role, string> = {
   viewer: 'Viewer',
   editor: 'Editor',
   admin: 'Admin',
-  superadmin: 'Super admin',
+  superadmin: 'Owner',
 }
 
 export const ROLE_HELP: Record<Role, string> = {
-  viewer: 'Sees dashboards and posts',
-  editor: 'Also writes, schedules and publishes posts, adds numbers and leads',
-  admin: 'Also manages accounts and settings, and viewers and editors',
-  superadmin: 'Also manages admins and other super admins',
+  viewer: 'View dashboards and posts',
+  editor: 'Create, schedule and publish posts; record metrics and leads',
+  admin: 'Manage accounts, settings and members',
+  superadmin: 'Manage all companies, admins and owners',
 }
 
 /** Who may manage whom (the server enforces the same): admins manage viewers and editors, super admins everyone */

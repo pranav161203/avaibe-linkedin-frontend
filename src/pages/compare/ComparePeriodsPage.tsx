@@ -122,7 +122,7 @@ export function ComparePeriodsPage() {
 
   return (
     <div className="mx-auto max-w-page">
-      <PageHeader eyebrow="Data" back="/data" title="Compare periods" description="Two periods side by side: what changed, and what's behind it." />
+      <PageHeader eyebrow="Data" back="/data" title="Compare periods" description="Compare two periods and the factors behind the change." />
 
       <div className="mb-6 flex flex-wrap items-center gap-3 rounded-[1.8rem] bg-card px-5 py-4">
         <PeriodTag letter="A" />
@@ -147,14 +147,14 @@ export function ComparePeriodsPage() {
           <InsightsPanel headline={view.insights.headline} subline={view.insights.subline} findings={view.insights.findings} next={view.insights.next} />
 
           <section>
-            <h2 className="mb-1 text-base font-semibold">The numbers</h2>
+            <h2 className="mb-1 text-base font-semibold">Metrics</h2>
             <p className="mb-3 flex items-start gap-1.5 text-xs text-muted-foreground">
               <Info className="mt-px size-3.5 shrink-0" />
               {lenA === lenB
                 ? `Both periods are ${lenA} day${lenA === 1 ? '' : 's'}.`
-                : `A is ${lenA} day${lenA === 1 ? '' : 's'} and B is ${lenB}, so the change is worked out per day to keep it fair.`}{' '}
-              {Math.min(lenA, lenB) < 7 && 'Short periods swing a lot (one post can change everything), so treat changes as hints.'} Typical post figures are at{' '}
-              {cp === '7d' ? '7 days' : cp} old.{lenA > 2 && ' Click a number to see it day by day.'}
+                : `A is ${lenA} day${lenA === 1 ? '' : 's'} and B is ${lenB}; changes are calculated per day.`}{' '}
+              {Math.min(lenA, lenB) < 7 && 'Short periods are volatile; treat changes as indicative.'} Typical post figures are measured at{' '}
+              {cp === '7d' ? '7 days' : cp}.{lenA > 2 && ' Select a metric to view it by day.'}
             </p>
             {/* One card: the tiles carry both periods' totals; the chart shows the chosen one day by day (needs a few days) */}
             <MetricsChart
@@ -164,7 +164,7 @@ export function ComparePeriodsPage() {
               metrics={PERIOD_METRICS}
               posts={view.sa.posts}
               param="pm"
-              title={lenA > 2 ? 'A against B, day by day' : 'A against B'}
+              title={lenA > 2 ? 'A vs B by day' : 'A vs B'}
               compare={{ from: b.from, to: b.to, label: `B: ${periodLabel(b.from, b.to)}` }}
               summary={view.summary}
               showChart={lenA > 2}
@@ -172,7 +172,7 @@ export function ComparePeriodsPage() {
           </section>
 
           <section>
-            <h2 className="mb-3 text-base font-semibold">What you posted</h2>
+            <h2 className="mb-3 text-base font-semibold">Posts published</h2>
             <div className="grid gap-4 lg:grid-cols-2">
               <PostedSide letter="A" side={view.sa} cp={cp} />
               <PostedSide letter="B" side={view.sb} cp={cp} />

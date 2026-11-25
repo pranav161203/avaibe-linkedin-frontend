@@ -53,7 +53,7 @@ export function PostingTimeHint({
       <div className="mb-1.5 flex items-center gap-1.5 font-medium text-foreground">
         <Clock className="size-3.5 text-muted-foreground" />
         Posting time for {format(parseISO(day), 'EEE d MMM')}
-        {!scheduled && <span className="font-normal text-muted-foreground">(tomorrow; pick a date to check another day)</span>}
+        {!scheduled && <span className="font-normal text-muted-foreground">(tomorrow; select a date to check another day)</span>}
       </div>
       {lines.length > 0 && (
         <ul className="space-y-1">

@@ -71,13 +71,13 @@ export function DayPanel({
 
       <div className="mt-3 space-y-2 border-t pt-3">
         <div className="text-xs font-medium text-muted-foreground">Posts</div>
-        {posts.length === 0 && planned.length === 0 && <p className="text-muted-foreground">Nothing posted or planned.</p>}
+        {posts.length === 0 && planned.length === 0 && <p className="text-muted-foreground">No posts.</p>}
         {posts.map((p) => {
           return (
             <Link key={p.id} to={`/posts/${p.id}`} className="block rounded-lg border px-2.5 py-2 hover:bg-accent/40">
               <div className="text-xs text-muted-foreground">
                 {p.ref && <PostRef id={p.ref} className="mr-1.5" />}
-                {p.account_id === accountId ? 'Our post' : p.account_name} · {postFormat(p.format)}
+                {p.account_id === accountId ? 'Own post' : p.account_name} · {postFormat(p.format)}
                 {p.time && ` · ${p.time}`}
               </div>
               <div className="mt-0.5 line-clamp-2 text-[13px]">{p.title}</div>

@@ -42,7 +42,7 @@ export function InsightsPanel({
           </div>
         </div>
 
-        <h3 className="mt-6 mb-3 text-sm font-semibold">What made the difference</h3>
+        <h3 className="mt-6 mb-3 text-sm font-semibold">Contributing factors</h3>
         {findings.length ? (
           <ol className="space-y-3">
             {findings.map((f) => (
@@ -64,23 +64,23 @@ export function InsightsPanel({
             ))}
           </ol>
         ) : (
-          <p className="text-sm text-muted-foreground">Nothing that differs could be checked against your history.</p>
+          <p className="text-sm text-muted-foreground">None of the differences can be tested against historical data.</p>
         )}
-        {same && same.length > 0 && <p className="mt-3 text-xs text-muted-foreground">The same for all: {same.join(', ').toLowerCase()}, so these didn’t cause the difference.</p>}
+        {same && same.length > 0 && <p className="mt-3 text-xs text-muted-foreground">Identical across posts: {same.join(', ').toLowerCase()}. These did not affect the result.</p>}
         {caution && (
           <p className="mt-4 flex items-start gap-2 rounded-xl bg-warn/10 px-3 py-2 text-xs ring-1 ring-warn/40">
             <TriangleAlert className="mt-px size-3.5 shrink-0" /> {caution}
           </p>
         )}
         <p className="mt-4 text-[11px] text-muted-foreground">
-          The % is measured from your own past posts at the same age: how often posts with that choice got more impressions than the alternative (or than your typical post). 50% means no difference; the higher, the stronger the pattern. Hover a number for details. It shows a pattern, not proof.
+          Percentages show how often past posts with that attribute received more impressions than the alternative, measured at the same age. 50% indicates no difference. Hover over a value for details. Results indicate a pattern, not causation.
         </p>
       </section>
 
       <div className="space-y-4">
         <section className="rounded-[1.8rem] bg-card p-6">
           <h3 className="mb-3 flex items-center gap-2 text-sm font-semibold">
-            <Lightbulb className="size-4 text-primary" /> What to try next
+            <Lightbulb className="size-4 text-primary" /> Recommendations
           </h3>
           <ul className="space-y-3">
             {next.map((n) => {

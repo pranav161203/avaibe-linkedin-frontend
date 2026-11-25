@@ -17,7 +17,7 @@ export function Sources({ leads }: { leads: Lead[] }) {
     return [...m.entries()].sort((a, b) => b[1].n - a[1].n)
   }
   const bySource = group((l) => SOURCE_LABEL[l.source])
-  const byTopic = group((l) => l.post_topic ?? (l.post_id ? 'Post without a topic' : null))
+  const byTopic = group((l) => l.post_topic ?? (l.post_id ? 'Untagged post' : null))
   const byProfile = group((l) => l.via_account_name)
   const max = Math.max(1, ...bySource.map(([, g]) => g.n))
   const List = ({ title, rows, note }: { title: string; rows: [string, { n: number; won: number; uae: number }][]; note?: string }) => (
@@ -48,12 +48,12 @@ export function Sources({ leads }: { leads: Lead[] }) {
     <Card className="mt-4">
       <CardHeader>
         <div className="text-sm font-medium">Where leads come from</div>
-        <p className="text-xs text-muted-foreground">Small numbers are anecdotes: wait for a pattern across several leads before changing what you post.</p>
+        <p className="text-xs text-muted-foreground">Small samples are not conclusive. Wait for a consistent pattern across several leads before changing strategy.</p>
       </CardHeader>
       <CardContent className="grid gap-6 md:grid-cols-3">
         <List title="By source" rows={bySource} />
-        <List title="By post topic" rows={byTopic} note="Link leads to the post they came from to see which topics bring enquiries." />
-        <List title="By profile" rows={byProfile} note="Choose the founder or page a lead came through to compare them." />
+        <List title="By post topic" rows={byTopic} note="Link leads to their source post to see which topics generate enquiries." />
+        <List title="By profile" rows={byProfile} note="Record the page or profile each lead came through to compare them." />
       </CardContent>
     </Card>
   )

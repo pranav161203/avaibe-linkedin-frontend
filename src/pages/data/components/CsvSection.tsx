@@ -15,13 +15,13 @@ export function CsvSection({ accountId, accountName }: { accountId?: number; acc
   return (
     <Section icon={FileText}
       title="App CSV template"
-      description="For posts LinkedIn can't export (e.g. founder profiles) or snapshots kept elsewhere. One row = one post at one checkpoint; rows with the same post URL update that post."
+      description="For posts LinkedIn cannot export, such as founder profiles, or snapshots recorded elsewhere. Each row is one post at one checkpoint; rows with the same post URL update that post."
     >
       <a href="/api/import/template" download className="inline-flex items-center gap-1.5 text-sm underline">
         <Download className="size-4" /> linkedin_posts_template.csv
       </a>
       <ul className="mt-3 list-disc space-y-1 pl-5 text-xs text-muted-foreground">
-        <li>Dates are UAE time as YYYY-MM-DD HH:MM. Leave metrics blank if LinkedIn doesn&apos;t report them.</li>
+        <li>Dates are UAE time as YYYY-MM-DD HH:MM. Leave metrics blank if LinkedIn does not report them.</li>
         <li>
           <b>format</b>: image, carousel, video, poll, newsletter or text
         </li>

@@ -28,7 +28,7 @@ export function CompetitorsPage() {
       <PageHeader
         eyebrow="Brand"
         title="Competitors"
-        description="UAE software, ERP, edtech and IT companies you compete with: what they publicly do, and where AVAIBE can be different. Use public information only."
+        description="Public activity of competing UAE software, ERP, education technology and IT companies, and opportunities to differentiate. Use public information only."
         actions={
           canEdit ? (
             <Button size="sm" onClick={() => setEditing('new')}>
@@ -42,8 +42,7 @@ export function CompetitorsPage() {
         <Skeleton className="h-64 rounded-xl" />
       ) : list.length === 0 ? (
         <EmptyState>
-          No competitors yet. Add the companies UAE buyers compare AVAIBE with. Their names are also given to Claude, so ideas can position against
-          them.
+          No competitors added. Competitor names are shared with Claude to inform positioning in suggestions.
         </EmptyState>
       ) : (
         <div className="grid gap-4 md:grid-cols-2">
@@ -66,7 +65,7 @@ export function CompetitorsPage() {
           onClose={() => setEditing(null)}
           onSave={(c) => {
             const next = editing === 'new' ? [...list, c] : list.map((x) => (x.id === c.id ? c : x))
-            store(next, editing === 'new' ? `${c.name} added` : 'Saved')
+            store(next, editing === 'new' ? `${c.name} added` : 'Changes saved')
             setEditing(null)
           }}
         />

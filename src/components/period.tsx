@@ -171,8 +171,8 @@ export function PeriodSummary({ accountId, range }: { accountId?: number; range:
         <CardTitle className="text-sm font-medium">Summary for this period</CardTitle>
         <div className="text-xs text-muted-foreground">
           {format(parseISO(win.from), 'd MMM yyyy')} – {format(parseISO(win.to), 'd MMM yyyy')}
-          {p ? ', compared with the same number of days before' : ''}
-          {stats.partial && <> · LinkedIn data so far runs to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
+          {p ? ', compared with the preceding period of equal length' : ''}
+          {stats.partial && <> · LinkedIn data available to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
         </div>
       </CardHeader>
       <CardContent>

@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { DateTimePicker } from '@/components/date-time-picker'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { toast } from 'sonner'
 import { CalendarClock, ChevronRight, Eye, Globe, PenSquare } from 'lucide-react'
@@ -61,13 +62,13 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
     if (!goal) {
       setGoalMissing(true)
       document.getElementById('goal')?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-      return toast.error('Choose the goal of the post')
+      return toast.error('Select a goal for the post')
     }
-    if (!caption.trim()) return toast.error('Write the post text first')
+    if (!caption.trim()) return toast.error('Add post text first')
     if (over) return toast.error(`LinkedIn allows ${MAX_CHARS.toLocaleString()} characters`)
     const options = (details.options ?? []).map((o) => o.trim()).filter(Boolean)
     if (format === 'poll' && (!details.question?.trim() || options.length < 2)) return toast.error('A poll needs a question and at least 2 options')
-    if (mode === 'schedule' && !scheduled) return toast.error(manual ? 'Pick the planned date first' : 'Pick a date and time to schedule it')
+    if (mode === 'schedule' && !scheduled) return toast.error(manual ? 'Select a planned date' : 'Select a date and time to schedule')
     const body: PlannedPostInput = {
       account_id: accountId,
       format,
@@ -94,12 +95,12 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
       })
       if (mode === 'schedule' && canApprove) {
         toast.success(
-          manual ? 'Planned. Post it on LinkedIn by hand at that time, then mark it as posted.' : 'Scheduled: the app will publish it at that time.',
+          manual ? 'Planned. Post it manually on LinkedIn at the planned time, then mark it as posted.' : 'Scheduled for automatic publishing.',
         )
       } else if (mode === 'schedule') {
-        toast.success('Saved and sent to an approver. It will be scheduled once they publish it.')
+        toast.success('Submitted for approval. It will be scheduled once approved.')
       } else {
-        toast.success(initial?.status === 'approved' ? 'Saved as unpublished: it is no longer scheduled until it is published again.' : 'Draft saved')
+        toast.success(initial?.status === 'approved' ? 'Saved as unpublished. The post is no longer scheduled.' : 'Draft saved')
       }
       navigate(origin.to)
     } catch (e) {
@@ -122,12 +123,12 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
       </nav>
       <h1 className="text-[32px] leading-tight font-semibold tracking-tight">{initial ? 'Edit post' : 'Create post'}</h1>
       <p className="mt-1 mb-6 text-sm text-muted-foreground">
-        Write, check and schedule a LinkedIn post for {accountName}. AI suggestions run only when you click Analyse.
+        Draft, review and schedule a LinkedIn post for {accountName}.
       </p>
       {initial?.status === 'approved' && (
         <p className="-mt-3 mb-5 rounded-xl bg-warn/10 px-3 py-2 text-xs ring-1 ring-warn/40">
-          This post is scheduled. Saving changes takes it off the schedule
-          {canApprove ? ' (Schedule post puts it back on)' : ' until an approver publishes it again'}; leaving without saving changes nothing.
+          This post is scheduled. Saving changes removes it from the schedule
+          {canApprove ? ' until it is scheduled again' : ' until it is approved again'}.
         </p>
       )}
 
@@ -201,7 +202,7 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
                 </Select>
               </div>
             </div>
-            {manual && <p className="-mt-3 text-xs text-muted-foreground">The app can’t publish this format yet: it will be posted on LinkedIn by hand.</p>}
+            {manual && <p className="-mt-3 text-xs text-muted-foreground">This format must be posted manually on LinkedIn.</p>}
 
             <div>
               <Label className="mb-2 block font-semibold">
@@ -211,11 +212,11 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
                 rows={9}
                 value={caption}
                 onChange={(e) => setCaption(e.target.value)}
-                placeholder={'Hook line first: it is all most people see.\n\n…\n\n#UAE #EdTech'}
+                placeholder={'Start with a strong opening line.\n\n…\n\n#UAE #EdTech'}
                 className="min-h-48 rounded-xl text-[15px] leading-relaxed"
               />
               <div className={cn('mt-1.5 flex justify-between text-xs', over ? 'text-bad-fg' : 'text-muted-foreground')}>
-                <span>Hashtags written as #tag become clickable.</span>
+                <span>Hashtags in the #tag format are linked on LinkedIn.</span>
                 <span className="tabular-nums">
                   {caption.length.toLocaleString()} / {MAX_CHARS.toLocaleString()}
                 </span>
@@ -242,20 +243,23 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
                 <Label className="mb-2 block font-semibold">
                   {manual ? 'Planned date' : 'Publish at'} ({zoneLabel(zone)})
                 </Label>
-                <div className="relative">
-                  <CalendarClock className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
-                  <Input type="datetime-local" value={scheduled} onChange={(e) => setScheduled(e.target.value)} className="h-10 rounded-xl pl-9" />
-                </div>
+                <DateTimePicker
+                  value={scheduled}
+                  onChange={setScheduled}
+                  zoneLabel={zoneLabel(zone)}
+                  placeholder={manual ? 'Select a planned date' : 'Not scheduled yet'}
+                  minDate={initial ? undefined : new Date()}
+                />
                 <p className="mt-1 text-xs text-muted-foreground">
                   {scheduled && zone !== UAE
                     ? `= ${isoToZonedInput(zonedInputToIso(scheduled, zone), UAE).replace('T', ' ')} UAE`
                     : manual
-                      ? 'For planning only: the app won’t post this format.'
-                      : 'Leave empty to keep it as an unscheduled draft.'}
+                      ? 'For planning only. This format is posted manually.'
+                      : 'Leave empty to save as an unscheduled draft.'}
                 </p>
               </div>
               <div className={cn(manual && 'invisible')}>
-                <Label className="mb-2 block font-semibold">Who can see it</Label>
+                <Label className="mb-2 block font-semibold">Visibility</Label>
                 <div className="flex items-center gap-2 [&>label]:flex-1">
                   <Globe className="size-4 shrink-0 text-muted-foreground" />
                   <SimpleSelect
@@ -290,7 +294,7 @@ export function Editor({ accountId, accountName, initial }: { accountId: number;
           </div>
 
           <footer className="mt-auto flex flex-wrap items-center justify-end gap-3 border-t bg-muted/30 px-6 py-4">
-            {!canApprove && canEdit && <span className="mr-auto text-xs text-muted-foreground">An approver checks and publishes it.</span>}
+            {!canApprove && canEdit && <span className="mr-auto text-xs text-muted-foreground">Requires approval before publishing.</span>}
             <Button variant="outline" size="lg" onClick={() => save('draft')} disabled={!canEdit || !!saving}>
               {saving === 'draft' ? 'Saving…' : 'Save as draft'}
             </Button>

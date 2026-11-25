@@ -97,7 +97,7 @@ export function ComparePostsPage() {
 
   return (
     <div className="mx-auto max-w-page">
-      <PageHeader eyebrow="Data" back="/data?tab=posts" title="Compare posts" description="Side by side, at the same age. The best figure in each row is highlighted." />
+      <PageHeader eyebrow="Data" back="/data?tab=posts" title="Compare posts" description="Posts compared at the same age. The best value in each row is highlighted." />
 
       {ids.length < 2 ? (
         <EmptyState>
@@ -135,12 +135,12 @@ export function ComparePostsPage() {
             <Skeleton className="mb-8 h-48 rounded-[1.8rem]" />
           )}
 
-          <h2 className="mb-1 text-base font-semibold">The numbers</h2>
+          <h2 className="mb-1 text-base font-semibold">Metrics</h2>
           <p className="mb-3 flex items-start gap-1.5 text-xs text-muted-foreground">
             <Info className="mt-px size-3.5 shrink-0" />
             {cp
-              ? `Numbers are each post's figures at ${AGE[cp]} old, so they're comparable.`
-              : 'These posts have no age in common, so each shows its latest figures: older posts have had longer to collect them.'}
+              ? `Figures are taken at ${AGE[cp]} after publishing.`
+              : 'These posts have no common checkpoint, so the latest figures are shown. Older posts have had longer to accumulate results.'}
           </p>
           <div className="overflow-x-auto rounded-[1.8rem] bg-card">
             <div className="min-w-fit" style={{ display: 'grid', gridTemplateColumns: cols }}>
@@ -166,7 +166,7 @@ export function ComparePostsPage() {
                 </div>
               ))}
 
-              <GridHeading cols={posts.length}>{cp ? `Numbers at ${AGE[cp]}` : 'Numbers (latest)'}</GridHeading>
+              <GridHeading cols={posts.length}>{cp ? `Metrics at ${AGE[cp]}` : 'Metrics (latest)'}</GridHeading>
               {NUMBERS.map((row) => {
                 const vals = posts.map((p) => row.get(snap(p)))
                 if (vals.every((v) => v == null)) return null
@@ -184,7 +184,7 @@ export function ComparePostsPage() {
                 )
               })}
 
-              <GridHeading cols={posts.length}>About the post</GridHeading>
+              <GridHeading cols={posts.length}>Post details</GridHeading>
               {TEXT_ROWS.map((row) => (
                 <GridRow key={row.label} label={row.label}>
                   {posts.map((p) => (
@@ -196,7 +196,7 @@ export function ComparePostsPage() {
               ))}
             </div>
           </div>
-          <p className="mt-3 text-xs text-muted-foreground">The best figure in each row is marked. These are the facts the findings above are based on.</p>
+          <p className="mt-3 text-xs text-muted-foreground">The best value in each row is marked. The findings above are based on these figures.</p>
         </>
       )}
     </div>

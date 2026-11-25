@@ -59,7 +59,7 @@ export function AudienceEditor({ rows, onChange, withCount = false }: {
         <div className="space-y-2">
           <div className="grid grid-cols-[9rem_1fr_5.5rem_2rem] gap-2 text-xs text-muted-foreground max-sm:hidden" style={withCount ? { gridTemplateColumns: '9rem 1fr 5.5rem 5.5rem 2rem' } : undefined}>
             <span>Breakdown</span>
-            <span>Value as LinkedIn shows it</span>
+            <span>Value (as shown on LinkedIn)</span>
             {withCount && <span>Count</span>}
             <span>%</span>
             <span />

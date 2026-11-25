@@ -1,7 +1,14 @@
 const API_ENDPOINTS = {
   AUTH: {
     GET_ME: '/auth/me',
+    POST_LOGIN: '/auth/login',
+    POST_REFRESH: '/auth/refresh',
     POST_LOGOUT: '/auth/logout',
+    POST_PASSWORD: '/auth/password',
+    GET_INVITATION: '/auth/invitation',
+    POST_SIGNUP: '/auth/signup',
+    /** A full-page redirect, not an XHR call */
+    MICROSOFT_URL: '/api/auth/microsoft',
   },
   TEAM: {
     GET_TEAM: '/team',
@@ -9,6 +16,12 @@ const API_ENDPOINTS = {
     PUT_MEMBER: (id: number) => `/team/${id}`,
     DELETE_MEMBER: (id: number) => `/team/${id}`,
     PUT_DEFAULT_ACCOUNT: '/team/default-account/set',
+    INVITATION: (id: number) => `/team/invitations/${id}`,
+    RENEW_INVITATION: (id: number) => `/team/invitations/${id}/renew`,
+  },
+  COMPANIES: {
+    LIST: '/companies',
+    ONE: (id: number) => `/companies/${id}`,
   },
   ACCOUNTS: {
     GET_ACCOUNTS: '/accounts',

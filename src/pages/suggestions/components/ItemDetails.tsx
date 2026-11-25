@@ -13,7 +13,7 @@ export function RuleDetails({ s }: { s: Suggestion }) {
     <div className="space-y-3">
       <div className="grid gap-2 sm:grid-cols-2">
         <Fact icon={Clock3} label="When" value={s.when} />
-        <Fact icon={Users} label="Who it targets" value={s.who} />
+        <Fact icon={Users} label="Audience" value={s.who} />
       </div>
       <Why items={s.why} />
       <BoostRisk boost={s.boost} risk={s.risk} />
@@ -32,7 +32,7 @@ export function IdeaDetails({ idea, runId, index, accountId }: { idea: Idea; run
       await navigator.clipboard.writeText(idea.draft_caption ?? '')
       toast.success('Caption copied')
     } catch {
-      toast.error('Couldn’t copy. Select the text instead.')
+      toast.error('Copy failed. Select the text manually.')
     }
   }
 
@@ -41,12 +41,12 @@ export function IdeaDetails({ idea, runId, index, accountId }: { idea: Idea; run
       <p className="text-sm">{idea.what}</p>
       <div className="grid gap-2 sm:grid-cols-2">
         <Fact icon={Clock3} label="When" value={idea.when} />
-        <Fact icon={Users} label="Who it targets" value={idea.who} />
+        <Fact icon={Users} label="Audience" value={idea.who} />
       </div>
       <div className="flex gap-2 rounded-lg bg-background/40 px-3 py-2 text-sm ring-1 ring-border">
         <Lightbulb className="mt-0.5 size-4 shrink-0 text-brand-fg" />
         <div>
-          <span className="text-[11px] tracking-wide text-muted-foreground uppercase">What’s new about it · </span>
+          <span className="text-[11px] tracking-wide text-muted-foreground uppercase">What is new · </span>
           {idea.novelty}
         </div>
       </div>
@@ -55,7 +55,7 @@ export function IdeaDetails({ idea, runId, index, accountId }: { idea: Idea; run
       {idea.draft_caption && (
         <div className="rounded-lg border border-border/70 p-3">
           <div className="mb-1.5 flex items-center justify-between gap-2">
-            <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Draft caption (edit before use)</span>
+            <span className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Draft caption (review before use)</span>
             <div className="flex gap-1">
               <Button size="xs" variant="ghost" onClick={copy}>
                 <Copy /> Copy
@@ -75,7 +75,7 @@ export function IdeaDetails({ idea, runId, index, accountId }: { idea: Idea; run
                         {
                           onSuccess: (d) => {
                             setDraftId(d.planned_id)
-                            toast.success('Draft added to Publishing. It still needs editing and approval.')
+                            toast.success('Draft added to Publishing for review and approval.')
                           },
                           onError: (e) => toast.error(e.message),
                         },
@@ -98,7 +98,7 @@ export function IdeaDetails({ idea, runId, index, accountId }: { idea: Idea; run
 function Why({ items }: { items: string[] }) {
   return (
     <div className="rounded-lg bg-brand-soft p-3 ring-1 ring-primary/15">
-      <div className="mb-1.5 text-xs font-semibold tracking-wide text-brand-fg uppercase">Why: the evidence</div>
+      <div className="mb-1.5 text-xs font-semibold tracking-wide text-brand-fg uppercase">Evidence</div>
       <ul className="space-y-1.5 text-sm">
         {items.map((w, i) => {
           const assumption = /^assumption:/i.test(w.trim())

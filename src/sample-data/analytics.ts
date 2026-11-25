@@ -597,6 +597,11 @@ export function suggestions(db: MockDb, accountId: number): SuggestionsResult {
   const untagged = posts.filter((p) => p.format === 'untagged').length
   const suggestedTopics = posts.filter((p) => p.topic_suggested).length
   const noAudience = posts.filter((p) => p.time_known && !p.audience.length).length
+  // Measured: of the posts a suggestion rests on, the % that beat the typical post (same rule as the backend)
+  const share = (match: (p: (typeof posts)[number]) => boolean) => {
+    const vals = posts.filter(match).map((p) => snapAt(p, cp)?.impressions).filter((v): v is number => v != null)
+    return vals.length >= 3 && baseline ? Math.round((100 * vals.filter((v) => v > baseline).length) / vals.length) : null
+  }
   const pct = (v: number | null | undefined) => (v != null && baseline ? `${v >= baseline ? '+' : '−'}${Math.round(Math.abs(v / baseline - 1) * 100)}%` : '')
   const out: Suggestion[] = []
   const base = (s: Partial<Suggestion> & Pick<Suggestion, 'id' | 'category' | 'title'>): Suggestion => ({
@@ -621,7 +626,7 @@ export function suggestions(db: MockDb, accountId: number): SuggestionsResult {
         title: `Post more ${bestFmt.format} posts`,
         why: [`${bestFmt.format[0].toUpperCase()}${bestFmt.format.slice(1)} posts get a median ${Math.round(bestFmt.median_impressions ?? 0).toLocaleString('en')} impressions (${pct(bestFmt.median_impressions)} vs the typical post), over ${bestFmt.posts} posts.`],
         boost: 'More reach per post',
-        confidence: { level: bestFmt.posts >= 8 ? 'high' : 'medium', reason: `${bestFmt.posts} posts in this format` },
+        confidence: { level: bestFmt.posts >= 8 ? 'high' : 'medium', reason: `${bestFmt.posts} posts in this format`, pct: share((p) => p.format === bestFmt.format) },
         action: { label: 'Create a post', to: '/create' },
       }),
     )
@@ -646,6 +651,7 @@ export function suggestions(db: MockDb, accountId: number): SuggestionsResult {
         category: 'topic',
         title: `Plan a short series on “${bestTopic.key}”`,
         topic: bestTopic.key,
+        confidence: { level: bestTopic.posts >= 8 ? 'high' : 'medium', reason: `${bestTopic.posts} posts on this topic`, pct: share((p) => p.topic === bestTopic.key) },
         why: [`Posts on this topic get ${pct(bestTopic.median_impressions)} vs the typical post (${bestTopic.posts} posts).`],
         boost: 'More reach and more relevant comments',
         action: { label: 'Create a post', to: '/create' },

@@ -43,7 +43,7 @@ export function CompetitorCard({ c, canEdit, onEdit, onDelete }: { c: Competitor
           <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs">
             <span>Followers: {c.followers != null ? fmtNumber(c.followers) : '—'}</span>
             <span>Posts / week: {c.posts_per_week ?? '—'}</span>
-            {c.checked_on && <span className="text-muted-foreground">checked {c.checked_on}</span>}
+            {c.checked_on && <span className="text-muted-foreground">Checked {c.checked_on}</span>}
           </div>
           {c.topics && <p className="mt-1 text-xs">Topics: {c.topics}</p>}
           {c.positioning && <p className="mt-1 text-xs italic">“{c.positioning}”</p>}
@@ -51,8 +51,8 @@ export function CompetitorCard({ c, canEdit, onEdit, onDelete }: { c: Competitor
         {(c.strengths || c.opportunity) && (
           <div className="rounded-md bg-muted/60 p-2.5">
             <div className="mb-1 text-xs font-medium text-muted-foreground">Our view (interpretation)</div>
-            {c.strengths && <p className="text-xs">Does well: {c.strengths}</p>}
-            {c.opportunity && <p className="mt-1 text-xs">Where AVAIBE can be different: {c.opportunity}</p>}
+            {c.strengths && <p className="text-xs">Strengths: {c.strengths}</p>}
+            {c.opportunity && <p className="mt-1 text-xs">Opportunity: {c.opportunity}</p>}
           </div>
         )}
       </CardContent>

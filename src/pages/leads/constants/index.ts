@@ -3,8 +3,8 @@ import type { LeadSource, LeadStage } from '@/lib/api'
 export const SOURCE_LABEL: Record<LeadSource, string> = {
   company_post: 'Company page post',
   founder_post: 'Founder’s post',
-  company_page: 'Company page (visit / message)',
-  founder_profile: 'Founder’s profile / message',
+  company_page: 'Company page (visit or message)',
+  founder_profile: 'Founder’s profile (visit or message)',
   website: 'Website',
   referral: 'Referral',
   event: 'Event',

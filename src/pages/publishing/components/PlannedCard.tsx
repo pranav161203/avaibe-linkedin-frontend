@@ -58,8 +58,8 @@ export function PlannedCard({
             const mins = Math.max(1, Math.ceil((new Date(r.retry_at).getTime() - Date.now()) / 60_000))
             toast.info(
               r.status === 'approved'
-                ? `LinkedIn is busy right now, so nothing was posted. The app will try again automatically in about ${plural(mins)}.`
-                : `LinkedIn didn't respond in time. Please wait about ${plural(mins)}, then check the profile before trying again.`,
+                ? `LinkedIn is temporarily unavailable. Nothing was posted. Retrying automatically in about ${plural(mins)}.`
+                : `LinkedIn did not respond in time. Wait about ${plural(mins)} and check the profile before retrying.`,
               { duration: 8000 },
             )
           } else toast.error(r.error ?? 'Publishing failed')
@@ -67,16 +67,16 @@ export function PlannedCard({
         setConfirmPublish(false)
       },
       onError: (e) => {
-        if (e instanceof ApiError && e.status === 409 && e.message.startsWith('LinkedIn is busy')) toast.info(e.message)
+        if (e instanceof ApiError && e.status === 409 && e.message.startsWith('LinkedIn is temporarily unavailable')) toast.info(e.message)
         else toast.error(e.message)
         setConfirmPublish(false)
       },
     })
 
   const badge = autoRetry
-    ? { label: 'Waiting for LinkedIn', cls: 'bg-warn/15 text-warn-fg border-warn/40' }
+    ? { label: 'Awaiting LinkedIn', cls: 'bg-warn/15 text-warn-fg border-warn/40' }
     : waiting && p.status === 'failed'
-      ? { label: 'Try again later', cls: 'bg-warn/15 text-warn-fg border-warn/40' }
+      ? { label: 'Retry later', cls: 'bg-warn/15 text-warn-fg border-warn/40' }
       : STATUS[p.status]
 
   return (
@@ -86,7 +86,7 @@ export function PlannedCard({
           <PostRef id={p.ref} />
           {showFormat && <Badge variant="outline">{PLANNED_FORMAT_LABELS[p.format]}</Badge>}
           <Badge variant="outline" className={badge.cls}>
-            {p.status === 'approved' && p.by_hand ? (dueByHand(p) ? 'Due: post it by hand' : 'Scheduled: post by hand') : badge.label}
+            {p.status === 'approved' && p.by_hand ? (dueByHand(p) ? 'Due: post manually' : 'Scheduled: manual post') : badge.label}
           </Badge>
           <span className="inline-flex items-center gap-1 text-muted-foreground">
             <CalendarClock className="size-4" />
@@ -96,7 +96,7 @@ export function PlannedCard({
                 ? `${p.manual ? 'Planned for ' : ''}${tz.weekday(p.scheduled_at)} ${tz.dual(p.scheduled_at)} · UAE slot ${p.scheduled_slot_uae}`
                 : p.manual
                   ? 'No date planned'
-                  : 'Not scheduled: publish manually'}
+                  : 'Not scheduled'}
           </span>
           {p.visibility === 'CONNECTIONS' && <Badge variant="secondary">Connections only</Badge>}
           {p.goal && <Badge variant="secondary">{POST_GOALS.find((g) => g.value === p.goal)?.label}</Badge>}
@@ -161,7 +161,7 @@ export function PlannedCard({
               variant="ghost"
               aria-label="Delete"
               disabled={remove.isPending}
-              onClick={() => remove.mutate(undefined, { onSuccess: () => toast.success('Deleted'), onError: (e) => toast.error(e.message) })}
+              onClick={() => remove.mutate(undefined, { onSuccess: () => toast.success('Post deleted'), onError: (e) => toast.error(e.message) })}
             >
               <Trash2 />
             </Button>
@@ -185,8 +185,8 @@ export function PlannedCard({
           <div>
             <p>{p.error}</p>
             <p className="mt-1 font-medium">
-              {autoRetry ? 'Next automatic try' : 'You can try again'} in about {plural(waitMins ?? 1)} ({tz.dual(p.retry_at)})
-              {autoRetry && p.attempts > 1 && <span className="font-normal text-muted-foreground"> · try {p.attempts + 1}</span>}
+              {autoRetry ? 'Automatic retry' : 'Retry available'} in about {plural(waitMins ?? 1)} ({tz.dual(p.retry_at)})
+              {autoRetry && p.attempts > 1 && <span className="font-normal text-muted-foreground"> · attempt {p.attempts + 1}</span>}
             </p>
           </div>
         </div>
@@ -198,7 +198,7 @@ export function PlannedCard({
       )}
       {!waiting && p.status === 'approved' && p.attempts > 0 && (
         <p className="mt-3 flex items-center gap-2 rounded-md border border-warn/40 bg-warn/10 px-3 py-2 text-xs">
-          <Hourglass className="size-4 shrink-0 text-warn-fg" /> LinkedIn was busy earlier. Trying again now…
+          <Hourglass className="size-4 shrink-0 text-warn-fg" /> Retrying after an earlier LinkedIn error…
         </p>
       )}
 
@@ -222,13 +222,13 @@ export function PlannedCard({
               else if (how === 'scheduled')
                 toast.success(
                   p.by_hand
-                    ? `Scheduled for ${tz.weekday(p.scheduled_at!)} ${tz.dual(p.scheduled_at!)}. At that time you’ll be reminded to post it on LinkedIn by hand.`
-                    : `Scheduled: the app will publish it ${tz.weekday(p.scheduled_at!)} ${tz.dual(p.scheduled_at!)}.`,
+                    ? `Scheduled for ${tz.weekday(p.scheduled_at!)} ${tz.dual(p.scheduled_at!)}. A reminder will appear to post it manually.`
+                    : `Scheduled for ${tz.weekday(p.scheduled_at!)} ${tz.dual(p.scheduled_at!)}.`,
                   { duration: 8000 },
                 )
               else {
                 copyText(p.caption)
-                toast.success('Copied. Paste it on LinkedIn, then click Mark as posted here.', { duration: 8000 })
+                toast.success('Text copied. After posting on LinkedIn, select Mark as posted.', { duration: 8000 })
               }
             },
             onError: (e) => toast.error(e.message),
@@ -241,8 +241,8 @@ export function PlannedCard({
           <DialogHeader>
             <DialogTitle>Publish to LinkedIn now?</DialogTitle>
             <DialogDescription>
-              This posts {p.visibility === 'PUBLIC' ? 'publicly' : 'to connections'} on <b>{connection?.name}</b>'s LinkedIn profile right
-              away. To remove it afterwards you'd delete it on LinkedIn itself.
+              This posts {p.visibility === 'PUBLIC' ? 'publicly' : 'to connections'} on <b>{connection?.name}</b>'s LinkedIn profile
+              immediately. Once published, it can only be removed on LinkedIn.
             </DialogDescription>
           </DialogHeader>
           <p className="line-clamp-6 rounded-md bg-muted/50 p-3 text-sm whitespace-pre-wrap">{p.caption}</p>

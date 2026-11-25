@@ -13,12 +13,12 @@ import { useSaveSettings } from '@/pages/settings/queries'
 type BrandList = 'services' | 'target_segments' | 'differentiators' | 'proof_points' | 'avoid' | 'languages'
 
 const BRAND_LISTS: { key: BrandList; label: string; hint: string; rows: number }[] = [
-  { key: 'services', label: 'Services', hint: 'What AVAIBE actually sells, one per line. Claude only suggests ideas around these.', rows: 5 },
-  { key: 'target_segments', label: 'Target audiences', hint: 'Who the ideas should reach.', rows: 4 },
-  { key: 'differentiators', label: 'What makes AVAIBE different', hint: 'Real strengths a customer would recognise.', rows: 4 },
-  { key: 'proof_points', label: 'Proof points', hint: 'Projects, clients, results. Mark anything that needs permission before naming it.', rows: 4 },
-  { key: 'avoid', label: 'Avoid', hint: 'Claims, topics or tactics Claude must never suggest.', rows: 4 },
-  { key: 'languages', label: 'Languages', hint: 'e.g. English, Arabic. Max 5.', rows: 2 },
+  { key: 'services', label: 'Services', hint: 'Services the company offers. Ideas are limited to these.', rows: 5 },
+  { key: 'target_segments', label: 'Target audiences', hint: 'Audiences the content should reach.', rows: 4 },
+  { key: 'differentiators', label: 'Differentiators', hint: 'Strengths customers would recognise.', rows: 4 },
+  { key: 'proof_points', label: 'Proof points', hint: 'Projects, clients and results. Mark items that require permission before naming.', rows: 4 },
+  { key: 'avoid', label: 'Avoid', hint: 'Claims, topics or tactics Claude must not suggest.', rows: 4 },
+  { key: 'languages', label: 'Languages', hint: 'For example, English and Arabic. Up to 5.', rows: 2 },
 ]
 
 export function BrandKitForm({ current }: { current: BrandSettings }) {
@@ -41,19 +41,19 @@ export function BrandKitForm({ current }: { current: BrandSettings }) {
       voice,
       ...(Object.fromEntries(BRAND_LISTS.map((f) => [f.key, lines(lists[f.key])])) as Record<BrandList, string[]>),
     }
-    save.mutate({ section: 'brand', body }, { onSuccess: () => toast.success('Brand kit saved. Claude uses it from the next run.'), onError: (e) => toast.error(e.message) })
+    save.mutate({ section: 'brand', body }, { onSuccess: () => toast.success('Brand kit saved'), onError: (e) => toast.error(e.message) })
   }
   const reset = () =>
-    save.mutate({ section: 'brand', reset: true }, { onSuccess: () => toast.success('Restored the starting brand notes'), onError: (e) => toast.error(e.message) })
+    save.mutate({ section: 'brand', reset: true }, { onSuccess: () => toast.success('Default brand kit restored'), onError: (e) => toast.error(e.message) })
 
   return (
     <Section icon={Palette}
-      title="What Claude should know about the brand"
-      description="Only what LinkedIn doesn’t hold: services, voice, strengths and what to avoid. Set once; Claude reads it with every idea run. Don’t put passwords, personal data or confidential deal details here."
+      title="Brand kit"
+      description="Context Claude uses for every run: services, voice, strengths and restrictions. Do not include passwords, personal data or confidential deal details."
       actions={
         canEdit ? (
           <Button size="sm" variant="ghost" onClick={reset} disabled={save.isPending}>
-            <RotateCcw /> Restore starting notes
+            <RotateCcw /> Restore defaults
           </Button>
         ) : undefined
       }
@@ -78,14 +78,13 @@ export function BrandKitForm({ current }: { current: BrandSettings }) {
               <Label className="mb-1 block">{f.label}</Label>
               <p className="mb-1.5 text-xs text-muted-foreground">{f.hint}</p>
               <Textarea rows={f.rows} value={lists[f.key]} onChange={(e) => setLists({ ...lists, [f.key]: e.target.value })} className="text-xs" />
-              <p className="mt-1 text-xs text-muted-foreground">{lines(lists[f.key]).length} entries · one per line</p>
+              <p className="mt-1 text-xs text-muted-foreground">{lines(lists[f.key]).length} entries · One per line</p>
             </div>
           ))}
         </div>
         {lines(lists.services).length === 0 && (
           <p className="rounded-md border border-serious/35 bg-serious/5 px-3 py-2 text-xs">
-            <strong>Services is empty.</strong> Without it suggestions have to guess what AVAIBE sells, and ideas will be more generic. Ask the
-            team for the official service list.
+            <strong>No services listed.</strong> Ideas will be less specific until the company’s services are added.
           </p>
         )}
         {canEdit && (

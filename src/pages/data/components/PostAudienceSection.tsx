@@ -20,7 +20,7 @@ export function AudienceSection({ post }: { post: Post }) {
   const submit = () => {
     const bad = rows.find((r) => !r.value.trim() || parseNum(r.pct) === null || Number.isNaN(parseNum(r.pct)))
     if (bad) {
-      toast.error('Every row needs a value and a percentage')
+      toast.error('Each row requires a value and a percentage')
       return
     }
     save.mutate(
@@ -32,11 +32,11 @@ export function AudienceSection({ post }: { post: Post }) {
   return (
     <Section icon={Users}
       className="mt-4"
-      title="Who saw this post"
+      title="Post audience"
       description={
         <>
-          Copy the audience breakdown from LinkedIn's post analytics (location, industry, seniority…), ideally at 7 days. LinkedIn
-          lists only top values, so shares are minimums (≥).
+          Enter the audience breakdown from LinkedIn post analytics (location, industry, seniority), ideally at 7 days. LinkedIn
+          reports only the top values, so shares are minimums (≥).
           {post.audience_captured_at && <> Last saved {tz.dateTime(post.audience_captured_at)} {tz.label}.</>}
         </>
       }
@@ -44,7 +44,7 @@ export function AudienceSection({ post }: { post: Post }) {
       <div className="space-y-4">
         <ShareSummary shares={post.shares} impressions={snap?.impressions} />
         {snap?.impressions != null && (
-          <p className="text-xs text-muted-foreground">Estimates use {snap.checkpoint} impressions × share.</p>
+          <p className="text-xs text-muted-foreground">Estimates are based on {snap.checkpoint} impressions × share.</p>
         )}
         {canEdit && (
           <>

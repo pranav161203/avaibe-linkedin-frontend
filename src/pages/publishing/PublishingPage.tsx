@@ -39,7 +39,7 @@ export function PublishingPage() {
     <div className="mx-auto max-w-page space-y-4">
       <PageHeader eyebrow="Content"
         title="Publishing"
-        description="Preview a post, then publish it now or at its scheduled time. Text and image posts are published by the app; carousel, video, article and poll posts are posted on LinkedIn by hand, then marked as posted."
+        description="Review, schedule and publish posts. Text and image posts are published automatically; carousel, video, article and poll posts are posted manually and then marked as posted."
       />
 
       <div className="flex flex-wrap items-center gap-3">
@@ -91,8 +91,8 @@ export function PublishingPage() {
 
       {isCompany ? (
         <div className="rounded-lg border border-warn/50 bg-warn/10 px-4 py-3 text-sm">
-          <b>{account.name}</b> is a company page. You can draft, edit and preview posts here, but the app can’t post as the page until
-          LinkedIn’s Community Management API is approved. Until then, Publish copies the text for you to post on LinkedIn by hand.
+          <b>{account.name}</b> is a company page. Automatic publishing to company pages requires LinkedIn Community Management API approval.
+          Until then, Publish copies the text for manual posting.
         </div>
       ) : (
         <ConnectionBanner connection={connection} />
@@ -100,13 +100,13 @@ export function PublishingPage() {
 
       {tab === 'all' || tab === 'text' || tab === 'image' ? (
         <p className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          Scheduled text and image posts are published by the backend, so it must be running at the scheduled time. A post found more
-          than 15 minutes late is marked <b>Missed</b> rather than posted at the wrong time.
+          Scheduled text and image posts require the server to be running at the scheduled time. Posts more than 15 minutes
+          late are marked <b>Missed</b> and are not published.
         </p>
       ) : (
         <p className="rounded-md border bg-muted/40 px-3 py-2 text-xs text-muted-foreground">
-          The app can’t publish {PLANNED_FORMAT_LABELS[tab].toLowerCase()} posts yet. Draft and preview them here, post them on LinkedIn
-          by hand, then click <b>Mark as posted</b> and paste the link, so the post is tracked with the right format.
+          {PLANNED_FORMAT_LABELS[tab]} posts are published manually. After posting on LinkedIn, select <b>Mark as posted</b>
+          and add the post link to enable tracking.
         </p>
       )}
 
@@ -116,7 +116,7 @@ export function PublishingPage() {
         <EmptyState>
           {all.length && (tab !== 'all' || status !== 'all')
             ? 'No posts match these filters.'
-            : 'No posts in the queue. Plan one from the Calendar: New post, or click a day.'}
+            : 'No posts in the queue. Create a post or plan one from the Calendar.'}
         </EmptyState>
       ) : (
         <div className="space-y-3">

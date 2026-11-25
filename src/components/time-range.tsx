@@ -44,7 +44,7 @@ export function inRange(publishedIso: string, r: TimeRange): boolean {
 function label(r: TimeRange): string {
   if (r.preset === 'all') return 'All time'
   if (r.preset !== 'custom') return ROLLING.find((p) => p.value === r.preset)?.label ?? 'Last 90 days'
-  if (!r.from && !r.to) return 'Pick dates'
+  if (!r.from && !r.to) return 'Select dates'
   const f = r.from ? parseISO(r.from) : null
   const t = r.to ? parseISO(r.to) : null
   if (f && t && r.from === r.to) return format(f, 'EEE d MMM yyyy')
@@ -134,10 +134,10 @@ export function TimeRangePicker({ value, onChange, bare = false, minDays = 1 }: 
               <div className="flex flex-wrap items-center justify-between gap-2 border-t px-3 py-2.5">
                 <span className={cn('text-xs tabular-nums', tooShort ? 'text-bad-fg' : 'text-muted-foreground')}>
                   {!draft?.from
-                    ? 'Click a day, or a start and an end date'
+                    ? 'Select a date or a date range'
                     : !draft.to
                       ? `${format(draft.from, 'EEE d MMM yyyy')} · 1 day`
-                      : `${format(draft.from, 'd MMM yyyy')} – ${format(draft.to, 'd MMM yyyy')} · ${draftDays} day${draftDays === 1 ? '' : 's'}${tooShort ? ` (pick at least ${minDays})` : ''}`}
+                      : `${format(draft.from, 'd MMM yyyy')} – ${format(draft.to, 'd MMM yyyy')} · ${draftDays} day${draftDays === 1 ? '' : 's'}${tooShort ? ` (minimum ${minDays} days)` : ''}`}
                 </span>
                 <div className="flex gap-2">
                   <Button size="sm" variant="ghost" onClick={() => setOpen(false)}>

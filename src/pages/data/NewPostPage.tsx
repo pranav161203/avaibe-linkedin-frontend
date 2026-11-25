@@ -20,7 +20,7 @@ export function NewPostPage() {
         title="Log post"
         description={
           <>
-            Already posted on LinkedIn? Record it here to track its numbers on {account.name}. To write a new post, use{' '}
+            Record a post already published on LinkedIn to track its metrics on {account.name}. To write a new post, use{' '}
             <Link to="/create" className="underline underline-offset-2">
               Create post
             </Link>

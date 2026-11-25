@@ -25,14 +25,14 @@ export function Legend({ hidden, toggle, linkedNames }: { hidden: Set<Layer>; to
   const dot = (color: string) => <span className="block size-2 rounded-full" style={{ backgroundColor: color }} />
   return (
     <div className="flex flex-wrap items-center gap-1.5" aria-label="Show or hide on the calendar">
-      {chip('ours', 'Our posts', <span className="block size-2 rounded-sm bg-primary" />)}
+      {chip('ours', 'Own posts', <span className="block size-2 rounded-sm bg-primary" />)}
       {linkedNames.length > 0 &&
         chip('linked', 'Linked profiles', <span className="block size-2 rounded-sm border border-primary" />, linkedNames.join(', '))}
       {chip('planned', 'Planned', <span className="block size-2 rounded-sm border border-dashed border-foreground/60" />)}
       {KINDS.map((k) => chip(k, KIND_META[k].label, dot(KIND_META[k].color)))}
       {chip('hints', 'Best-time hints', <Clock className="size-3" />)}
       {ALL_LAYERS.some((l) => hidden.has(l)) && (
-        <span className="text-xs text-muted-foreground">Click a label to show or hide it</span>
+        <span className="text-xs text-muted-foreground">Select a label to show or hide it</span>
       )}
     </div>
   )

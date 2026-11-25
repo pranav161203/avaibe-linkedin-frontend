@@ -49,10 +49,10 @@ export function PostDetail({ post }: { post: Post }) {
               </>
             ) : (
               <>
-                {post.day_uae} {post.published_at_uae.slice(0, 10)} · time unknown (LinkedIn export)
+                {post.day_uae} {post.published_at_uae.slice(0, 10)} · time not available (LinkedIn export)
               </>
             )}
-            {post.topic_suggested && <> · topic suggested from the caption: edit and save to confirm</>}
+            {post.topic_suggested && <> · topic suggested from the caption; edit and save to confirm</>}
           </>
         }
         actions={
@@ -81,7 +81,7 @@ export function PostDetail({ post }: { post: Post }) {
         <Section icon={LineChart}
           className="lg:col-span-2"
           title="Performance snapshots"
-          description="Record numbers from LinkedIn post analytics at each checkpoint. Leave a field blank if LinkedIn doesn't show it; blank is not zero."
+          description="Record figures from LinkedIn post analytics at each checkpoint. Leave a field blank if LinkedIn does not report it; blank is not treated as zero."
         >
           <div className="overflow-x-auto">
             <Table>
@@ -139,7 +139,7 @@ export function PostDetail({ post }: { post: Post }) {
                         <Button
                           size="xs"
                           variant={isDue ? 'default' : missed ? 'ghost' : 'outline'}
-                          title={missed ? 'Window closed: only enter this if you have a record taken at the time' : undefined}
+                          title={missed ? 'Checkpoint has passed. Enter only figures recorded at the time.' : undefined}
                           onClick={() => setEditingCp(cp)}
                         >
                           {has ? 'Edit' : isDue ? 'Enter (due)' : missed ? 'Missed' : 'Enter'}
@@ -210,7 +210,7 @@ export function PostDetail({ post }: { post: Post }) {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Delete this post?</DialogTitle>
-            <DialogDescription>The post and all of its snapshots will be removed. This can't be undone.</DialogDescription>
+            <DialogDescription>The post and all its snapshots will be permanently deleted.</DialogDescription>
           </DialogHeader>
           <DialogFooter>
             <Button variant="outline" onClick={() => setConfirmDelete(false)}>

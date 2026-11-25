@@ -15,7 +15,7 @@ import { Button, buttonVariants } from '@/components/ui/button'
 import { todayUae } from '@/components/period'
 import { useAuth } from '@/context/auth'
 import { useTz } from '@/context/timezone'
-import { CONFIDENCE_SCALE_TIP, confidenceScore, fmtNumber } from '@/lib/format'
+import { CLAUDE_TIP, fmtNumber } from '@/lib/format'
 import type { PlannedFormat, Post, TrendIdea, TrendType } from '@/lib/api'
 import { cn } from '@/lib/utils'
 import { useGetCalendarItems } from '@/pages/calendar/queries'
@@ -28,7 +28,7 @@ const TYPE_LABEL: Record<TrendType, string> = {
   policy: 'Rules & policy',
   news: 'News',
   linkedin: 'On LinkedIn',
-  culture: 'Pop culture',
+  culture: 'Culture',
   design: 'Design',
   format: 'Format',
   calendar: 'Calendar',
@@ -75,9 +75,9 @@ function ComingUp() {
   const { data } = useGetCalendarItems(today, until)
   const items = (data?.items ?? []).filter((i) => KIND_LABEL[i.kind] && i.end >= today).sort((a, b) => a.start.localeCompare(b.start)).slice(0, 6)
   return (
-    <Section icon={CalendarDays} title="Coming up" sub="UAE moments in the next 45 days, from the Calendar">
+    <Section icon={CalendarDays} title="Coming up" sub="UAE dates in the next 45 days">
       {items.length === 0 ? (
-        <p className="text-sm text-muted-foreground">Nothing in the calendar for the next 45 days.</p>
+        <p className="text-sm text-muted-foreground">No dates in the next 45 days.</p>
       ) : (
         <ul className="divide-y">
           {items.map((i) => {
@@ -112,10 +112,10 @@ function Rising({ accountId }: { accountId: number }) {
   const { data: posts = [] } = useGetPosts(accountId)
   const rows = useMemo(() => risingTopics(posts), [posts])
   return (
-    <Section icon={TrendingUp} title="Rising in your posts" sub="Last 30 days vs each topic's usual, at 7 days old">
+    <Section icon={TrendingUp} title="Rising in your posts" sub="Last 30 days compared with each topic’s median at 7 days">
       {rows.length === 0 ? (
         <p className="text-sm text-muted-foreground">
-          No topic is clearly rising yet. A topic needs at least 2 posts in the last 30 days and 3 earlier ones to compare.
+          No rising topics. Each topic needs at least 2 posts in the last 30 days and 3 earlier posts for comparison.
         </p>
       ) : (
         <ul className="divide-y">
@@ -181,12 +181,12 @@ function FromTheWeb({ accountId }: { accountId: number }) {
   const ageDays = run ? differenceInCalendarDays(new Date(), new Date(run.created_at)) : null
 
   return (
-    <Section icon={Globe} title="From the web" sub="News, industry, LinkedIn, pop culture, design, format and tone trends, found by Claude with sources">
+    <Section icon={Globe} title="From the web" sub="Current trends identified by Claude, with sources">
       {!state ? null : !state.configured ? (
         <div className="flex flex-wrap items-center gap-2 rounded-lg border border-dashed border-primary/30 bg-brand-soft/40 px-3 py-2 text-xs text-muted-foreground">
           <Bot className="size-4 text-brand-fg" />
           <span>
-            Switches on once Claude is connected (your manager adds the API key, with web search on;{' '}
+            Available once Claude is connected with web search enabled ({' '}
             <Link to="/settings?tab=claude" className="underline">
               Settings → Claude
             </Link>
@@ -206,17 +206,17 @@ function FromTheWeb({ accountId }: { accountId: number }) {
                 })
               }
             >
-              <Globe /> {busy ? 'Searching the web… (about a minute)' : run ? 'Find new trends' : 'Find trends'}
+              <Globe /> {busy ? 'Searching…' : run ? 'Find new trends' : 'Find trends'}
             </Button>
           )}
           {run ? (
             <span>
               Last searched {tz.dual(run.created_at)}
               {run.created_by && <> by {run.created_by}</>} · {run.result?.searches ?? 0} searches · about ${run.cost_usd.toFixed(2)}
-              {ageDays != null && ageDays >= 4 && <b className="ml-1 font-medium text-foreground">· {ageDays} days old: worth refreshing (about twice a week)</b>}
+              {ageDays != null && ageDays >= 4 && <b className="ml-1 font-medium text-foreground">· {ageDays} days old. Refresh recommended.</b>}
             </span>
           ) : (
-            <span>Searches the web for what's moving now. Costs a little per search; refresh about twice a week.</span>
+            <span>Searches the web for current trends. Each search has a small cost; twice a week is recommended.</span>
           )}
           {limit && <span>Daily limit reached ({state.daily_limit} searches).</span>}
         </div>
@@ -229,7 +229,7 @@ function FromTheWeb({ accountId }: { accountId: number }) {
           ))}
         </ul>
       )}
-      {run && ideas.length > 0 && open.length === 0 && <p className="text-sm text-muted-foreground">All trend ideas from this search have been decided. Find new trends for more.</p>}
+      {run && ideas.length > 0 && open.length === 0 && <p className="text-sm text-muted-foreground">All trend ideas from this search have been reviewed.</p>}
       {closed.length > 0 && (
         <div className="mt-2">
           <Button size="sm" variant="ghost" className="text-muted-foreground" onClick={() => setShowDecided((v) => !v)}>
@@ -284,9 +284,11 @@ function TrendCard({ idea, k, accountId, status }: { idea: TrendIdea; k: string;
               <Badge variant="outline" className="capitalize">
                 {idea.format} · {idea.voice}
               </Badge>
-              <Badge variant="outline" className="cursor-help tabular-nums" title={CONFIDENCE_SCALE_TIP}>
-                Confidence {confidenceScore(idea.confidence)}
-              </Badge>
+              {idea.confidence_pct != null && (
+                <Badge variant="outline" className="cursor-help tabular-nums" title={CLAUDE_TIP}>
+                  Claude’s estimate: {idea.confidence_pct}%
+                </Badge>
+              )}
             </span>
           </span>
         </button>
@@ -301,13 +303,13 @@ function TrendCard({ idea, k, accountId, status }: { idea: TrendIdea; k: string;
               </Button>
             ) : (
               <>
-                <Button size="sm" variant="outline" title="Posted or acted on: hide it as completed" onClick={() => set('done', 'Marked done')}>
+                <Button size="sm" variant="outline" title="Mark as completed" onClick={() => set('done', 'Marked as completed')}>
                   <CheckCircle2 /> Done
                 </Button>
-                <Button size="sm" variant="ghost" title="Hide it for a week" onClick={() => set('later', 'Hidden for a week')}>
+                <Button size="sm" variant="ghost" title="Snooze for 7 days" onClick={() => set('later', 'Snoozed for 7 days')}>
                   Later
                 </Button>
-                <Button size="sm" variant="ghost" title="Not relevant: hide it" onClick={() => set('dismissed', 'Dismissed')}>
+                <Button size="sm" variant="ghost" title="Dismiss as not relevant" onClick={() => set('dismissed', 'Dismissed')}>
                   Dismiss
                 </Button>
               </>
@@ -324,13 +326,13 @@ function TrendCard({ idea, k, accountId, status }: { idea: TrendIdea; k: string;
       {open && (
         <div className="mt-3 space-y-2.5 border-t border-border/60 pt-3 pl-6 text-sm">
           <p>
-            <b className="font-medium">The trend:</b> {idea.trend}
+            <b className="font-medium">Trend:</b> {idea.trend}
           </p>
           <p>
-            <b className="font-medium">Ties to:</b> {idea.service}
+            <b className="font-medium">Related service:</b> {idea.service}
           </p>
           <p>
-            <b className="font-medium">Look:</b> {idea.look}
+            <b className="font-medium">Visual direction:</b> {idea.look}
           </p>
           <div className="rounded-lg bg-muted/50 p-3">
             <div className="mb-1 flex items-center justify-between gap-2 text-xs font-medium">
@@ -338,7 +340,7 @@ function TrendCard({ idea, k, accountId, status }: { idea: TrendIdea; k: string;
               <Button
                 size="xs"
                 variant="ghost"
-                onClick={() => navigator.clipboard.writeText(idea.image_prompt).then(() => toast.success('Prompt copied'), () => toast.error('Couldn’t copy'))}
+                onClick={() => navigator.clipboard.writeText(idea.image_prompt).then(() => toast.success('Prompt copied'), () => toast.error('Copy failed'))}
               >
                 <Copy /> Copy
               </Button>
@@ -353,9 +355,9 @@ function TrendCard({ idea, k, accountId, status }: { idea: TrendIdea; k: string;
             </ul>
           )}
           <div className="text-xs">
-            <div className="mb-1 font-medium">Sources (check dates and figures before posting)</div>
+            <div className="mb-1 font-medium">Sources (verify dates and figures before posting)</div>
             {idea.sources.length === 0 ? (
-              <p className="text-muted-foreground">No source could be confirmed for this idea; treat it as unverified.</p>
+              <p className="text-muted-foreground">No source confirmed. Treat this idea as unverified.</p>
             ) : (
               <ul className="space-y-0.5">
                 {idea.sources.map((s) => (

@@ -29,7 +29,7 @@ export function GenerateBar({ accountId, state }: { accountId: number; state: Id
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-dashed border-primary/30 bg-brand-soft/40 px-3 py-2 text-xs text-muted-foreground">
         <Bot className="size-4 text-brand-fg" />
         <span>
-          Claude isn’t connected yet, so new ideas can’t be generated (
+          Claude is not connected. Idea generation is unavailable (
           <Link to="/settings?tab=claude" className="underline">
             Settings → Claude
           </Link>
@@ -45,7 +45,7 @@ export function GenerateBar({ accountId, state }: { accountId: number; state: Id
   const submit = (e: FormEvent) => {
     e.preventDefault()
     generate.mutate(focus.trim() || null, {
-      onSuccess: (run) => toast.success(`${run.result?.ideas.length ?? 0} new ideas from Claude, sorted into each area`),
+      onSuccess: (run) => toast.success(`${run.result?.ideas.length ?? 0} ideas generated`),
       onError: (err) => toast.error(err.message),
     })
   }
@@ -58,19 +58,19 @@ export function GenerateBar({ accountId, state }: { accountId: number; state: Id
             value={focus}
             onChange={(e) => setFocus(e.target.value)}
             maxLength={300}
-            placeholder="Optional focus, e.g. UAE school principals before next term"
+            placeholder="Focus (optional), e.g. UAE school principals"
             disabled={busy}
             className="h-8 flex-1"
           />
           <Button type="submit" size="sm" disabled={busy || limitReached} className="shrink-0">
-            <Wand2 /> {busy ? 'Thinking… (30–90 s)' : 'Generate ideas'}
+            <Wand2 /> {busy ? 'Generating…' : 'Generate ideas'}
           </Button>
         </form>
       )}
       <div className="flex flex-wrap gap-x-3 text-xs text-muted-foreground">
         {meta}
         <span>
-          One run fills every area · {state.runs_today} of {state.daily_limit} runs used today
+          {state.runs_today} of {state.daily_limit} runs used today
         </span>
       </div>
     </div>

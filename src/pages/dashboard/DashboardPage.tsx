@@ -107,15 +107,15 @@ export function DashboardPage() {
         </div>
       ) : !stats ? (
         <EmptyState>
-          {daily.length ? 'Pick a start and end date to see this period.' : <>No page data yet. <Link to="/import" className="underline">Import LinkedIn’s page export</Link> to see how the page is doing.</>}
+          {daily.length ? 'Select a start and end date.' : <>No page data available. <Link to="/import" className="underline">Import a LinkedIn page export</Link> to get started.</>}
         </EmptyState>
       ) : (
         <>
           <p className="mb-3 flex items-center gap-1.5 text-xs text-muted-foreground">
             <Info className="size-3.5" />
             {format(parseISO(win!.from), 'd MMM yyyy')} – {format(parseISO(win!.to), 'd MMM yyyy')}
-            {stats.prev ? ', compared with the same number of days before' : ''}
-            {stats.partial && <> · LinkedIn data so far runs to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
+            {stats.prev ? ', compared with the preceding period of equal length' : ''}
+            {stats.partial && <> · LinkedIn data available to {format(parseISO(stats.lastData), 'd MMM yyyy')}</>}
           </p>
 
           {/* Row 1: the headline numbers, each with its day-by-day trend */}

@@ -1,4 +1,11 @@
 import type {
+  Company,
+  CompanyInput,
+  CompanyUpdate,
+  Invitation,
+  InvitationInfo,
+  InviteInput,
+  TeamData,
   Account,
   AccountDoc,
   AccountDocs,
@@ -470,7 +477,8 @@ export { ApiError } from '@/lib/api-error'
 export async function getMe(): Promise<Me> {
   return ok({
     enabled: false,
-    user: { email: ME_EMAIL, name: 'You', role: 'superadmin', can_switch_accounts: true, dev: true },
+    methods: { password: true, microsoft: false },
+    user: { id: null, email: ME_EMAIL, name: 'You', role: 'superadmin', can_switch_accounts: true, dev: true, has_password: false, company: null },
     allowed_account_ids: db().accounts.map((a) => a.id),
     default_account_id: db().defaultAccountId,
   })
@@ -480,15 +488,100 @@ export async function logout() {
   return ok({ signed_out: true })
 }
 
-export async function getTeam() {
-  return ok({ members: db().team, default_account_id: db().defaultAccountId as number | null })
+// Sample data has no real sign-in: these explain that rather than pretend
+const NO_SIGNIN = 'Sign-in is not available with sample data.'
+export async function login(_body: { email: string; password: string }): Promise<{ signed_in: boolean }> {
+  return ok({ signed_in: true })
+}
+export async function changePassword(_body: { current: string; new: string }): Promise<{ changed: boolean }> {
+  return fail(400, NO_SIGNIN)
+}
+export async function getInvitation(_token: string): Promise<InvitationInfo> {
+  return fail(404, `${NO_SIGNIN} Invitation links work only in the live application.`)
+}
+export async function signup(_body: { token: string; name: string; password: string }): Promise<{ signed_in: boolean }> {
+  return fail(400, NO_SIGNIN)
 }
 
-export async function addTeamMember(body: TeamMemberInput): Promise<TeamMember> {
-  if (db().team.some((t) => t.email.toLowerCase() === body.email.toLowerCase())) return fail(400, 'That email is already on the team')
-  const m: TeamMember = { ...body, id: nid(), last_login_at: null }
-  db().team.push(m)
-  return saved(m)
+// Companies and invitations are kept alongside the sample data (the seed has one company: AVAIBE)
+type AuthExtras = { companies?: Company[]; invitations?: (Invitation & { company_id: number | null })[] }
+const extras = () => {
+  const d = db() as MockDb & AuthExtras
+  d.companies ??= [
+    {
+      id: 1, name: 'AVAIBE', slug: 'avaibe', website: null, country: 'AE', industry: 'Software and IT services', is_active: true,
+      default_account_id: d.defaultAccountId, users: d.team.length, accounts: d.accounts.length, pending_invitations: 0,
+      created_at: iso(Date.now() - 300 * DAY), created_by: null, updated_at: iso(Date.now() - 300 * DAY), updated_by: null,
+    },
+  ]
+  d.invitations ??= []
+  return d as MockDb & Required<AuthExtras>
+}
+const sampleToken = () => Array.from(crypto.getRandomValues(new Uint8Array(24)), (b) => b.toString(16).padStart(2, '0')).join('')
+
+export async function getTeam(companyId?: number | null): Promise<TeamData> {
+  const d = extras()
+  const company = companyId ? d.companies.find((c) => c.id === companyId) : undefined
+  const members = company ? d.team.filter((t) => t.role !== 'superadmin') : d.team.filter((t) => t.role === 'superadmin')
+  const invitations = d.invitations.filter((i) => i.company_id === (company?.id ?? null))
+  return ok({
+    members,
+    invitations,
+    company: company ? { id: company.id, name: company.name } : null,
+    default_account_id: company ? (d.defaultAccountId as number | null) : null,
+  })
+}
+
+export async function inviteTeamMember({ companyId, body }: { companyId?: number | null; body: InviteInput }): Promise<Invitation> {
+  const d = extras()
+  if (d.team.some((t) => t.email.toLowerCase() === body.email.toLowerCase())) return fail(409, 'An account with this email already exists')
+  const inv = {
+    id: nid(), email: body.email.toLowerCase(), role: body.role, can_switch_accounts: body.can_switch_accounts,
+    invited_by: ME_EMAIL, created_at: iso(), expires_at: iso(Date.now() + 7 * DAY), company_id: companyId ?? null,
+  }
+  d.invitations = d.invitations.filter((i) => !(i.email === inv.email && i.company_id === inv.company_id))
+  d.invitations.push(inv)
+  return saved({ ...inv, token: sampleToken() })
+}
+
+export async function revokeInvitation(id: number): Promise<void> {
+  const d = extras()
+  d.invitations = d.invitations.filter((i) => i.id !== id)
+  return saved(undefined)
+}
+
+export async function renewInvitation(id: number): Promise<Invitation> {
+  const inv = extras().invitations.find((i) => i.id === id)
+  if (!inv) return fail(404, 'Invitation not found')
+  inv.expires_at = iso(Date.now() + 7 * DAY)
+  return saved({ ...inv, token: sampleToken() })
+}
+
+export async function getCompanies(): Promise<{ companies: Company[] }> {
+  const d = extras()
+  return ok({
+    companies: d.companies.map((c) => ({ ...c, pending_invitations: d.invitations.filter((i) => i.company_id === c.id).length })),
+  })
+}
+
+export async function createCompany(body: CompanyInput): Promise<Company> {
+  const d = extras()
+  if (d.companies.some((c) => c.name.toLowerCase() === body.name.trim().toLowerCase())) return fail(409, 'A company with this name already exists')
+  const c: Company = {
+    id: nid(), name: body.name.trim(), slug: body.name.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''),
+    website: body.website ?? null, country: body.country ?? 'AE', industry: body.industry ?? null, is_active: true,
+    default_account_id: null, users: 0, accounts: 0, pending_invitations: 0,
+    created_at: iso(), created_by: ME_EMAIL, updated_at: iso(), updated_by: ME_EMAIL,
+  }
+  d.companies.push(c)
+  return saved(c)
+}
+
+export async function updateCompany({ id, body }: { id: number; body: CompanyUpdate }): Promise<Company> {
+  const c = extras().companies.find((x) => x.id === id)
+  if (!c) return fail(404, 'Company not found')
+  Object.assign(c, body, { updated_at: iso(), updated_by: ME_EMAIL })
+  return saved(c)
 }
 
 export async function updateTeamMember({ id, body }: { id: number; body: TeamMemberInput }): Promise<TeamMember> {
@@ -503,7 +596,7 @@ export async function removeTeamMember(id: number): Promise<void> {
   return saved(undefined)
 }
 
-export async function setDefaultAccount(accountId: number) {
+export async function setDefaultAccount({ accountId }: { accountId: number; companyId?: number | null }) {
   db().defaultAccountId = accountId
   return saved({ default_account_id: accountId })
 }
@@ -677,7 +770,7 @@ export async function addKnowledge({ title, content, file, accountIds }: { title
   let text = content ?? ''
   let name = title
   if (file) {
-    if (!/\.(txt|md)$/i.test(file.name)) return fail(400, 'Sample data: only .txt and .md files can be read in the browser. PDF and Word need the backend.')
+    if (!/\.(txt|md)$/i.test(file.name)) return fail(400, 'With sample data, only .txt and .md files are supported. PDF and Word files require the live application.')
     text = await file.text()
     name = title || file.name.replace(/\.[^.]+$/, '')
   }
@@ -717,7 +810,7 @@ export async function searchKnowledge(q: string, accountId: number): Promise<{ q
 export const PLAN_TEMPLATE_URL = '/api/planner/import/template'
 
 export async function importPlan({ file }: { accountId: number; file: File; confirm: boolean }): Promise<PlanImportResult> {
-  return fail(400, `Sample data: "${file.name}" was not read. Importing posts needs the backend.`)
+  return fail(400, `"${file.name}" was not imported. Importing posts requires the live application.`)
 }
 
 export async function importCsv({ file }: { accountId: number; file: File }): Promise<ImportResult> {
@@ -821,6 +914,7 @@ export async function getClaudeStatus() {
   return ok({
     configured: true,
     model: SAMPLE_MODEL,
+    daily_limit_per_account: 20,
     key_hint: 'sk-…sample' as string | null,
     usage: {
       month_start_uae: iso(Date.parse(new Date().toISOString().slice(0, 8) + '01T00:00:00+04:00')),
@@ -854,7 +948,7 @@ export async function getTrends(_accountId: number): Promise<TrendsState> {
 }
 
 export async function findTrends(_accountId: number): Promise<TrendsRun> {
-  return fail(400, 'Sample data: finding trends needs the backend and the Claude key.')
+  return fail(400, 'Trend search requires the live application with Claude configured.')
 }
 
 export async function getIdeas(accountId: number) {
@@ -907,7 +1001,7 @@ export async function analysePost({ body }: { body: PostAssistBody; attachment?:
 export async function comparePosts(body: { account_id: number; post_ids: number[]; checkpoint: Checkpoint }): Promise<ComparePostsRun> {
   const d = db()
   const posts = body.post_ids.map(findPost).filter((p): p is StoredPost => !!p).map((p) => A.toPost(d, p))
-  if (posts.length < 2) return fail(400, 'Pick at least two posts')
+  if (posts.length < 2) return fail(400, 'Select at least two posts')
   const imp = (p: Post) => p.snapshots.find((s) => s.checkpoint === body.checkpoint)?.impressions ?? 0
   const [win, ...rest] = [...posts].sort((a, b) => imp(b) - imp(a))
   const ref = (p: Post) => p.ref ?? `Post ${p.id}`
@@ -978,7 +1072,7 @@ export async function createPlannedPost(body: PlannedPostInput): Promise<Planned
 export async function updatePlannedPost({ id, body }: { id: number; body: PlannedPostInput }): Promise<PlannedPost> {
   const prev = findPlanned(id)
   if (!prev) return fail(404, 'Draft not found')
-  if (prev.status === 'published') return fail(400, 'This post is already on LinkedIn and can’t be edited here')
+  if (prev.status === 'published') return fail(400, 'Published posts cannot be edited')
   const p = plannedFrom(body, prev)
   db().planned = db().planned.map((x) => (x.id === id ? p : x))
   return saved(p)
@@ -995,12 +1089,12 @@ export async function plannedPostAction({ id, action, now }: { id: number; actio
   const p = findPlanned(id)
   if (!p) return fail(404, 'Draft not found')
   if (action === 'approve' && now === undefined) {
-    if (!p.caption.trim()) return fail(400, 'Add the post text before scheduling it')
+    if (!p.caption.trim()) return fail(400, 'Add post text before scheduling')
     Object.assign(p, { status: 'approved', approved_at: iso(), error: null })
   } else if (action === 'unapprove') {
     Object.assign(p, { status: 'draft', approved_at: null })
   } else {
-    if (p.by_hand) return fail(400, 'This post has to be posted on LinkedIn by hand, then marked as posted')
+    if (p.by_hand) return fail(400, 'This format must be posted manually on LinkedIn, then marked as posted')
     if (now || !p.scheduled_at || Date.parse(p.scheduled_at) <= Date.now()) publishToPosts(p)
     else Object.assign(p, { status: 'approved', approved_at: iso(), error: null })
   }
@@ -1010,7 +1104,7 @@ export async function plannedPostAction({ id, action, now }: { id: number; actio
 export async function markPlannedPosted({ id, postUrl }: { id: number; postUrl: string }): Promise<PlannedPost> {
   const p = findPlanned(id)
   if (!p) return fail(404, 'Draft not found')
-  if (!/linkedin\.com/.test(postUrl)) return fail(400, 'Paste the link to the post on LinkedIn')
+  if (!/linkedin\.com/.test(postUrl)) return fail(400, 'Enter the LinkedIn post URL')
   publishToPosts(p, postUrl)
   return saved(p)
 }

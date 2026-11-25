@@ -16,9 +16,9 @@ export function LocalDetails() {
       localStorage.setItem(PROFILE_NAME_KEY, name.trim())
       setSaved(name.trim())
       window.dispatchEvent(new Event('profile-changed'))
-      toast.success('Saved')
+      toast.success('Changes saved')
     } catch {
-      toast.error('This browser is blocking local storage, so the name can’t be saved')
+      toast.error('Name could not be saved. Browser storage is blocked.')
     }
   }
 
@@ -38,19 +38,19 @@ export function LocalDetails() {
           </>
         }
       >
-        <DetailRow label="Display name" hint="Shown at the top right">
+        <DetailRow label="Display name" hint="Shown in the header">
           <Input value={name} onChange={(e) => setName(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && changed && save()} placeholder="Your name" className="max-w-sm" />
         </DetailRow>
         <DetailRow label="Role">
-          <span className="text-muted-foreground">Comes from your work account once sign-in is set up</span>
+          <span className="text-muted-foreground">Assigned once sign-in is enabled</span>
         </DetailRow>
-        <DetailRow label="Show times in" hint="Dates and times across the app">
+        <DetailRow label="Show times in" hint="Applies to all dates and times">
           <TimeZoneSelect />
         </DetailRow>
       </DetailsCard>
       <p className="flex items-start gap-1.5 px-1 text-xs text-muted-foreground">
         <Info className="mt-px size-3.5 shrink-0" />
-        Sign-in isn’t set up yet, so your name and photo are saved in this browser only. Time zone changes apply straight away.
+        Sign-in is disabled, so your name and photo are stored in this browser only.
       </p>
     </div>
   )

@@ -60,7 +60,7 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
   const recent = posts.slice(0, 60)
 
   const submit = () => {
-    if (!f.company.trim()) return toast.error('Enter the company')
+    if (!f.company.trim()) return toast.error('Enter a company name')
     save.mutate(
       { id: initial?.id, body: { ...f, company: f.company.trim(), post_id: postish ? f.post_id : null } },
       {
@@ -76,13 +76,13 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
     <Dialog open onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-xl">
         <DialogHeader>
-          <DialogTitle>{initial ? 'Edit lead' : 'Add a lead'}</DialogTitle>
-          <DialogDescription>Business details only. Don’t enter people’s names, emails or phone numbers.</DialogDescription>
+          <DialogTitle>{initial ? 'Edit lead' : 'Add lead'}</DialogTitle>
+          <DialogDescription>Business details only. Do not enter personal names, email addresses or phone numbers.</DialogDescription>
         </DialogHeader>
         <div className="grid gap-3 sm:grid-cols-2">
           <div className="space-y-1.5 sm:col-span-2">
             <Label htmlFor="l-company">Company</Label>
-            <Input id="l-company" autoFocus value={f.company} onChange={(e) => set('company', e.target.value)} placeholder="e.g. a school or business name" />
+            <Input id="l-company" autoFocus value={f.company} onChange={(e) => set('company', e.target.value)} placeholder="Company or school name" />
           </div>
           <div className="space-y-1.5">
             <Label htmlFor="l-date">Received on</Label>
@@ -94,7 +94,7 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
           </div>
           {postish && (
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Which post (optional)</Label>
+              <Label>Post (optional)</Label>
               <SimpleSelect
                 value={String(f.post_id ?? '')}
                 onChange={(v) => set('post_id', v ? Number(v) : null)}
@@ -109,13 +109,13 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
             </div>
           )}
           <div className="space-y-1.5 sm:col-span-2">
-            <Label htmlFor="l-heard">How they heard about you (their words)</Label>
+            <Label htmlFor="l-heard">How they heard about us</Label>
             <Input
               id="l-heard"
               value={f.how_heard ?? ''}
               maxLength={300}
               onChange={(e) => set('how_heard', text(e.target.value))}
-              placeholder="e.g. “Saw the founder’s posts about school systems for a few weeks”"
+              placeholder="For example: Followed the founder’s posts on school systems"
             />
           </div>
           <div className="space-y-1.5">
@@ -135,7 +135,7 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
           <div className="grid gap-3 sm:grid-cols-2">
             {profiles.length > 1 && (
               <div className="space-y-1.5 sm:col-span-2">
-                <Label>Through which page or profile</Label>
+                <Label>Page or profile</Label>
                 <SimpleSelect
                   value={String(f.via_account_id ?? '')}
                   onChange={(v) => set('via_account_id', v ? Number(v) : null)}
@@ -145,15 +145,15 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
             )}
             <div className="space-y-1.5">
               <Label htmlFor="l-industry">Industry</Label>
-              <Input id="l-industry" value={f.industry ?? ''} onChange={(e) => set('industry', text(e.target.value))} placeholder="e.g. Education" />
+              <Input id="l-industry" value={f.industry ?? ''} onChange={(e) => set('industry', text(e.target.value))} placeholder="For example: Education" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="l-role">Their role</Label>
-              <Input id="l-role" value={f.role ?? ''} onChange={(e) => set('role', text(e.target.value))} placeholder="e.g. Principal, CTO" />
+              <Label htmlFor="l-role">Role</Label>
+              <Input id="l-role" value={f.role ?? ''} onChange={(e) => set('role', text(e.target.value))} placeholder="For example: Principal, CTO" />
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="l-service">Service they want</Label>
-              <Input id="l-service" value={f.service ?? ''} onChange={(e) => set('service', text(e.target.value))} placeholder="e.g. LMS, ERP, website" />
+              <Label htmlFor="l-service">Service of interest</Label>
+              <Input id="l-service" value={f.service ?? ''} onChange={(e) => set('service', text(e.target.value))} placeholder="For example: LMS, ERP, website" />
             </div>
             <div className="space-y-1.5">
               <Label>Qualified?</Label>
@@ -161,9 +161,9 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
                 value={f.qualified == null ? 'auto' : f.qualified ? 'yes' : 'no'}
                 onChange={(v) => set('qualified', v === 'auto' ? null : v === 'yes')}
                 options={[
-                  { value: 'auto', label: 'Automatic: UAE-based decision-maker' },
-                  { value: 'yes', label: 'Yes (set by hand)' },
-                  { value: 'no', label: 'No (set by hand)' },
+                  { value: 'auto', label: 'Automatic (UAE-based decision-maker)' },
+                  { value: 'yes', label: 'Yes (manual)' },
+                  { value: 'no', label: 'No (manual)' },
                 ]}
               />
             </div>
@@ -192,16 +192,16 @@ export function LeadDialog({ accountId, initial, onClose }: { accountId: number;
               <SimpleSelect value={f.stage} onChange={(v) => set('stage', v as LeadStage)} options={STAGES.map((x) => ({ value: x, label: STAGE_LABEL[x] }))} />
             </div>
             <div className="space-y-1.5 sm:col-span-2">
-              <Label>Tracked link (filled in when it came from a tagged link on the website)</Label>
+              <Label>UTM parameters (if the lead came from a tagged website link)</Label>
               <div className="grid grid-cols-3 gap-2">
-                <Input aria-label="utm_source" value={f.utm_source ?? ''} onChange={(e) => set('utm_source', text(e.target.value))} placeholder="source, e.g. linkedin" />
-                <Input aria-label="utm_medium" value={f.utm_medium ?? ''} onChange={(e) => set('utm_medium', text(e.target.value))} placeholder="medium, e.g. company_post" />
-                <Input aria-label="utm_campaign" value={f.utm_campaign ?? ''} onChange={(e) => set('utm_campaign', text(e.target.value))} placeholder="campaign / post" />
+                <Input aria-label="utm_source" value={f.utm_source ?? ''} onChange={(e) => set('utm_source', text(e.target.value))} placeholder="Source, e.g. linkedin" />
+                <Input aria-label="utm_medium" value={f.utm_medium ?? ''} onChange={(e) => set('utm_medium', text(e.target.value))} placeholder="Medium, e.g. company_post" />
+                <Input aria-label="utm_campaign" value={f.utm_campaign ?? ''} onChange={(e) => set('utm_campaign', text(e.target.value))} placeholder="Campaign or post" />
               </div>
             </div>
             <div className="space-y-1.5 sm:col-span-2">
               <Label htmlFor="l-notes">Notes</Label>
-              <Textarea id="l-notes" rows={3} value={f.notes ?? ''} onChange={(e) => set('notes', text(e.target.value))} placeholder="What they asked about, next step…" />
+              <Textarea id="l-notes" rows={3} value={f.notes ?? ''} onChange={(e) => set('notes', text(e.target.value))} placeholder="Enquiry details and next steps" />
             </div>
           </div>
         )}
