@@ -26,7 +26,8 @@ export const ROLES: Role[] = ['viewer', 'editor', 'admin', 'superadmin']
 export interface Me {
   enabled: boolean
   /** Which sign-in options the server offers */
-  methods?: { password: boolean; microsoft: boolean }
+  /** password_reset: a mail server is configured, so "Forgot password?" works */
+  methods?: { password: boolean; microsoft: boolean; password_reset?: boolean }
   user: {
     id?: number | null
     email: string

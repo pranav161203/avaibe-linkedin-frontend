@@ -10,6 +10,9 @@ const API_ENDPOINTS = {
     POST_SIGN_OUT_OTHERS: '/auth/sessions/sign-out-others',
     GET_INVITATION: '/auth/invitation',
     POST_SIGNUP: '/auth/signup',
+    POST_RESET_REQUEST: '/auth/password-reset/request',
+    GET_RESET_CHECK: '/auth/password-reset/check',
+    POST_RESET: '/auth/password-reset',
     /** A full-page redirect, not an XHR call */
     MICROSOFT_URL: '/api/auth/microsoft',
   },

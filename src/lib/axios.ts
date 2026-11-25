@@ -17,9 +17,12 @@ axiosAuth.interceptors.request.use((config) => {
   return config
 })
 
+/** Pages that work without being signed in: never bounce them to sign-in */
+const PUBLIC_PATHS = ['/signin', '/signup', '/forgot-password', '/reset-password']
+
 export const redirectToLogin = () => {
   const path = window.location.pathname
-  if (path !== '/signin' && path !== '/signup') window.location.href = '/signin'
+  if (!PUBLIC_PATHS.includes(path)) window.location.href = '/signin'
 }
 
 /** Renew the access token with the refresh-token cookie. Calls that arrive together share one request,

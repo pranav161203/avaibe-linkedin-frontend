@@ -74,7 +74,14 @@ export function SignInPage() {
           />
         </div>
         <div className="space-y-1.5">
-          <Label htmlFor="password">Password</Label>
+          <div className="flex items-baseline justify-between">
+            <Label htmlFor="password">Password</Label>
+            {me?.methods?.password_reset && (
+              <button type="button" className="text-xs text-muted-foreground underline-offset-2 hover:underline" onClick={() => navigate('/forgot-password')}>
+                Forgot password?
+              </button>
+            )}
+          </div>
           <PasswordInput
             id="password"
             autoComplete="current-password"

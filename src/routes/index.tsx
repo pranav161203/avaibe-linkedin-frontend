@@ -11,6 +11,8 @@ export function AppRoutes() {
         <Routes>
           <Route path="signin" element={<P.SignInPage />} />
           <Route path="signup" element={<P.SignUpPage />} />
+          <Route path="forgot-password" element={<P.ForgotPasswordPage />} />
+          <Route path="reset-password" element={<P.ResetPasswordPage />} />
           <Route element={<Layout />}>
             <Route index element={<P.DashboardPage />} />
             <Route path="data" element={<P.DataPage />} />

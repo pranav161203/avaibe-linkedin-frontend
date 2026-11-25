@@ -512,6 +512,15 @@ export async function getInvitation(_token: string): Promise<InvitationInfo> {
 export async function signup(_body: { token: string; name: string; password: string }): Promise<{ signed_in: boolean }> {
   return fail(400, NO_SIGNIN)
 }
+export async function requestPasswordReset(_email: string): Promise<{ requested: boolean }> {
+  return fail(400, NO_SIGNIN)
+}
+export async function checkPasswordReset(_token: string): Promise<{ email: string }> {
+  return fail(404, `${NO_SIGNIN} Reset links only work on the live app.`)
+}
+export async function resetPassword(_body: { token: string; password: string }): Promise<{ signed_in: boolean }> {
+  return fail(400, NO_SIGNIN)
+}
 
 // Companies and invitations are kept alongside the sample data (the seed has one company: AVAIBE)
 type AuthExtras = { companies?: Company[]; invitations?: (Invitation & { company_id: number | null })[] }

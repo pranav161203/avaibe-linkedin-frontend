@@ -127,6 +127,23 @@ export async function signup(body: { token: string; name: string; password: stri
   return res.data
 }
 
+/** Same reply whether or not the email has an account */
+export async function requestPasswordReset(email: string): Promise<{ requested: boolean }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_RESET_REQUEST, { email })
+  return res.data
+}
+
+/** The account a reset link is for, if the link still works */
+export async function checkPasswordReset(token: string): Promise<{ email: string }> {
+  const res = await axiosAuth.get(API_ENDPOINTS.AUTH.GET_RESET_CHECK, { params: { token } })
+  return res.data
+}
+
+export async function resetPassword(body: { token: string; password: string }): Promise<{ signed_in: boolean }> {
+  const res = await axiosAuth.post(API_ENDPOINTS.AUTH.POST_RESET, body)
+  return res.data
+}
+
 /** companyId: a super admin looking at one company's team; omitted = your own (super admins: the super admins) */
 export async function getTeam(companyId?: number | null): Promise<TeamData> {
   const res = await axiosAuth.get(API_ENDPOINTS.TEAM.GET_TEAM, { params: { company_id: companyId ?? undefined } })
